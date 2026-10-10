@@ -18,7 +18,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import useAuth from "../hooks/useAuth";
 
 import MapLibreMap from "../components/map/MapLibreMap";
@@ -403,6 +403,9 @@ export default function MapExplorer() {
                       >
                         <div className="ca-family-heading">
                           <h3>{family.family_name}</h3>
+                          <Link className="ca-edit-secondary" to={`/households/${family.id}`}>
+                            View household{canRegister ? " / Edit" : ""}
+                          </Link>
                           <span>{family.family_code}</span>
                         </div>
 

@@ -16,6 +16,7 @@ import Dashboard from "./pages/Dashboard";
 import MapExplorer from "./pages/MapExplorer";
 import Households from "./pages/Households";
 import RegisterHousehold from "./pages/RegisterHousehold";
+import HouseholdProfile from "./pages/HouseholdProfile";
 import People from "./pages/People";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
@@ -53,6 +54,11 @@ export default function App() {
             <Route
               path="households/new"
               element={<RegisterHousehold />}
+            />
+
+            <Route
+              path="households/:familyId"
+              element={<HouseholdProfile />}
             />
 
             <Route

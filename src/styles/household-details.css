@@ -1,0 +1,54 @@
+/* Step 7.2 — complements existing layout.css, components.css, map.css */
+.ca-household-profile { display:flex; flex-direction:column; gap:18px; max-width:1060px; margin:0 auto; }
+.ca-profile-heading { display:flex; align-items:start; justify-content:space-between; gap:20px; }
+.ca-profile-heading small { color:#087f69; font-size:11px; font-weight:800; }
+.ca-profile-heading h1 { font-size:28px; color:#19283b; margin:7px 0; }
+.ca-profile-heading p { color:#77869b; font-size:13px; margin:0; }
+.ca-records-heading, .ca-records-tools, .ca-record-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+.ca-records-tools { justify-content:space-between; }
+.ca-records-search { margin:0; width:min(380px,100%); }
+.ca-archive-toggle, .ca-edit-radio, .ca-edit-warning { display:flex; align-items:center; gap:9px; color:#56697b; font-size:13px; }
+.ca-archive-toggle input, .ca-edit-radio input, .ca-edit-warning input { accent-color:#087f69; }
+.ca-household-row .record-content { width:100%; }
+.ca-household-row .ca-record-actions { margin-top:14px; }
+.ca-edit-form { display:flex; flex-direction:column; gap:18px; padding:24px; background:#fff; border:1px solid #e5eaf0; border-radius:16px; }
+.ca-edit-form h2 { font-size:19px; margin:0; color:#19283b; }
+.ca-edit-form h3 { font-size:15px; margin:0; color:#27394b; }
+.ca-edit-form p { margin:0; color:#67798b; line-height:1.65; }
+.ca-edit-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.ca-edit-wide { grid-column:1/-1; }
+.ca-edit-grid label, .ca-remove-box label { display:flex; flex-direction:column; gap:8px; font-size:12px; font-weight:700; color:#33475a; }
+.ca-edit-grid input, .ca-remove-box input { width:100%; min-height:44px; padding:10px 12px; border:1px solid #dbe4ec; border-radius:9px; outline:none; font:inherit; color:#19283b; }
+.ca-edit-grid input:focus, .ca-remove-box input:focus { border-color:#087f69; box-shadow:0 0 0 3px #087f691a; }
+.ca-edit-grid input:disabled { opacity:.55; }
+.ca-edit-subheading { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+.ca-edit-member { background:#f9fbfc; border:1px solid #e5eaf0; padding:16px; border-radius:12px; display:flex; flex-direction:column; gap:12px; }
+.ca-edit-member.is-archived { background:#f6f6f6; }
+.ca-edit-muted { color:#8290a2 !important; font-size:12px; }
+.ca-edit-primary, .ca-edit-secondary, .ca-edit-danger { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:40px; padding:9px 13px; border-radius:9px; font-weight:700; font-size:12px; cursor:pointer; text-decoration:none; }
+.ca-edit-primary { color:#fff; background:#087f69; border:1px solid #087f69; align-self:flex-start; }
+.ca-edit-secondary { background:#eaf7f1; color:#087f69; border:1px solid #b8ddcf; }
+.ca-edit-danger { color:#b91c1c; background:#fef2f2; border:1px solid #f5bcbc; }
+.ca-edit-primary:disabled, .ca-edit-secondary:disabled, .ca-edit-danger:disabled { opacity:.55; cursor:not-allowed; }
+.ca-remove-confirm { align-self:flex-start; }
+.ca-remove-box { border-color:#f7c7c7; }
+.ca-edit-warning { padding:12px; background:#fff8e7; border:1px solid #f5daa8; border-radius:9px; }
+.ca-edit-error { padding:12px; background:#fff1f2; border:1px solid #fecaca; color:#b91c1c !important; border-radius:9px; font-size:12px; }
+.ca-edit-success { padding:12px; background:#eaf7f1; border:1px solid #b8ddcf; color:#087f69; border-radius:9px; font-size:12px; }
+.ca-profile-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:0; }
+.ca-profile-grid div { background:#f6f8fa; padding:12px; border-radius:9px; }
+.ca-profile-grid dt { font-size:11px; color:#8794a4; margin-bottom:5px; }
+.ca-profile-grid dd { font-size:13px; color:#27394b; font-weight:700; margin:0; }
+.ca-profile-member-list { list-style:none; margin:0; padding:0; }
+.ca-profile-member-list li { display:flex; justify-content:space-between; flex-wrap:wrap; gap:7px; padding:12px 0; border-top:1px solid #ecf0f3; }
+.ca-profile-member-list strong { color:#25384a; font-size:13px; }
+.ca-profile-member-list span { color:#8391a1; font-size:12px; }
+@media (max-width:700px) {
+  .ca-profile-heading { flex-direction:column; }
+  .ca-edit-grid, .ca-profile-grid { grid-template-columns:1fr; }
+  .ca-edit-wide { grid-column:auto; }
+  .ca-edit-form { padding:17px; }
+  .ca-records-search { width:100%; }
+  .ca-records-heading { align-items:flex-start; }
+  .ca-edit-primary, .ca-remove-confirm { width:100%; }
+}
