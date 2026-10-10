@@ -1,9 +1,5 @@
 
-import {
-  useEffect,
-  useState,
-} from "react";
-
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 
 import {
@@ -36,9 +32,7 @@ export default function People() {
 
   const [families, setFamilies] = useState([]);
 
-  const [searchInput, setSearchInput] =
-    useState("");
-
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [familyId, setFamilyId] = useState("");
 
@@ -50,22 +44,25 @@ export default function People() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [familyError, setFamilyError] =
-    useState("");
+  const [familyError, setFamilyError] = useState("");
 
-  // ----------------------------------------
-  // Load family filter options
-  // ----------------------------------------
+  // ==========================================
+  // 1. LOAD ACTIVE FAMILIES
+  // ==========================================
 
   useEffect(() => {
     let active = true;
 
     getActiveFamilies()
       .then((data) => {
-        if (active) setFamilies(data);
+        if (active) {
+          setFamilies(data);
+        }
       })
       .catch((err) => {
-        if (active) setFamilyError(err.message);
+        if (active) {
+          setFamilyError(err.message);
+        }
       });
 
     return () => {
@@ -73,9 +70,9 @@ export default function People() {
     };
   }, []);
 
-  // ----------------------------------------
-  // Debounce search to reduce API requests
-  // ----------------------------------------
+  // ==========================================
+  // 2. SEARCH DEBOUNCE
+  // ==========================================
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -86,9 +83,9 @@ export default function People() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // ----------------------------------------
-  // Load people from Supabase
-  // ----------------------------------------
+  // ==========================================
+  // 3. FETCH PAGINATED INDIVIDUALS
+  // ==========================================
 
   useEffect(() => {
     let active = true;
@@ -140,9 +137,14 @@ export default function People() {
     total
   );
 
+  // ==========================================
+  // 4. PAGE
+  // ==========================================
+
   return (
     <div className="records-page ca-people-page">
-      {/* PAGE HEADER */}
+      {/* HEADER */}
+
       <header className="section-heading ca-people-heading">
         <div>
           <span className="ca-ind-eyebrow">
@@ -169,6 +171,7 @@ export default function People() {
       </header>
 
       {/* SEARCH AND FILTERS */}
+
       <section className="ca-people-filters">
         <div className="ca-people-search">
           <Search size={18} />
@@ -206,6 +209,8 @@ export default function People() {
         </select>
       </section>
 
+      {/* FAMILY FILTER ERROR */}
+
       {familyError && (
         <div
           className="ca-ind-alert"
@@ -217,6 +222,7 @@ export default function People() {
       )}
 
       {/* SUMMARY */}
+
       <div className="ca-people-summary">
         <div>
           <Users size={19} />
@@ -233,194 +239,207 @@ export default function People() {
         </span>
       </div>
 
-      {/* LOADING / ERROR */}
+      {/* LOADING */}
+
       {loading && (
-        <div
-          className="page-card"
-          role="status"
-        >
+        <div className="page-card" role="status">
           Loading registered individuals...
         </div>
       )}
 
+      {/* ERROR */}
+
       {error && (
-        <div
-          className="page-card"
-          role="alert"
-        >
-          <AlertCircle
-            size={22}
-            color="#dc2626"
-          />
+        <div className="page-card" role="alert">
+          <AlertCircle size={22} color="#dc2626" />
 
           <p>{error}</p>
         </div>
       )}
 
       {/* EMPTY STATE */}
-      {!loading &&
-        !error &&
-        people.length === 0 && (
-          <div className="ca-ind-state">
-            <Users size={42} />
 
-            <h2>No Individuals Found</h2>
+      {!loading && !error && people.length === 0 && (
+        <div className="ca-ind-state">
+          <Users size={42} />
 
-            <p>
-              Try changing your search or
-              family filter.
-            </p>
+          <h2>No Individuals Found</h2>
 
-            {canEdit && (
-              <Link
-                to="/people/new"
-                className="ca-ind-primary"
+          <p>
+            Try changing your search
+            or family filter.
+          </p>
+
+          {canEdit && (
+            <Link
+              to="/people/new"
+              className="ca-ind-primary"
+            >
+              Register Individual
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* PEOPLE CARDS */}
+
+      {!loading && !error && people.length > 0 && (
+        <>
+          <div className="ca-people-grid">
+            {people.map((person) => (
+              <article
+                key={person.id}
+                className="ca-person-card"
               >
-                Register Individual
-              </Link>
-            )}
-          </div>
-        )}
+                {/* PERSON IDENTITY */}
 
-      {/* PEOPLE GRID */}
-      {!loading &&
-        !error &&
-        people.length > 0 && (
-          <>
-            <div className="ca-people-grid">
-              {people.map((person) => (
-                <article
-                  key={person.id}
-                  className="ca-person-card"
-                >
-                  <div className="ca-person-top">
-                    <div className="ca-person-avatar">
-                      <Users size={22} />
-                    </div>
-
-                    <div className="ca-person-identity">
-                      <h3>
-                        {person.full_name}
-                      </h3>
-
-                      <span>
-                        {person.person_code}
-                      </span>
-                    </div>
+                <div className="ca-person-top">
+                  <div className="ca-person-avatar">
+                    <Users size={22} />
                   </div>
 
-                  {person.is_head && (
-                    <span className="ca-person-head">
-                      Head of Family
+                  <div className="ca-person-identity">
+                    <h3>{person.full_name}</h3>
+
+                    <span>
+                      {person.person_code}
                     </span>
-                  )}
-
-                  <div className="ca-person-details">
-                    <p>
-                      <House size={16} />
-
-                      <span>
-                        {person.family?.family_name ||
-                          "Family unavailable"}
-                      </span>
-                    </p>
-
-                    <p>
-                      <Users size={16} />
-
-                      <span>
-                        {person.relationship_to_head ||
-                          "Relationship not recorded"}
-                      </span>
-                    </p>
-
-                    <p>
-                      <MapPin size={16} />
-
-                      <span>
-                        {[
-                          person.family?.location
-                            ?.village,
-                          person.family?.location
-                            ?.district,
-                        ]
-                          .filter(Boolean)
-                          .join(", ") ||
-                          "Location unavailable"}
-                      </span>
-                    </p>
-
-                    {person.date_of_birth && (
-                      <p>
-                        <CalendarDays size={16} />
-
-                        <span>
-                          Born: {person.date_of_birth}
-                        </span>
-                      </p>
-                    )}
                   </div>
+                </div>
 
+                {/* HEAD OF FAMILY BADGE */}
+
+                {person.is_head && (
+                  <span className="ca-person-head">
+                    Head of Family
+                  </span>
+                )}
+
+                {/* PERSON DETAILS */}
+
+                <div className="ca-person-details">
+                  <p>
+                    <House size={16} />
+
+                    <span>
+                      {person.family?.family_name ||
+                        "Family unavailable"}
+                    </span>
+                  </p>
+
+                  <p>
+                    <Users size={16} />
+
+                    <span>
+                      {person.relationship_to_head ||
+                        "Relationship not recorded"}
+                    </span>
+                  </p>
+
+                  <p>
+                    <MapPin size={16} />
+
+                    <span>
+                      {[
+                        person.family?.location?.village,
+                        person.family?.location?.district,
+                      ]
+                        .filter(Boolean)
+                        .join(", ") ||
+                        "Location unavailable"}
+                    </span>
+                  </p>
+
+                  {person.date_of_birth && (
+                    <p>
+                      <CalendarDays size={16} />
+
+                      <span>
+                        Born: {person.date_of_birth}
+                      </span>
+                    </p>
+                  )}
+                </div>
+
+                {/* STEP 8.2 - PROFILE LINKS */}
+
+                <div className="ca-ip-directory-actions">
                   <Link
-                    className="ca-person-family-link"
-                    to={`/households/${person.family_id}`}
+                    to={`/people/${person.id}`}
+                    className="ca-ip-directory-profile"
                   >
-                    View Household
+                    <Users size={16} />
+
+                    View Profile
+
                     <ChevronRight size={16} />
                   </Link>
-                </article>
-              ))}
-            </div>
 
-            {/* PAGINATION */}
-            <div className="ca-people-pagination">
-              <span>
-                Showing {firstItem}–{lastItem}
-                {" of "}
-                {total}
-              </span>
+                  <Link
+                    to={`/households/${person.family_id}`}
+                    className="ca-person-family-link"
+                  >
+                    <House size={16} />
 
-              <div>
-                <button
-                  type="button"
-                  disabled={page <= 1}
-                  onClick={() =>
-                    setPage((current) =>
-                      Math.max(1, current - 1)
+                    View Household
+
+                    <ChevronRight size={16} />
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {/* PAGINATION */}
+
+          <div className="ca-people-pagination">
+            <span>
+              Showing {firstItem}–{lastItem}
+              {" of "}
+              {total}
+            </span>
+
+            <div>
+              <button
+                type="button"
+                disabled={page <= 1}
+                onClick={() =>
+                  setPage((current) =>
+                    Math.max(1, current - 1)
+                  )
+                }
+                aria-label="Previous page"
+              >
+                <ChevronLeft size={17} />
+
+                Previous
+              </button>
+
+              <strong>
+                {page} / {totalPages}
+              </strong>
+
+              <button
+                type="button"
+                disabled={page >= totalPages}
+                onClick={() =>
+                  setPage((current) =>
+                    Math.min(
+                      totalPages,
+                      current + 1
                     )
-                  }
-                  aria-label="Previous page"
-                >
-                  <ChevronLeft size={17} />
-                  Previous
-                </button>
+                  )
+                }
+                aria-label="Next page"
+              >
+                Next
 
-                <strong>
-                  {page} / {totalPages}
-                </strong>
-
-                <button
-                  type="button"
-                  disabled={
-                    page >= totalPages
-                  }
-                  onClick={() =>
-                    setPage((current) =>
-                      Math.min(
-                        totalPages,
-                        current + 1
-                      )
-                    )
-                  }
-                  aria-label="Next page"
-                >
-                  Next
-                  <ChevronRight size={17} />
-                </button>
-              </div>
+                <ChevronRight size={17} />
+              </button>
             </div>
-          </>
-        )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

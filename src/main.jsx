@@ -17,7 +17,7 @@ import "./styles/auth.css";
 import "./styles/household-form.css";
 import "./styles/household-details.css";
 import "./styles/individual.css";
-
+import "./styles/person-profile.css";
 
 
 

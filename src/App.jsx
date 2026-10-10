@@ -21,6 +21,7 @@ import HouseholdProfile from "./pages/HouseholdProfile";
 
 import People from "./pages/People";
 import RegisterIndividual from "./pages/RegisterIndividual";
+import IndividualProfile from "./pages/IndividualProfile";
 
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
@@ -29,7 +30,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public authentication pages */}
+        {/* Public authentication */}
         <Route
           path="/login"
           element={<Login />}
@@ -40,7 +41,7 @@ export default function App() {
           element={<SetPassword />}
         />
 
-        {/* Protected application pages */}
+        {/* Authenticated application */}
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
             <Route
@@ -48,12 +49,13 @@ export default function App() {
               element={<Dashboard />}
             />
 
+            {/* MAP */}
             <Route
               path="map"
               element={<MapExplorer />}
             />
 
-            {/* Household management */}
+            {/* HOUSEHOLDS */}
             <Route
               path="households"
               element={<Households />}
@@ -69,7 +71,7 @@ export default function App() {
               element={<HouseholdProfile />}
             />
 
-            {/* Individual management */}
+            {/* PEOPLE */}
             <Route
               path="people"
               element={<People />}
@@ -80,7 +82,12 @@ export default function App() {
               element={<RegisterIndividual />}
             />
 
-            {/* Other application pages */}
+            <Route
+              path="people/:personId"
+              element={<IndividualProfile />}
+            />
+
+            {/* OTHER PAGES */}
             <Route
               path="reports"
               element={<Reports />}
@@ -93,7 +100,6 @@ export default function App() {
           </Route>
         </Route>
 
-        {/* Unknown URLs */}
         <Route
           path="*"
           element={

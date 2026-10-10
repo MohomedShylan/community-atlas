@@ -1,0 +1,605 @@
+
+/* =========================================
+   COMMUNITY ATLAS
+   STEP 8.2 - INDIVIDUAL PROFILE
+========================================= */
+
+.ca-ip-page {
+  width: 100%;
+  max-width: 1400px;
+  min-width: 0;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* -----------------------------------------
+   BACK NAVIGATION
+----------------------------------------- */
+
+.ca-ip-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  color: #708197;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ca-ip-back:hover {
+  color: #087f69;
+}
+
+/* -----------------------------------------
+   PROFILE HEADER
+----------------------------------------- */
+
+.ca-ip-header {
+  display: flex;
+  align-items: center;
+  gap: 19px;
+  padding: 25px;
+  border: 1px solid #e4eaf0;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.ca-ip-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 18px;
+  background: #e6f5ee;
+  color: #087f69;
+}
+
+.ca-ip-header-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.ca-ip-eyebrow {
+  display: block;
+  color: #087f69;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+}
+
+.ca-ip-header-info h1 {
+  margin: 8px 0 12px;
+  color: #20364a;
+  font-size: 26px;
+  letter-spacing: -0.5px;
+  overflow-wrap: anywhere;
+}
+
+.ca-ip-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.ca-ip-code,
+.ca-ip-head-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ca-ip-code {
+  background: #f0f3f6;
+  color: #516579;
+}
+
+.ca-ip-head-badge {
+  background: #e7f6ee;
+  color: #087f69;
+}
+
+.ca-ip-header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* -----------------------------------------
+   BUTTONS
+----------------------------------------- */
+
+.ca-ip-button,
+.ca-ip-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 43px;
+  padding: 11px 15px;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ca-ip-button {
+  border: 1px solid #087f69;
+  background: #087f69;
+  color: #fff;
+}
+
+.ca-ip-button:hover {
+  background: #066957;
+}
+
+.ca-ip-button-secondary {
+  border: 1px solid #b9decf;
+  background: #eaf7f1;
+  color: #087f69;
+}
+
+.ca-ip-button-secondary:hover {
+  background: #daf0e5;
+}
+
+/* -----------------------------------------
+   MAIN LAYOUT
+----------------------------------------- */
+
+.ca-ip-layout {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.7fr)
+    minmax(290px, 0.9fr);
+  align-items: start;
+  gap: 19px;
+}
+
+.ca-ip-main,
+.ca-ip-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+  min-width: 0;
+}
+
+.ca-ip-card {
+  min-width: 0;
+  padding: 23px;
+  border: 1px solid #e4eaf0;
+  border-radius: 15px;
+  background: #fff;
+}
+
+.ca-ip-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 23px;
+  color: #087f69;
+}
+
+.ca-ip-card-heading h2 {
+  margin: 0;
+  color: #253b4d;
+  font-size: 16px;
+}
+
+/* -----------------------------------------
+   PERSONAL INFORMATION
+----------------------------------------- */
+
+.ca-ip-fields-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 21px 16px;
+  margin: 0;
+}
+
+.ca-ip-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  padding: 8px 0;
+}
+
+.ca-ip-field-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: #edf7f2;
+  color: #087f69;
+}
+
+.ca-ip-field > div:last-child {
+  min-width: 0;
+}
+
+.ca-ip-field dt {
+  margin: 0 0 7px;
+  color: #8a98a8;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ca-ip-field dd {
+  margin: 0;
+  color: #2b4154;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.ca-ip-field dd a {
+  color: #087f69;
+  text-decoration: none;
+}
+
+.ca-ip-field dd a:hover {
+  text-decoration: underline;
+}
+
+/* -----------------------------------------
+   NOTES
+----------------------------------------- */
+
+.ca-ip-notes {
+  margin: 0;
+  color: #5a6e81;
+  font-size: 13px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.ca-ip-muted {
+  color: #8191a2;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* -----------------------------------------
+   RELATED FAMILY MEMBERS
+----------------------------------------- */
+
+.ca-ip-member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.ca-ip-member {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e7edf1;
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+  background: #fff;
+}
+
+.ca-ip-member:hover {
+  background: #f1f8f5;
+  border-color: #bedfcf;
+}
+
+.ca-ip-member-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #eaf6ef;
+  color: #087f69;
+}
+
+.ca-ip-member-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.ca-ip-member-text strong {
+  display: block;
+  color: #293e51;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.ca-ip-member-text span {
+  display: block;
+  margin-top: 5px;
+  color: #8795a5;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.ca-ip-member > svg:last-child {
+  flex-shrink: 0;
+  color: #8899a7;
+}
+
+/* -----------------------------------------
+   FAMILY SUMMARY
+----------------------------------------- */
+
+.ca-ip-family-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 12px;
+  background: #f2f9f5;
+  border-radius: 11px;
+  text-align: center;
+}
+
+.ca-ip-family-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 13px;
+  background: #def0e6;
+  color: #087f69;
+}
+
+.ca-ip-family-summary h3 {
+  margin: 13px 0 7px;
+  color: #263d4c;
+  font-size: 15px;
+}
+
+.ca-ip-family-summary > span {
+  color: #789183;
+  font-size: 11px;
+}
+
+.ca-ip-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 17px 0;
+  padding: 13px 0;
+  border-bottom: 1px solid #e9eef2;
+  color: #087f69;
+}
+
+.ca-ip-stat span {
+  flex: 1;
+  color: #6d8091;
+  font-size: 12px;
+}
+
+.ca-ip-stat strong {
+  color: #263a4d;
+  font-size: 15px;
+}
+
+.ca-ip-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 0;
+  color: #087f69;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ca-ip-sidebar-link:hover {
+  text-decoration: underline;
+}
+
+/* -----------------------------------------
+   LOCATION INFORMATION
+----------------------------------------- */
+
+.ca-ip-location > p {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: #667c8d;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.ca-ip-location > p svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #087f69;
+}
+
+.ca-ip-coordinates {
+  margin: 19px 0;
+  padding: 14px;
+  background: #f5f8fa;
+  border: 1px solid #e8edf1;
+  border-radius: 10px;
+}
+
+.ca-ip-coordinates small {
+  display: block;
+  margin-bottom: 8px;
+  color: #8c9aaa;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.ca-ip-coordinates strong {
+  display: block;
+  color: #2a4154;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.ca-ip-map-link {
+  width: 100%;
+}
+
+/* -----------------------------------------
+   PEOPLE DIRECTORY LINKS
+----------------------------------------- */
+
+.ca-ip-directory-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: auto;
+}
+
+.ca-ip-directory-profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 39px;
+  padding: 10px;
+  border-radius: 9px;
+  background: #eaf7f1;
+  color: #087f69;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ca-ip-directory-profile:hover {
+  background: #d9f0e5;
+}
+
+.ca-ip-directory-profile svg:last-child {
+  margin-left: auto;
+}
+
+.ca-ip-name-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ca-ip-name-link:hover {
+  color: #087f69;
+  text-decoration: underline;
+}
+
+/* -----------------------------------------
+   LOADING, ERROR AND EMPTY STATES
+----------------------------------------- */
+
+.ca-ip-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 240px;
+  padding: 30px;
+  border: 1px solid #e4eaf0;
+  border-radius: 14px;
+  background: #fff;
+  text-align: center;
+  color: #087f69;
+}
+
+.ca-ip-state h2 {
+  margin: 0;
+  color: #263a4d;
+  font-size: 18px;
+}
+
+.ca-ip-state p {
+  max-width: 480px;
+  margin: 0;
+  color: #8492a3;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* -----------------------------------------
+   RESPONSIVE
+----------------------------------------- */
+
+@media (max-width: 1100px) {
+  .ca-ip-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ca-ip-sidebar {
+    display: grid;
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+@media (max-width: 760px) {
+  .ca-ip-header {
+    flex-wrap: wrap;
+  }
+
+  .ca-ip-header-actions {
+    width: 100%;
+  }
+
+  .ca-ip-sidebar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .ca-ip-page {
+    gap: 16px;
+  }
+
+  .ca-ip-header {
+    gap: 14px;
+    padding: 18px;
+  }
+
+  .ca-ip-avatar {
+    width: 56px;
+    height: 56px;
+  }
+
+  .ca-ip-header-info h1 {
+    font-size: 20px;
+  }
+
+  .ca-ip-header-actions {
+    flex-direction: column;
+  }
+
+  .ca-ip-header-actions > * {
+    width: 100%;
+  }
+
+  .ca-ip-card {
+    padding: 18px;
+  }
+
+  .ca-ip-fields-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}
