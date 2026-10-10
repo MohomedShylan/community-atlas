@@ -1,0 +1,269 @@
+
+/* Tablet and smaller desktop screens */
+
+@media (max-width: 1250px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hero-illustration {
+    right: -35px;
+    opacity: 0.45;
+  }
+}
+
+@media (max-width: 1100px) {
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-map-preview {
+    min-height: 300px;
+  }
+
+  .quick-links-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile sidebar navigation */
+
+@media (max-width: 960px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: min(300px, 85vw);
+    height: 100vh;
+    height: 100dvh;
+    flex-basis: auto;
+
+    transform: translateX(-100%);
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+      transform 0.25s ease,
+      visibility 0.25s ease;
+  }
+
+  .sidebar.is-open {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .mobile-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    background: rgba(12, 27, 43, 0.55);
+    cursor: pointer;
+  }
+
+  .mobile-menu-button {
+    width: 41px;
+    height: 41px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e7ebf1;
+    border-radius: 10px;
+    background: white;
+    color: #26394c;
+  }
+
+  .mobile-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #087f69;
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  .topbar-breadcrumb {
+    display: none;
+  }
+
+  .app-content {
+    padding: 24px;
+  }
+
+  .hero-illustration {
+    opacity: 0.22;
+  }
+}
+
+/* Small tablets and smartphones */
+
+@media (max-width: 640px) {
+  .topbar {
+    min-height: 66px;
+    padding: 12px 16px;
+  }
+
+  .topbar-left,
+  .topbar-right {
+    gap: 10px;
+  }
+
+  .topbar-user .user-info {
+    display: none;
+  }
+
+  .topbar-demo-badge {
+    font-size: 10px;
+    padding: 7px 9px;
+  }
+
+  .user-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .app-content {
+    padding: 17px 14px;
+  }
+
+  .dashboard-page {
+    gap: 23px;
+  }
+
+  .dashboard-hero {
+    padding: 29px 23px;
+    min-height: auto;
+    border-radius: 16px;
+  }
+
+  .dashboard-hero h1 {
+    font-size: 29px;
+  }
+
+  .dashboard-hero p {
+    font-size: 12px;
+  }
+
+  .hero-illustration {
+    right: -90px;
+  }
+
+  .hero-actions {
+    gap: 9px;
+  }
+
+  .btn {
+    font-size: 11px;
+    padding: 10px 13px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+  .stat-card-body {
+    margin-top: 18px;
+  }
+
+  .stat-card h3 {
+    font-size: 27px;
+  }
+
+  .stat-label,
+  .stat-subtitle {
+    font-size: 11px;
+  }
+
+  .dashboard-panel {
+    padding: 17px;
+  }
+
+  .dashboard-map-preview {
+    min-height: 250px;
+  }
+
+  .section-heading h2,
+  .panel-header h2 {
+    font-size: 16px;
+  }
+
+  .quick-links-grid {
+    grid-template-columns: 1fr;
+    gap: 11px;
+  }
+
+  .quick-link-card {
+    padding: 15px;
+  }
+
+  .dashboard-footer {
+    flex-direction: column;
+  }
+
+  .page-card {
+    padding: 22px 18px;
+  }
+}
+
+/* Very small devices */
+
+@media (max-width: 380px) {
+  .mobile-brand {
+    font-size: 13px;
+  }
+
+  .mobile-brand svg {
+    width: 19px;
+  }
+
+  .topbar-demo-badge {
+    font-size: 9px;
+  }
+
+  .stat-card {
+    padding: 13px;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .stat-card h3 {
+    font-size: 25px;
+  }
+
+  .map-preview-count {
+    left: 9px;
+    bottom: 9px;
+    padding: 8px;
+  }
+}
+
+/* Keyboard and motion accessibility */
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid #21a889;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

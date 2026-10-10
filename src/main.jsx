@@ -1,0 +1,29 @@
+
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+import App from "./App.jsx";
+import AuthProvider from "./context/AuthContext.jsx";
+
+// MapLibre library CSS
+import "maplibre-gl/dist/maplibre-gl.css";
+
+// Existing application CSS
+import "./styles/global.css";
+import "./styles/layout.css";
+import "./styles/components.css";
+import "./styles/responsive.css";
+import "./styles/auth.css";
+
+// Custom map styling
+import "./styles/map.css";
+
+ReactDOM.createRoot(
+  document.getElementById("root")
+).render(
+  <React.StrictMode>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </React.StrictMode>
+);
