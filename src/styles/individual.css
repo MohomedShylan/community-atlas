@@ -1,0 +1,765 @@
+
+/* ==========================================
+   COMMUNITY ATLAS
+   STEP 8 - INDIVIDUAL MANAGEMENT
+========================================== */
+
+.ca-ind-page {
+  max-width: 1050px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+.ca-ind-back {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #65788b;
+  font-size: 13px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.ca-ind-back:hover {
+  color: #087f69;
+}
+
+.ca-ind-page-heading > span,
+.ca-ind-eyebrow {
+  display: block;
+  color: #087f69;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+}
+
+.ca-ind-page-heading h1 {
+  margin: 10px 0;
+  font-size: 28px;
+  letter-spacing: -0.6px;
+  color: #1d3045;
+}
+
+.ca-ind-page-heading p {
+  margin: 0;
+  color: #8190a2;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* ==========================================
+   FORM
+========================================== */
+
+.ca-ind-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ca-ind-section {
+  min-width: 0;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #e3eaf0;
+  border-radius: 15px;
+}
+
+.ca-ind-section-header {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 22px;
+}
+
+.ca-ind-section-icon {
+  width: 45px;
+  height: 45px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e7f5ee;
+  color: #087f69;
+  border-radius: 12px;
+}
+
+.ca-ind-section-header h2 {
+  margin: 0;
+  color: #26394d;
+  font-size: 17px;
+}
+
+.ca-ind-section-header p {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: #8897a8;
+  line-height: 1.5;
+}
+
+.ca-ind-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.ca-ind-wide {
+  grid-column: 1 / -1;
+}
+
+.ca-ind-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ca-ind-field label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #34485b;
+  font-weight: 700;
+}
+
+.ca-ind-field label span {
+  color: #dc4545;
+}
+
+.ca-ind-field input,
+.ca-ind-field select,
+.ca-ind-field textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid #dfe6ed;
+  border-radius: 9px;
+  background: #fff;
+  color: #253a4e;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.ca-ind-field input,
+.ca-ind-field select {
+  min-height: 46px;
+}
+
+.ca-ind-field textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.65;
+}
+
+.ca-ind-field input:focus,
+.ca-ind-field select:focus,
+.ca-ind-field textarea:focus {
+  border-color: #087f69;
+  box-shadow: 0 0 0 3px #087f691a;
+}
+
+.ca-ind-field input::placeholder,
+.ca-ind-field textarea::placeholder {
+  color: #a4b0bc;
+}
+
+.ca-ind-field input:disabled,
+.ca-ind-field select:disabled,
+.ca-ind-field textarea:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.ca-ind-family-summary {
+  margin-top: 15px;
+  padding: 16px;
+  background: #edf8f2;
+  border: 1px solid #d0ebde;
+  border-radius: 10px;
+}
+
+.ca-ind-family-summary strong {
+  display: block;
+  color: #087f69;
+  font-size: 14px;
+}
+
+.ca-ind-family-summary > span {
+  display: block;
+  margin-top: 5px;
+  color: #648476;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ca-ind-family-summary p {
+  margin: 10px 0 0;
+  color: #556f62;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.ca-ind-muted {
+  margin: 12px 0 0;
+  color: #8191a2;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* ==========================================
+   FAMILY HEAD STATUS
+========================================== */
+
+.ca-ind-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #34485b;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ca-ind-checkbox input {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  accent-color: #087f69;
+}
+
+.ca-ind-information {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 17px;
+  padding: 13px;
+  color: #426a59;
+  background: #eef7f2;
+  border-radius: 9px;
+}
+
+.ca-ind-information svg {
+  flex-shrink: 0;
+}
+
+.ca-ind-information p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+/* ==========================================
+   BUTTONS AND ALERTS
+========================================== */
+
+.ca-ind-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 16px;
+}
+
+.ca-ind-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 12px 19px;
+  background: #087f69;
+  border: 1px solid #087f69;
+  border-radius: 9px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ca-ind-primary:hover {
+  background: #066c59;
+}
+
+.ca-ind-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ca-ind-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 11px 16px;
+  border: 1px solid #bcded1;
+  border-radius: 9px;
+  background: #edf8f2;
+  color: #087f69;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ca-ind-outline:hover {
+  background: #dff1e7;
+}
+
+.ca-ind-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #b91c1c;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.ca-ind-alert svg {
+  flex-shrink: 0;
+}
+
+.ca-ind-alert p {
+  margin: 0;
+}
+
+/* ==========================================
+   EMPTY, ERROR AND SUCCESS STATES
+========================================== */
+
+.ca-ind-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 40px 25px;
+  min-height: 220px;
+  background: #fff;
+  border: 1px solid #e5ebef;
+  border-radius: 14px;
+  text-align: center;
+  color: #087f69;
+}
+
+.ca-ind-state h2 {
+  margin: 0;
+  color: #25384c;
+  font-size: 19px;
+}
+
+.ca-ind-state p {
+  max-width: 440px;
+  margin: 0;
+  color: #8492a3;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.ca-ind-success {
+  padding: 42px 30px;
+  background: #fff;
+  border: 1px solid #e3eaf0;
+  border-radius: 17px;
+  text-align: center;
+}
+
+.ca-ind-success > svg {
+  color: #087f69;
+}
+
+.ca-ind-success h1 {
+  margin: 16px 0 10px;
+  color: #24384d;
+  font-size: 25px;
+}
+
+.ca-ind-success > p {
+  margin: 0;
+  color: #8190a2;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.ca-ind-success-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 28px 0;
+}
+
+.ca-ind-success-grid > div {
+  padding: 16px;
+  background: #f0f8f4;
+  border-radius: 10px;
+}
+
+.ca-ind-success-grid span {
+  display: block;
+  margin-bottom: 8px;
+  color: #8494a3;
+  font-size: 11px;
+}
+
+.ca-ind-success-grid strong {
+  display: block;
+  color: #087f69;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.ca-ind-success-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ==========================================
+   PEOPLE DIRECTORY
+========================================== */
+
+.ca-people-page {
+  min-width: 0;
+}
+
+.ca-people-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.ca-people-heading h2 {
+  margin: 8px 0;
+  color: #21364b;
+}
+
+.ca-people-heading p {
+  margin: 0;
+  color: #8492a3;
+  font-size: 13px;
+}
+
+.ca-people-filters {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.5fr)
+    minmax(220px, 1fr);
+  gap: 13px;
+  margin: 19px 0;
+}
+
+.ca-people-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 13px;
+  min-width: 0;
+  min-height: 45px;
+  background: white;
+  color: #8291a2;
+  border: 1px solid #dfe7ed;
+  border-radius: 10px;
+}
+
+.ca-people-search input {
+  width: 100%;
+  min-width: 0;
+  height: 43px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #25394d;
+  font-size: 13px;
+}
+
+.ca-people-filters select {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #dfe7ed;
+  border-radius: 10px;
+  color: #34485a;
+  background: #fff;
+  font-size: 12px;
+}
+
+.ca-people-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+  color: #8291a2;
+  font-size: 12px;
+}
+
+.ca-people-summary > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ca-people-summary svg {
+  color: #087f69;
+}
+
+.ca-people-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.ca-person-card {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-width: 0;
+  padding: 19px;
+  border: 1px solid #e4eaf0;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.ca-person-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ca-person-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  flex-shrink: 0;
+  color: #087f69;
+  background: #e7f6ee;
+  border-radius: 12px;
+}
+
+.ca-person-identity {
+  min-width: 0;
+}
+
+.ca-person-identity h3 {
+  margin: 0 0 5px;
+  color: #263a4d;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.ca-person-identity > span {
+  color: #8b98a8;
+  font-size: 11px;
+}
+
+.ca-person-head {
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #e9f6ef;
+  color: #087f69;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.ca-person-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.ca-person-details p {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 0;
+  color: #66798d;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.ca-person-details svg {
+  margin-top: 2px;
+  flex-shrink: 0;
+  color: #087f69;
+}
+
+.ca-person-family-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 13px;
+  border-top: 1px solid #edf1f4;
+  color: #087f69;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ca-person-family-link:hover {
+  color: #065e50;
+}
+
+/* ==========================================
+   PAGINATION
+========================================== */
+
+.ca-people-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 22px;
+  padding: 16px;
+  border: 1px solid #e5ebef;
+  border-radius: 11px;
+  background: #fff;
+  color: #7d8c9c;
+  font-size: 12px;
+}
+
+.ca-people-pagination > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ca-people-pagination button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 37px;
+  padding: 8px 12px;
+  border: 1px solid #dce6eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #34485c;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ca-people-pagination button:hover:not(:disabled) {
+  background: #eaf7f1;
+  border-color: #b2dcca;
+}
+
+.ca-people-pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ca-people-pagination strong {
+  color: #263a4d;
+  font-size: 12px;
+}
+
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+========================================== */
+
+@media (max-width: 1200px) {
+  .ca-people-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .ca-people-filters {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .ca-ind-page-heading h1 {
+    font-size: 23px;
+  }
+
+  .ca-ind-section {
+    padding: 18px;
+  }
+
+  .ca-ind-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .ca-ind-wide {
+    grid-column: auto;
+  }
+
+  .ca-ind-actions .ca-ind-primary {
+    width: 100%;
+  }
+
+  .ca-people-heading {
+    align-items: stretch;
+  }
+
+  .ca-people-heading .ca-ind-primary {
+    width: 100%;
+  }
+
+  .ca-people-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ca-ind-success {
+    padding: 28px 18px;
+  }
+
+  .ca-ind-success h1 {
+    font-size: 21px;
+  }
+
+  .ca-ind-success-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ca-ind-success-actions {
+    flex-direction: column;
+  }
+
+  .ca-ind-success-actions > * {
+    width: 100%;
+  }
+
+  .ca-people-pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ca-people-pagination > div {
+    justify-content: center;
+  }
+
+  .ca-people-pagination > span {
+    text-align: center;
+  }
+}

@@ -16,6 +16,11 @@ import "./styles/responsive.css";
 import "./styles/auth.css";
 import "./styles/household-form.css";
 import "./styles/household-details.css";
+import "./styles/individual.css";
+
+
+
+
 // Custom map styling
 import "./styles/map.css";
 

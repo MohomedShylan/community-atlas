@@ -14,10 +14,14 @@ import SetPassword from "./pages/SetPassword";
 
 import Dashboard from "./pages/Dashboard";
 import MapExplorer from "./pages/MapExplorer";
+
 import Households from "./pages/Households";
 import RegisterHousehold from "./pages/RegisterHousehold";
 import HouseholdProfile from "./pages/HouseholdProfile";
+
 import People from "./pages/People";
+import RegisterIndividual from "./pages/RegisterIndividual";
+
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 
@@ -39,13 +43,17 @@ export default function App() {
         {/* Protected application pages */}
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
-            <Route index element={<Dashboard />} />
+            <Route
+              index
+              element={<Dashboard />}
+            />
 
             <Route
               path="map"
               element={<MapExplorer />}
             />
 
+            {/* Household management */}
             <Route
               path="households"
               element={<Households />}
@@ -61,11 +69,18 @@ export default function App() {
               element={<HouseholdProfile />}
             />
 
+            {/* Individual management */}
             <Route
               path="people"
               element={<People />}
             />
 
+            <Route
+              path="people/new"
+              element={<RegisterIndividual />}
+            />
+
+            {/* Other application pages */}
             <Route
               path="reports"
               element={<Reports />}
@@ -81,7 +96,12 @@ export default function App() {
         {/* Unknown URLs */}
         <Route
           path="*"
-          element={<Navigate to="/" replace />}
+          element={
+            <Navigate
+              to="/"
+              replace
+            />
+          }
         />
       </Routes>
     </BrowserRouter>
