@@ -18,6 +18,9 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
+import { useNavigate } from "react-router";
+import useAuth from "../hooks/useAuth";
+
 import MapLibreMap from "../components/map/MapLibreMap";
 import LocationSearch from "../components/map/LocationSearch";
 
@@ -30,6 +33,10 @@ const mapTilerKey =
   import.meta.env.VITE_MAPTILER_API_KEY;
 
 export default function MapExplorer() {
+  const navigate = useNavigate();
+  const { profile } = useAuth();
+  const canRegister = profile?.role === "admin" || profile?.role === "editor";
+
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -327,6 +334,27 @@ export default function MapExplorer() {
                 </strong>
               </div>
 
+              {canRegister && (
+                <button
+                  type="button"
+                  className="ca-register-action"
+                  onClick={() =>
+                    navigate("/households/new", {
+                      state: {
+                        existingLocation: {
+                          id: selectedLocation.id,
+                          location_code: selectedLocation.location_code,
+                          address_line: selectedLocation.address_line,
+                        },
+                      },
+                    })
+                  }
+                >
+                  <House size={18} />
+                  Add Another Family Here
+                </button>
+              )}
+
               {detailsLoading && (
                 <p className="ca-muted">
                   Loading family information...
@@ -443,6 +471,26 @@ export default function MapExplorer() {
                 </strong>
               </div>
 
+              {canRegister && (
+                <button
+                  type="button"
+                  className="ca-register-action"
+                  onClick={() =>
+                    navigate("/households/new", {
+                      state: {
+                        point: {
+                          lat: selectedPoint.lat,
+                          lng: selectedPoint.lng,
+                        },
+                      },
+                    })
+                  }
+                >
+                  <House size={18} />
+                  Register Household Here
+                </button>
+              )}
+
               <button
                 type="button"
                 className="ca-copy-button"
@@ -459,7 +507,7 @@ export default function MapExplorer() {
 
               <p className="ca-muted">
                 Nothing has been saved to Supabase.
-                We'll add location registration in Step 7.
+                Authorized editors can register a household using this point.
               </p>
             </div>
           ) : (

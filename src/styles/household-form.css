@@ -1,0 +1,441 @@
+
+/* =========================================
+   COMMUNITY ATLAS - HOUSEHOLD REGISTRATION
+========================================= */
+
+.ca-registration-page {
+  max-width: 1020px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.ca-registration-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  color: #66788c;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ca-registration-back:hover {
+  color: #087f69;
+}
+
+.ca-registration-heading > span {
+  color: #087f69;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.ca-registration-heading h1 {
+  margin: 10px 0;
+  color: #19283b;
+  font-size: 29px;
+  letter-spacing: -0.8px;
+}
+
+.ca-registration-heading p {
+  color: #8290a2;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.ca-registration-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ca-form-section {
+  padding: 25px;
+  background: #fff;
+  border: 1px solid #e5eaf0;
+  border-radius: 16px;
+}
+
+.ca-form-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 22px;
+}
+
+.ca-form-icon {
+  width: 45px;
+  height: 45px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #e7f6f0;
+  color: #087f69;
+}
+
+.ca-form-section-heading h2 {
+  margin: 0;
+  font-size: 17px;
+  color: #25384b;
+}
+
+.ca-form-section-heading p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #8b98aa;
+}
+
+.ca-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 19px;
+}
+
+.ca-field {
+  min-width: 0;
+}
+
+.ca-field-full {
+  grid-column: 1 / -1;
+}
+
+.ca-field label {
+  display: block;
+  margin-bottom: 8px;
+  color: #34475a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ca-field label span {
+  color: #e05252;
+}
+
+.ca-field input {
+  width: 100%;
+  min-height: 47px;
+  padding: 11px 13px;
+  border: 1px solid #dfe6ec;
+  border-radius: 9px;
+  background: #fff;
+  color: #24374a;
+  font-size: 13px;
+  outline: none;
+}
+
+.ca-field input:focus {
+  border-color: #087f69;
+  box-shadow: 0 0 0 3px #087f691a;
+}
+
+.ca-field input::placeholder {
+  color: #a5afbc;
+}
+
+.ca-form-hint {
+  margin: 13px 0 0;
+  color: #8b98a8;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+/* Existing location */
+
+.ca-existing-location {
+  padding: 18px;
+  background: #ecf8f2;
+  border: 1px solid #c8e8d9;
+  border-radius: 11px;
+}
+
+.ca-existing-location strong {
+  display: block;
+  color: #087f69;
+  font-size: 15px;
+}
+
+.ca-existing-location p {
+  margin: 8px 0;
+  color: #43586b;
+  font-size: 13px;
+}
+
+.ca-existing-location span {
+  color: #708778;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* Members */
+
+.ca-members-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.ca-add-member {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 14px;
+  border: 1px solid #aed8c8;
+  border-radius: 9px;
+  background: #eaf7f1;
+  color: #087f69;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ca-add-member:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ca-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.ca-member-form {
+  padding: 19px;
+  border: 1px solid #e5eaf0;
+  border-radius: 12px;
+  background: #fafbfd;
+}
+
+.ca-member-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 17px;
+}
+
+.ca-member-form-header strong {
+  color: #34485c;
+  font-size: 13px;
+}
+
+.ca-remove-member {
+  padding: 7px;
+  border: 1px solid #fee2e2;
+  border-radius: 8px;
+  background: #fff5f5;
+  color: #dc2626;
+  cursor: pointer;
+}
+
+.ca-head-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 17px;
+  color: #516579;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ca-head-choice input {
+  accent-color: #087f69;
+  width: 16px;
+  height: 16px;
+}
+
+/* Buttons and validation */
+
+.ca-form-error {
+  padding: 15px;
+  border: 1px solid #fecaca;
+  border-radius: 9px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.ca-form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ca-save-household {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 12px 21px;
+  border: none;
+  border-radius: 10px;
+  background: #087f69;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ca-save-household:hover,
+.ca-register-action:hover {
+  background: #066b59;
+}
+
+.ca-save-household:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ca-register-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 44px;
+  margin: 18px 0;
+  padding: 12px;
+  background: #087f69;
+  color: white;
+  border: none;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ca-outline-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 43px;
+  padding: 11px 15px;
+  border: 1px solid #b8ddcf;
+  border-radius: 9px;
+  background: #eaf7f1;
+  color: #087f69;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* Success view */
+
+.ca-registration-success {
+  padding: 43px 30px;
+  background: white;
+  border: 1px solid #e5eaf0;
+  border-radius: 17px;
+  text-align: center;
+}
+
+.ca-registration-success > svg {
+  color: #087f69;
+}
+
+.ca-registration-success h1 {
+  margin: 17px 0 10px;
+  color: #1d3547;
+  font-size: 25px;
+}
+
+.ca-registration-success > p {
+  color: #8190a1;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.ca-success-details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 27px 0;
+}
+
+.ca-success-details > div {
+  padding: 16px 10px;
+  border-radius: 10px;
+  background: #f2f7f5;
+}
+
+.ca-success-details span,
+.ca-success-details strong {
+  display: block;
+}
+
+.ca-success-details span {
+  color: #8b98a8;
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+
+.ca-success-details strong {
+  color: #087f69;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.ca-success-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Mobile */
+
+@media (max-width: 640px) {
+  .ca-registration-heading h1 {
+    font-size: 23px;
+  }
+
+  .ca-form-section {
+    padding: 18px;
+  }
+
+  .ca-form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .ca-field-full {
+    grid-column: auto;
+  }
+
+  .ca-members-heading {
+    flex-direction: column;
+    margin-bottom: 15px;
+  }
+
+  .ca-members-heading .ca-form-section-heading {
+    margin-bottom: 0;
+  }
+
+  .ca-add-member {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ca-member-form {
+    padding: 14px;
+  }
+
+  .ca-save-household {
+    width: 100%;
+  }
+
+  .ca-success-details {
+    grid-template-columns: 1fr;
+  }
+
+  .ca-registration-success {
+    padding: 27px 18px;
+  }
+}

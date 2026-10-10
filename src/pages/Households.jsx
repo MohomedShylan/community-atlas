@@ -1,9 +1,14 @@
 
 import { useEffect, useState } from "react";
 import { House, MapPin, AlertCircle } from "lucide-react";
+import { Link } from "react-router";
+import useAuth from "../hooks/useAuth";
 import { getHouseholds } from "../services/householdService";
 
 export default function Households() {
+  const { profile } = useAuth();
+  const canRegister = profile?.role === "admin" || profile?.role === "editor";
+
   const [households, setHouseholds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -37,6 +42,13 @@ export default function Households() {
           <h2>Households</h2>
           <p>Family records from Supabase</p>
         </div>
+
+        {canRegister && (
+          <Link to="/map" className="ca-outline-link">
+            <MapPin size={17} />
+            Register from Map
+          </Link>
+        )}
       </div>
 
       {loading && (
