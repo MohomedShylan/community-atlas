@@ -20,7 +20,7 @@ import "./styles/individual.css";
 import "./styles/person-profile.css";
 import "./styles/advanced-people.css";
 import "./styles/reports.css";
-
+import "./styles/admin-users.css";
 
 
 // Custom map styling
