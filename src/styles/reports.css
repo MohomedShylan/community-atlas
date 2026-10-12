@@ -1,0 +1,570 @@
+
+/* ============================================
+   COMMUNITY ATLAS - STEP 9
+   REPORTS AND ANALYTICS
+============================================ */
+
+.ca-reports-page {
+  width: 100%;
+  max-width: 1500px;
+  min-width: 0;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* --------------------------------------------
+   HEADER
+-------------------------------------------- */
+
+.ca-reports-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.ca-reports-eyebrow {
+  display: block;
+  color: #087f69;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+}
+
+.ca-reports-header h1 {
+  margin: 10px 0;
+  color: #23384b;
+  font-size: 27px;
+  letter-spacing: -0.5px;
+}
+
+.ca-reports-header p {
+  max-width: 560px;
+  margin: 0;
+  color: #8291a2;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.ca-reports-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+}
+
+/* --------------------------------------------
+   BUTTONS
+-------------------------------------------- */
+
+.ca-report-primary,
+.ca-report-secondary,
+.ca-report-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 43px;
+  padding: 11px 15px;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ca-report-primary {
+  border: 1px solid #087f69;
+  background: #087f69;
+  color: #fff;
+}
+
+.ca-report-primary:hover:not(:disabled) {
+  background: #066957;
+}
+
+.ca-report-secondary {
+  border: 1px solid #c2ded2;
+  background: #edf8f2;
+  color: #087f69;
+}
+
+.ca-report-secondary:hover:not(:disabled) {
+  background: #def1e6;
+}
+
+.ca-report-clear {
+  border: 1px solid #d9e3e9;
+  background: #f4f7f8;
+  color: #627587;
+}
+
+.ca-report-primary:disabled,
+.ca-report-secondary:disabled,
+.ca-report-clear:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------
+   FILTERS
+-------------------------------------------- */
+
+.ca-report-filter-panel {
+  padding: 21px;
+  border: 1px solid #e1e9ee;
+  border-radius: 15px;
+  background: #fff;
+}
+
+.ca-report-filter-panel h2 {
+  margin: 0 0 7px;
+  color: #2a3f50;
+  font-size: 16px;
+}
+
+.ca-report-filter-panel > div:first-child p {
+  margin: 0;
+  color: #8a98a7;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.ca-report-filter-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr)
+    auto;
+  align-items: end;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.ca-report-filter-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  color: #42566a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ca-report-filter-grid select {
+  width: 100%;
+  min-width: 0;
+  min-height: 43px;
+  padding: 10px 12px;
+  border: 1px solid #dfe6ed;
+  border-radius: 9px;
+  background: #fff;
+  color: #304659;
+  font: inherit;
+  outline: none;
+}
+
+.ca-report-filter-grid select:focus {
+  border-color: #087f69;
+  box-shadow: 0 0 0 3px #087f691a;
+}
+
+.ca-report-filter-grid select:disabled {
+  opacity: 0.6;
+}
+
+/* --------------------------------------------
+   ACCESS AND METADATA
+-------------------------------------------- */
+
+.ca-report-access-note {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #537967;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.ca-report-access-note svg {
+  flex-shrink: 0;
+  color: #087f69;
+}
+
+.ca-report-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #7c8d9d;
+  font-size: 12px;
+}
+
+.ca-report-meta > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #087f69;
+  font-weight: 700;
+}
+
+/* --------------------------------------------
+   STATISTIC CARDS
+-------------------------------------------- */
+
+.ca-report-stats-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.ca-report-stat {
+  min-width: 0;
+  padding: 19px;
+  border: 1px solid #e3eaf0;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.ca-report-stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.ca-report-stat-top > span {
+  color: #74869a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ca-report-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 41px;
+  height: 41px;
+  flex-shrink: 0;
+  border-radius: 11px;
+  background: #e7f5ee;
+  color: #087f69;
+}
+
+.ca-report-stat > strong {
+  display: block;
+  color: #23394d;
+  font-size: 30px;
+  letter-spacing: -0.5px;
+  overflow-wrap: anywhere;
+}
+
+.ca-report-stat > p {
+  margin: 8px 0 0;
+  color: #8c99a9;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+/* --------------------------------------------
+   CHARTS
+-------------------------------------------- */
+
+.ca-report-chart-section {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.ca-report-chart-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.ca-report-chart-toolbar h2 {
+  margin: 0 0 7px;
+  color: #273c50;
+  font-size: 19px;
+}
+
+.ca-report-chart-toolbar p {
+  margin: 0;
+  color: #8998a8;
+  font-size: 12px;
+}
+
+.ca-report-metric-switch {
+  display: inline-flex;
+  padding: 4px;
+  background: #edf3f1;
+  border: 1px solid #dfe9e4;
+  border-radius: 10px;
+}
+
+.ca-report-metric-switch button {
+  min-height: 34px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #6e8477;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.ca-report-metric-switch button.is-active {
+  background: #fff;
+  color: #087f69;
+  box-shadow: 0 1px 5px #00000012;
+}
+
+.ca-report-chart-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 17px;
+  align-items: start;
+}
+
+.ca-report-panel {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #e3eaf0;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.ca-report-panel-heading {
+  margin-bottom: 18px;
+}
+
+.ca-report-panel-heading h3 {
+  margin: 0 0 7px;
+  color: #2a4054;
+  font-size: 15px;
+}
+
+.ca-report-panel-heading p {
+  margin: 0;
+  color: #8a98a7;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.ca-report-chart {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.ca-report-chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 235px;
+  padding: 20px;
+  color: #8c99a8;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* --------------------------------------------
+   TABLES
+-------------------------------------------- */
+
+.ca-report-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e6edf0;
+  border-radius: 10px;
+}
+
+.ca-report-table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.ca-report-table th {
+  padding: 13px 14px;
+  background: #eff7f3;
+  color: #386654;
+  border-bottom: 1px solid #dbeae3;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.ca-report-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid #edf1f4;
+  color: #40566a;
+  font-size: 12px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.ca-report-table tr:last-child td {
+  border-bottom: none;
+}
+
+.ca-report-table tbody tr:hover {
+  background: #f8fbfa;
+}
+
+/* --------------------------------------------
+   FOOTNOTES AND STATUS
+-------------------------------------------- */
+
+.ca-report-footnote {
+  padding: 17px;
+  border: 1px solid #dce9e2;
+  border-radius: 11px;
+  background: #f4faf6;
+  color: #577264;
+}
+
+.ca-report-footnote strong {
+  font-size: 12px;
+}
+
+.ca-report-footnote p {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.ca-report-state {
+  padding: 45px 20px;
+  border: 1px solid #e4eaf0;
+  border-radius: 13px;
+  background: #fff;
+  color: #75889a;
+  font-size: 13px;
+  text-align: center;
+}
+
+.ca-report-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fff3f3;
+  color: #b91c1c;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.ca-report-error svg {
+  flex-shrink: 0;
+}
+
+.ca-report-error > div {
+  flex: 1;
+}
+
+.ca-report-error p {
+  margin: 5px 0 0;
+}
+
+.ca-report-error button {
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid #f4a9a9;
+  border-radius: 7px;
+  background: #fff;
+  color: #b91c1c;
+  cursor: pointer;
+}
+
+/* --------------------------------------------
+   TABLETS
+-------------------------------------------- */
+
+@media (max-width: 1100px) {
+  .ca-report-stats-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .ca-report-chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------
+   MOBILE
+-------------------------------------------- */
+
+@media (max-width: 700px) {
+  .ca-reports-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ca-reports-header h1 {
+    font-size: 23px;
+  }
+
+  .ca-reports-header-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ca-report-filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ca-report-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ca-report-chart-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ca-report-metric-switch {
+    width: 100%;
+  }
+
+  .ca-report-metric-switch button {
+    flex: 1;
+  }
+
+  .ca-report-panel {
+    padding: 14px;
+  }
+
+  .ca-report-chart-grid {
+    gap: 13px;
+  }
+}
+
+@media (max-width: 400px) {
+  .ca-reports-header-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .ca-report-primary,
+  .ca-report-secondary {
+    width: 100%;
+  }
+
+  .ca-report-stat > strong {
+    font-size: 26px;
+  }
+}

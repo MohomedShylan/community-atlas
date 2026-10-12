@@ -18,6 +18,8 @@ import "./styles/household-form.css";
 import "./styles/household-details.css";
 import "./styles/individual.css";
 import "./styles/person-profile.css";
+import "./styles/advanced-people.css";
+import "./styles/reports.css";
 
 
 

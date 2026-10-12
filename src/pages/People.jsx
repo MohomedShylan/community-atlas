@@ -1,5 +1,10 @@
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import { Link } from "react-router";
 
 import {
@@ -12,56 +17,116 @@ import {
   ChevronLeft,
   ChevronRight,
   CalendarDays,
+  SlidersHorizontal,
+  RotateCcw,
+  Archive,
+  UserRound,
+  ArrowDownWideNarrow,
 } from "lucide-react";
 
 import useAuth from "../hooks/useAuth";
 
 import {
-  getActiveFamilies,
-  getPeoplePage,
-} from "../services/peopleService";
+  searchPeople,
+  getPeopleSearchOptions,
+} from "../services/peopleSearchService";
 
 const PAGE_SIZE = 12;
+
+const emptyOptions = {
+  families: [],
+  districts: [],
+  villages: [],
+};
 
 export default function People() {
   const { profile } = useAuth();
 
+  const isAdmin =
+    profile?.role === "admin";
+
   const canEdit =
-    profile?.role === "admin" ||
+    isAdmin ||
     profile?.role === "editor";
 
-  const [families, setFamilies] = useState([]);
+  // ========================================
+  // SEARCH AND FILTER STATES
+  // ========================================
 
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
-  const [familyId, setFamilyId] = useState("");
+  const [searchInput, setSearchInput] =
+    useState("");
 
-  const [page, setPage] = useState(1);
+  const [search, setSearch] =
+    useState("");
 
-  const [people, setPeople] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
+  const [familyId, setFamilyId] =
+    useState("");
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [familyError, setFamilyError] = useState("");
+  const [district, setDistrict] =
+    useState("");
 
-  // ==========================================
-  // 1. LOAD ACTIVE FAMILIES
-  // ==========================================
+  const [village, setVillage] =
+    useState("");
+
+  const [ageGroup, setAgeGroup] =
+    useState("all");
+
+  const [gender, setGender] =
+    useState("all");
+
+  const [status, setStatus] =
+    useState("active");
+
+  const [sort, setSort] =
+    useState("name_asc");
+
+  const [page, setPage] =
+    useState(1);
+
+  const [showFilters, setShowFilters] =
+    useState(true);
+
+  // ========================================
+  // DATA STATES
+  // ========================================
+
+  const [options, setOptions] =
+    useState(emptyOptions);
+
+  const [people, setPeople] =
+    useState([]);
+
+  const [total, setTotal] =
+    useState(0);
+
+  const [totalPages, setTotalPages] =
+    useState(1);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  const [optionsError, setOptionsError] =
+    useState("");
+
+  // ========================================
+  // LOAD FILTER OPTIONS
+  // ========================================
 
   useEffect(() => {
     let active = true;
 
-    getActiveFamilies()
+    getPeopleSearchOptions()
       .then((data) => {
         if (active) {
-          setFamilies(data);
+          setOptions(data);
         }
       })
       .catch((err) => {
         if (active) {
-          setFamilyError(err.message);
+          setOptionsError(err.message);
         }
       });
 
@@ -70,9 +135,9 @@ export default function People() {
     };
   }, []);
 
-  // ==========================================
-  // 2. SEARCH DEBOUNCE
-  // ==========================================
+  // ========================================
+  // DEBOUNCED SEARCH
+  // ========================================
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -83,9 +148,20 @@ export default function People() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // ==========================================
-  // 3. FETCH PAGINATED INDIVIDUALS
-  // ==========================================
+  // ========================================
+  // RESTRICT STATUS FILTER FOR NON-ADMINS
+  // ========================================
+
+  useEffect(() => {
+    if (!isAdmin && status !== "active") {
+      setStatus("active");
+      setPage(1);
+    }
+  }, [isAdmin, status]);
+
+  // ========================================
+  // FETCH SEARCH RESULTS
+  // ========================================
 
   useEffect(() => {
     let active = true;
@@ -93,11 +169,20 @@ export default function People() {
     setLoading(true);
     setError("");
 
-    getPeoplePage({
-      page,
-      pageSize: PAGE_SIZE,
+    searchPeople({
       search,
       familyId,
+      district,
+      village,
+      ageGroup,
+      gender,
+
+      status:
+        isAdmin ? status : "active",
+
+      sort,
+      page,
+      pageSize: PAGE_SIZE,
     })
       .then((result) => {
         if (!active) return;
@@ -109,6 +194,8 @@ export default function People() {
       .catch((err) => {
         if (active) {
           setError(err.message);
+          setPeople([]);
+          setTotal(0);
         }
       })
       .finally(() => {
@@ -120,12 +207,74 @@ export default function People() {
     return () => {
       active = false;
     };
-  }, [page, search, familyId]);
+  }, [
+    search,
+    familyId,
+    district,
+    village,
+    ageGroup,
+    gender,
+    status,
+    sort,
+    page,
+    isAdmin,
+  ]);
 
-  function handleFamilyChange(event) {
-    setFamilyId(event.target.value);
+  // ========================================
+  // AVAILABLE VILLAGES BY DISTRICT
+  // ========================================
+
+  const availableVillages = useMemo(
+    () =>
+      options.villages.filter(
+        (item) =>
+          !district ||
+          item.district.toLowerCase() ===
+            district.toLowerCase()
+      ),
+    [options.villages, district]
+  );
+
+  // ========================================
+  // FILTER HELPERS
+  // ========================================
+
+  function changeFilter(setter, value) {
+    setter(value);
     setPage(1);
   }
+
+  function changeDistrict(value) {
+    setDistrict(value);
+    setVillage("");
+    setPage(1);
+  }
+
+  function resetFilters() {
+    setSearchInput("");
+    setSearch("");
+
+    setFamilyId("");
+    setDistrict("");
+    setVillage("");
+
+    setAgeGroup("all");
+    setGender("all");
+    setStatus("active");
+    setSort("name_asc");
+
+    setPage(1);
+  }
+
+  const hasFilters =
+    searchInput.trim() !== "" ||
+    familyId !== "" ||
+    district !== "" ||
+    village !== "" ||
+    ageGroup !== "all" ||
+    gender !== "all" ||
+    status !== "active" ||
+    sort !== "name_asc";
 
   const firstItem =
     total === 0
@@ -137,15 +286,14 @@ export default function People() {
     total
   );
 
-  // ==========================================
-  // 4. PAGE
-  // ==========================================
+  // ========================================
+  // PAGE
+  // ========================================
 
   return (
-    <div className="records-page ca-people-page">
-      {/* HEADER */}
-
-      <header className="section-heading ca-people-heading">
+    <div className="records-page ca-adv-page">
+      {/* PAGE HEADER */}
+      <header className="section-heading ca-adv-header">
         <div>
           <span className="ca-ind-eyebrow">
             COMMUNITY RECORDS
@@ -154,292 +302,527 @@ export default function People() {
           <h2>People Management</h2>
 
           <p>
-            Search registered individuals
-            and their associated families.
+            Search, explore, and manage
+            registered individuals.
           </p>
         </div>
 
-        {canEdit && (
-          <Link
-            to="/people/new"
-            className="ca-ind-primary"
-          >
-            <UserPlus size={18} />
-            Register Individual
-          </Link>
-        )}
-      </header>
-
-      {/* SEARCH AND FILTERS */}
-
-      <section className="ca-people-filters">
-        <div className="ca-people-search">
-          <Search size={18} />
-
-          <input
-            type="search"
-            value={searchInput}
-            onChange={(event) =>
-              setSearchInput(event.target.value)
-            }
-            placeholder="Search person name or code"
-            aria-label="Search individuals"
-          />
-        </div>
-
-        <select
-          value={familyId}
-          onChange={handleFamilyChange}
-          aria-label="Filter by family"
-        >
-          <option value="">
-            All Families
-          </option>
-
-          {families.map((family) => (
-            <option
-              key={family.id}
-              value={family.id}
+        <div className="ca-adv-header-actions">
+          {isAdmin && (
+            <Link
+              to="/people/archived"
+              className="ca-adv-outline"
             >
-              {family.family_code}
-              {" — "}
-              {family.family_name}
-            </option>
-          ))}
-        </select>
-      </section>
-
-      {/* FAMILY FILTER ERROR */}
-
-      {familyError && (
-        <div
-          className="ca-ind-alert"
-          role="alert"
-        >
-          <AlertCircle size={17} />
-          Family filter: {familyError}
-        </div>
-      )}
-
-      {/* SUMMARY */}
-
-      <div className="ca-people-summary">
-        <div>
-          <Users size={19} />
-
-          <span>
-            {loading
-              ? "Loading people..."
-              : `${total} matching individuals`}
-          </span>
-        </div>
-
-        <span>
-          Page {page} of {totalPages}
-        </span>
-      </div>
-
-      {/* LOADING */}
-
-      {loading && (
-        <div className="page-card" role="status">
-          Loading registered individuals...
-        </div>
-      )}
-
-      {/* ERROR */}
-
-      {error && (
-        <div className="page-card" role="alert">
-          <AlertCircle size={22} color="#dc2626" />
-
-          <p>{error}</p>
-        </div>
-      )}
-
-      {/* EMPTY STATE */}
-
-      {!loading && !error && people.length === 0 && (
-        <div className="ca-ind-state">
-          <Users size={42} />
-
-          <h2>No Individuals Found</h2>
-
-          <p>
-            Try changing your search
-            or family filter.
-          </p>
+              <Archive size={17} />
+              Archived People
+            </Link>
+          )}
 
           {canEdit && (
             <Link
               to="/people/new"
               className="ca-ind-primary"
             >
+              <UserPlus size={18} />
               Register Individual
             </Link>
           )}
         </div>
+      </header>
+
+      {/* MAIN SEARCH */}
+      <section className="ca-adv-search-panel">
+        <div className="ca-adv-search-row">
+          <div className="ca-adv-search-field">
+            <Search size={19} />
+
+            <input
+              type="search"
+              value={searchInput}
+              maxLength={120}
+              placeholder="Search name, person code, family or address..."
+              aria-label="Search registered people"
+              onChange={(event) =>
+                setSearchInput(event.target.value)
+              }
+            />
+          </div>
+
+          <button
+            type="button"
+            className="ca-adv-filter-toggle"
+            aria-expanded={showFilters}
+            onClick={() =>
+              setShowFilters((current) => !current)
+            }
+          >
+            <SlidersHorizontal size={17} />
+            Filters
+          </button>
+        </div>
+
+        {/* ADVANCED FILTERS */}
+        {showFilters && (
+          <div className="ca-adv-filters">
+            {/* FAMILY */}
+            <label>
+              Family
+              <select
+                value={familyId}
+                onChange={(event) =>
+                  changeFilter(
+                    setFamilyId,
+                    event.target.value
+                  )
+                }
+              >
+                <option value="">
+                  All Families
+                </option>
+
+                {options.families.map((family) => (
+                  <option
+                    key={family.id}
+                    value={family.id}
+                  >
+                    {family.family_code}
+                    {" — "}
+                    {family.family_name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            {/* DISTRICT */}
+            <label>
+              District
+              <select
+                value={district}
+                onChange={(event) =>
+                  changeDistrict(event.target.value)
+                }
+              >
+                <option value="">
+                  All Districts
+                </option>
+
+                {options.districts.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            {/* VILLAGE */}
+            <label>
+              Village
+              <select
+                value={village}
+                onChange={(event) =>
+                  changeFilter(
+                    setVillage,
+                    event.target.value
+                  )
+                }
+              >
+                <option value="">
+                  All Villages
+                </option>
+
+                {availableVillages.map((item) => (
+                  <option
+                    key={`${item.district}-${item.name}`}
+                    value={item.name}
+                  >
+                    {item.name}
+                    {!district && item.district
+                      ? ` (${item.district})`
+                      : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            {/* AGE */}
+            <label>
+              Age Group
+              <select
+                value={ageGroup}
+                onChange={(event) =>
+                  changeFilter(
+                    setAgeGroup,
+                    event.target.value
+                  )
+                }
+              >
+                <option value="all">
+                  All Ages
+                </option>
+                <option value="child">
+                  Children (0–17)
+                </option>
+                <option value="adult">
+                  Adults (18–59)
+                </option>
+                <option value="senior">
+                  Seniors (60+)
+                </option>
+                <option value="unknown">
+                  Date of Birth Unknown
+                </option>
+              </select>
+            </label>
+
+            {/* GENDER */}
+            <label>
+              Gender
+              <select
+                value={gender}
+                onChange={(event) =>
+                  changeFilter(
+                    setGender,
+                    event.target.value
+                  )
+                }
+              >
+                <option value="all">
+                  All / Not Filtered
+                </option>
+                <option value="male">
+                  Male
+                </option>
+                <option value="female">
+                  Female
+                </option>
+                <option value="other">
+                  Other
+                </option>
+                <option value="prefer_not_to_say">
+                  Prefer not to say
+                </option>
+                <option value="unspecified">
+                  Not Recorded
+                </option>
+              </select>
+            </label>
+
+            {/* STATUS */}
+            {isAdmin && (
+              <label>
+                Record Status
+                <select
+                  value={status}
+                  onChange={(event) =>
+                    changeFilter(
+                      setStatus,
+                      event.target.value
+                    )
+                  }
+                >
+                  <option value="active">
+                    Active Only
+                  </option>
+                  <option value="archived">
+                    Archived Only
+                  </option>
+                  <option value="all">
+                    Active and Archived
+                  </option>
+                </select>
+              </label>
+            )}
+
+            {/* SORT */}
+            <label>
+              Sort Results
+              <select
+                value={sort}
+                onChange={(event) =>
+                  changeFilter(
+                    setSort,
+                    event.target.value
+                  )
+                }
+              >
+                <option value="name_asc">
+                  Name A–Z
+                </option>
+                <option value="name_desc">
+                  Name Z–A
+                </option>
+                <option value="code_asc">
+                  Person Code
+                </option>
+                <option value="youngest">
+                  Youngest First
+                </option>
+                <option value="oldest">
+                  Oldest First
+                </option>
+              </select>
+            </label>
+          </div>
+        )}
+
+        {/* RESET BUTTON */}
+        {hasFilters && (
+          <div className="ca-adv-filter-footer">
+            <button
+              type="button"
+              onClick={resetFilters}
+            >
+              <RotateCcw size={16} />
+              Clear All Filters
+            </button>
+          </div>
+        )}
+      </section>
+
+      {optionsError && (
+        <div
+          className="ca-ind-alert"
+          role="alert"
+        >
+          <AlertCircle size={18} />
+          Could not load filter options:
+          {" "}
+          {optionsError}
+        </div>
       )}
 
-      {/* PEOPLE CARDS */}
+      {/* RESULT SUMMARY */}
+      <div className="ca-adv-summary">
+        <div>
+          <Users size={19} />
 
-      {!loading && !error && people.length > 0 && (
-        <>
-          <div className="ca-people-grid">
-            {people.map((person) => (
-              <article
-                key={person.id}
-                className="ca-person-card"
-              >
-                {/* PERSON IDENTITY */}
+          <strong>
+            {loading
+              ? "Searching..."
+              : `${total} matching people`}
+          </strong>
+        </div>
 
-                <div className="ca-person-top">
-                  <div className="ca-person-avatar">
-                    <Users size={22} />
+        <div>
+          <ArrowDownWideNarrow size={16} />
+          Page {page} of {totalPages}
+        </div>
+      </div>
+
+      {/* LOADING */}
+      {loading && (
+        <div
+          className="page-card"
+          role="status"
+        >
+          Searching individual records...
+        </div>
+      )}
+
+      {/* ERROR */}
+      {!loading && error && (
+        <div
+          className="page-card"
+          role="alert"
+        >
+          <AlertCircle
+            size={22}
+            color="#dc2626"
+          />
+
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* EMPTY RESULTS */}
+      {!loading &&
+        !error &&
+        people.length === 0 && (
+          <div className="ca-ind-state">
+            <Search size={42} />
+
+            <h2>No Matching Individuals</h2>
+
+            <p>
+              Try another name, family, district,
+              or age group.
+            </p>
+
+            <button
+              type="button"
+              className="ca-adv-outline"
+              onClick={resetFilters}
+            >
+              <RotateCcw size={17} />
+              Reset Search
+            </button>
+          </div>
+        )}
+
+      {/* SEARCH RESULTS */}
+      {!loading &&
+        !error &&
+        people.length > 0 && (
+          <>
+            <div className="ca-people-grid">
+              {people.map((person) => (
+                <article
+                  className="ca-person-card"
+                  key={person.id}
+                >
+                  <div className="ca-person-top">
+                    <div className="ca-person-avatar">
+                      <UserRound size={22} />
+                    </div>
+
+                    <div className="ca-person-identity">
+                      <h3>{person.full_name}</h3>
+                      <span>{person.person_code}</span>
+                    </div>
                   </div>
 
-                  <div className="ca-person-identity">
-                    <h3>{person.full_name}</h3>
+                  <div className="ca-adv-badges">
+                    {person.is_archived && (
+                      <span className="ca-adv-archived">
+                        Archived
+                      </span>
+                    )}
 
-                    <span>
-                      {person.person_code}
-                    </span>
+                    {person.is_head &&
+                      !person.is_archived && (
+                        <span className="ca-person-head">
+                          Head of Family
+                        </span>
+                      )}
                   </div>
-                </div>
 
-                {/* HEAD OF FAMILY BADGE */}
-
-                {person.is_head && (
-                  <span className="ca-person-head">
-                    Head of Family
-                  </span>
-                )}
-
-                {/* PERSON DETAILS */}
-
-                <div className="ca-person-details">
-                  <p>
-                    <House size={16} />
-
-                    <span>
-                      {person.family?.family_name ||
-                        "Family unavailable"}
-                    </span>
-                  </p>
-
-                  <p>
-                    <Users size={16} />
-
-                    <span>
-                      {person.relationship_to_head ||
-                        "Relationship not recorded"}
-                    </span>
-                  </p>
-
-                  <p>
-                    <MapPin size={16} />
-
-                    <span>
-                      {[
-                        person.family?.location?.village,
-                        person.family?.location?.district,
-                      ]
-                        .filter(Boolean)
-                        .join(", ") ||
-                        "Location unavailable"}
-                    </span>
-                  </p>
-
-                  {person.date_of_birth && (
+                  <div className="ca-person-details">
                     <p>
-                      <CalendarDays size={16} />
-
+                      <House size={16} />
                       <span>
-                        Born: {person.date_of_birth}
+                        {person.family.family_name}
+                        {" · "}
+                        {person.family.family_code}
                       </span>
                     </p>
-                  )}
-                </div>
 
-                {/* STEP 8.2 - PROFILE LINKS */}
+                    <p>
+                      <Users size={16} />
+                      <span>
+                        {person.relationship_to_head ||
+                          "Relationship not recorded"}
+                      </span>
+                    </p>
 
-                <div className="ca-ip-directory-actions">
-                  <Link
-                    to={`/people/${person.id}`}
-                    className="ca-ip-directory-profile"
-                  >
-                    <Users size={16} />
+                    <p>
+                      <MapPin size={16} />
+                      <span>
+                        {[
+                          person.family.location.village,
+                          person.family.location.district,
+                        ]
+                          .filter(Boolean)
+                          .join(", ") ||
+                          "Location not recorded"}
+                      </span>
+                    </p>
 
-                    View Profile
+                    <p>
+                      <CalendarDays size={16} />
+                      <span>
+                        {person.age_years === null
+                          ? "Age not recorded"
+                          : `${person.age_years} years`}
+                      </span>
+                    </p>
+                  </div>
 
-                    <ChevronRight size={16} />
-                  </Link>
+                  {/* PROFILE NAVIGATION */}
+                  <div className="ca-ip-directory-actions">
+                    {person.is_archived ? (
+                      isAdmin && (
+                        <Link
+                          className="ca-ip-directory-profile"
+                          to={`/people/${person.id}/manage`}
+                        >
+                          <Archive size={16} />
+                          Manage / Restore
+                          <ChevronRight size={16} />
+                        </Link>
+                      )
+                    ) : (
+                      <Link
+                        className="ca-ip-directory-profile"
+                        to={`/people/${person.id}`}
+                      >
+                        <UserRound size={16} />
+                        View Profile
+                        <ChevronRight size={16} />
+                      </Link>
+                    )}
 
-                  <Link
-                    to={`/households/${person.family_id}`}
-                    className="ca-person-family-link"
-                  >
-                    <House size={16} />
+                    <Link
+                      className="ca-person-family-link"
+                      to={`/households/${person.family_id}`}
+                    >
+                      <House size={16} />
+                      View Household
+                      <ChevronRight size={16} />
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
 
-                    View Household
+            {/* SERVER-SIDE PAGINATION */}
+            <nav
+              className="ca-adv-pagination"
+              aria-label="People search pages"
+            >
+              <span>
+                Showing {firstItem}–{lastItem}
+                {" of "}
+                {total} people
+              </span>
 
-                    <ChevronRight size={16} />
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
+              <div>
+                <button
+                  type="button"
+                  disabled={
+                    loading || page <= 1
+                  }
+                  onClick={() =>
+                    setPage((current) =>
+                      Math.max(1, current - 1)
+                    )
+                  }
+                >
+                  <ChevronLeft size={17} />
+                  Previous
+                </button>
 
-          {/* PAGINATION */}
+                <strong>
+                  {page} / {totalPages}
+                </strong>
 
-          <div className="ca-people-pagination">
-            <span>
-              Showing {firstItem}–{lastItem}
-              {" of "}
-              {total}
-            </span>
-
-            <div>
-              <button
-                type="button"
-                disabled={page <= 1}
-                onClick={() =>
-                  setPage((current) =>
-                    Math.max(1, current - 1)
-                  )
-                }
-                aria-label="Previous page"
-              >
-                <ChevronLeft size={17} />
-
-                Previous
-              </button>
-
-              <strong>
-                {page} / {totalPages}
-              </strong>
-
-              <button
-                type="button"
-                disabled={page >= totalPages}
-                onClick={() =>
-                  setPage((current) =>
-                    Math.min(
-                      totalPages,
+                <button
+                  type="button"
+                  disabled={
+                    loading || page >= totalPages
+                  }
+                  onClick={() =>
+                    setPage((current) =>
                       current + 1
                     )
-                  )
-                }
-                aria-label="Next page"
-              >
-                Next
-
-                <ChevronRight size={17} />
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+                  }
+                >
+                  Next
+                  <ChevronRight size={17} />
+                </button>
+              </div>
+            </nav>
+          </>
+        )}
     </div>
   );
 }
