@@ -59,7 +59,7 @@ import Settings from "./pages/Settings";
 // ==========================================
 
 import AdminUsers from "./pages/AdminUsers";
-
+import RequireAdmin from "./components/common/RequireAdmin";
 // ==========================================
 // MAIN APPLICATION
 // ==========================================
@@ -178,8 +178,12 @@ export default function App() {
             {/* Step 10 - Staff and Audit Logs */}
             <Route
               path="admin/users"
-              element={<AdminUsers />}
-            />
+                 element={
+                  <RequireAdmin>
+                    <AdminUsers />
+                  </RequireAdmin>
+  }
+/>
 
             {/* ================================
                 APPLICATION SETTINGS
