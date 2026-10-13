@@ -28,6 +28,7 @@ export async function searchPeople({
   sort = "name_asc",
   page = 1,
   pageSize = 12,
+  signal,
 } = {}) {
   const safePage = Math.max(
     1,
@@ -42,7 +43,8 @@ export async function searchPeople({
     )
   );
 
-  const { data, error } = await getClient().rpc(
+  // Existing RPC, now with optional request cancellation.
+  let request = getClient().rpc(
     "search_people_directory",
     {
       p_search: String(search).trim().slice(0, 120),
@@ -61,11 +63,16 @@ export async function searchPeople({
     }
   );
 
+  if (signal) {
+    request = request.abortSignal(signal);
+  }
+
+  const { data, error } = await request;
+
   if (error) throw error;
 
-  // Convert the flat PostgreSQL result to the
-  // same nested family structure used by
-  // our existing People and Profile pages.
+  // Preserve the nested person / family
+  // structure expected by People.jsx.
   const items = (data?.items ?? []).map((row) => ({
     id: row.id,
     person_code: row.person_code,
@@ -117,12 +124,12 @@ export async function searchPeople({
 // 2. LOAD FAMILY / LOCATION FILTER OPTIONS
 // ==========================================
 
-// Community Atlas currently has approximately
-// 300 families, so we can derive these
-// dropdown values from active families.
+// For approximately 300 families, load
+// active families once when the People
+// Directory mounts and derive the options.
 //
-// As the database grows, we can replace this
-// with a separate distinct-values RPC.
+// No persistent browser caching of
+// private community data is used.
 
 export async function getPeopleSearchOptions() {
   const families = await getActiveFamilies();

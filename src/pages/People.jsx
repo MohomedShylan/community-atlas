@@ -25,6 +25,8 @@ import {
 } from "lucide-react";
 
 import useAuth from "../hooks/useAuth";
+import useDebouncedValue from "../hooks/useDebouncedValue";
+import { measureRequest } from "../utils/measureRequest";
 
 import {
   searchPeople,
@@ -36,6 +38,10 @@ import {
   restoreIndividual,
 } from "../services/individualManagementService";
 
+// ==========================================
+// CONFIGURATION
+// ==========================================
+
 const PAGE_SIZE = 12;
 
 const EMPTY_OPTIONS = {
@@ -44,11 +50,15 @@ const EMPTY_OPTIONS = {
   villages: [],
 };
 
+// ==========================================
+// MAIN PEOPLE DIRECTORY
+// ==========================================
+
 export default function People() {
   const { profile } = useAuth();
 
   // ========================================
-  // PERMISSIONS
+  // USER PERMISSIONS
   // ========================================
 
   const isAdmin =
@@ -79,7 +89,15 @@ export default function People() {
   const [searchInput, setSearchInput] =
     useState("");
 
-  const [search, setSearch] = useState("");
+  // STEP 11.4
+  // Wait for typing to pause before querying.
+  const search = useDebouncedValue(
+    searchInput.trim(),
+    350
+  );
+
+  const waitingForSearch =
+    searchInput.trim() !== search;
 
   const [familyId, setFamilyId] =
     useState("");
@@ -105,14 +123,18 @@ export default function People() {
   const [showFilters, setShowFilters] =
     useState(true);
 
-  const [page, setPage] = useState(1);
+  const [page, setPage] =
+    useState(1);
 
   // ========================================
   // DIRECTORY DATA
   // ========================================
 
-  const [people, setPeople] = useState([]);
-  const [total, setTotal] = useState(0);
+  const [people, setPeople] =
+    useState([]);
+
+  const [total, setTotal] =
+    useState(0);
 
   const [totalPages, setTotalPages] =
     useState(1);
@@ -120,8 +142,12 @@ export default function People() {
   const [loading, setLoading] =
     useState(true);
 
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
+  const [error, setError] =
+    useState("");
+
+  const [notice, setNotice] =
+    useState("");
+
   const [actionError, setActionError] =
     useState("");
 
@@ -132,7 +158,7 @@ export default function People() {
     useState(null);
 
   // ========================================
-  // REMOVE PERSON DIALOG
+  // ARCHIVE CONFIRMATION
   // ========================================
 
   const [removeTarget, setRemoveTarget] =
@@ -166,20 +192,7 @@ export default function People() {
   }, []);
 
   // ========================================
-  // 2. DEBOUNCED SEARCH
-  // ========================================
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setSearch(searchInput.trim());
-      setPage(1);
-    }, 350);
-
-    return () => clearTimeout(timer);
-  }, [searchInput]);
-
-  // ========================================
-  // 3. RESTRICT ARCHIVED STATUS
+  // 2. RESTRICT ARCHIVED RECORDS
   // ========================================
 
   useEffect(() => {
@@ -190,31 +203,64 @@ export default function People() {
   }, [isAdmin, status]);
 
   // ========================================
-  // 4. LOAD PEOPLE FROM SUPABASE
+  // 3. LOAD PEOPLE FROM SUPABASE
+  // STEP 11.4 - CANCELLABLE QUERIES
   // ========================================
 
   useEffect(() => {
+    // Do not request the previous search term
+    // while the user is entering a new one.
+    if (waitingForSearch) {
+      setLoading(true);
+      return;
+    }
+
     let active = true;
+    let adjustingPage = false;
+
+    const controller = new AbortController();
 
     setLoading(true);
     setError("");
 
-    searchPeople({
-      search,
-      familyId,
-      district,
-      village,
-      ageGroup,
-      gender,
-      status: isAdmin ? status : "active",
-      sort,
-      page,
-      pageSize: PAGE_SIZE,
-    })
-      .then((result) => {
-        if (!active) return;
+    async function loadPeople() {
+      try {
+        const result = await measureRequest(
+          "People directory",
+          () =>
+            searchPeople({
+              search,
+              familyId,
+              district,
+              village,
+              ageGroup,
+              gender,
 
+              status: isAdmin
+                ? status
+                : "active",
+
+              sort,
+              page,
+              pageSize: PAGE_SIZE,
+
+              signal: controller.signal,
+            })
+        );
+
+        if (
+          !active ||
+          controller.signal.aborted
+        ) {
+          return;
+        }
+
+        // The current page may no longer exist
+        // after archiving a record or changing
+        // a filter.
         if (page > result.totalPages) {
+          adjustingPage = true;
+
           setPage(result.totalPages);
           return;
         }
@@ -222,29 +268,47 @@ export default function People() {
         setPeople(result.items);
         setTotal(result.total);
         setTotalPages(result.totalPages);
-      })
-      .catch((err) => {
-        if (!active) return;
+
+      } catch (err) {
+        if (
+          !active ||
+          controller.signal.aborted
+        ) {
+          return;
+        }
 
         setError(
-          err.message || "Could not load people."
+          err.message ||
+          "Could not load people."
         );
 
         setPeople([]);
         setTotal(0);
         setTotalPages(1);
-      })
-      .finally(() => {
-        if (active) {
+
+      } finally {
+        if (
+          active &&
+          !controller.signal.aborted &&
+          !adjustingPage
+        ) {
           setLoading(false);
         }
-      });
+      }
+    }
 
+    void loadPeople();
+
+    // Cancel the old request when filters,
+    // search text, pagination, or role change.
     return () => {
       active = false;
+      controller.abort();
     };
+
   }, [
     search,
+    waitingForSearch,
     familyId,
     district,
     village,
@@ -258,7 +322,7 @@ export default function People() {
   ]);
 
   // ========================================
-  // 5. AVAILABLE VILLAGES
+  // 4. AVAILABLE VILLAGES
   // ========================================
 
   const availableVillages = useMemo(
@@ -273,7 +337,7 @@ export default function People() {
   );
 
   // ========================================
-  // 6. FILTER HELPERS
+  // 5. FILTER HELPERS
   // ========================================
 
   function changeFilter(setter, value) {
@@ -283,7 +347,6 @@ export default function People() {
 
   function resetFilters() {
     setSearchInput("");
-    setSearch("");
 
     setFamilyId("");
     setDistrict("");
@@ -298,7 +361,7 @@ export default function People() {
   }
 
   // ========================================
-  // 7. OPEN REMOVE CONFIRMATION
+  // 6. OPEN ARCHIVE CONFIRMATION
   // ========================================
 
   function openRemove(person) {
@@ -316,7 +379,7 @@ export default function People() {
   }
 
   // ========================================
-  // 8. REMOVE INDIVIDUAL
+  // 7. ARCHIVE INDIVIDUAL
   // ========================================
 
   async function handleRemove(event) {
@@ -356,23 +419,29 @@ export default function People() {
         `${person.full_name} was archived successfully.`
       );
 
-      setRefreshKey((value) => value + 1);
+      setRefreshKey(
+        (value) => value + 1
+      );
+
     } catch (err) {
       setActionError(
         err.message ||
         "Could not remove individual."
       );
+
     } finally {
       setBusyPersonId(null);
     }
   }
 
   // ========================================
-  // 9. RESTORE INDIVIDUAL
+  // 8. RESTORE INDIVIDUAL
   // ========================================
 
   async function handleRestore(person) {
-    if (!isAdmin || busyPersonId) return;
+    if (!isAdmin || busyPersonId) {
+      return;
+    }
 
     const confirmed = window.confirm(
       `Restore ${person.full_name} (${person.person_code})?`
@@ -391,19 +460,23 @@ export default function People() {
         `${person.full_name} was restored successfully.`
       );
 
-      setRefreshKey((value) => value + 1);
+      setRefreshKey(
+        (value) => value + 1
+      );
+
     } catch (err) {
       setActionError(
         err.message ||
         "Could not restore individual."
       );
+
     } finally {
       setBusyPersonId(null);
     }
   }
 
   // ========================================
-  // 10. PAGINATION AND FILTER STATUS
+  // 9. PAGINATION AND FILTER STATUS
   // ========================================
 
   const hasFilters = Boolean(
@@ -417,6 +490,9 @@ export default function People() {
     sort !== "name_asc"
   );
 
+  const isSearching =
+    loading || waitingForSearch;
+
   const firstItem = total
     ? (page - 1) * PAGE_SIZE + 1
     : 0;
@@ -427,7 +503,7 @@ export default function People() {
   );
 
   // ========================================
-  // 11. PEOPLE PAGE
+  // 10. PEOPLE PAGE
   // ========================================
 
   return (
@@ -470,13 +546,20 @@ export default function People() {
               Add Person
             </Link>
           )}
+
         </div>
       </header>
 
-      {/* SEARCH AND FILTERS */}
+      {/* ====================================
+          SEARCH AND FILTERS
+      ==================================== */}
 
       <section className="ca-adv-search-panel">
+
         <div className="ca-adv-search-row">
+
+          {/* SEARCH INPUT */}
+
           <div className="ca-adv-search-field">
             <Search size={19} />
 
@@ -486,16 +569,24 @@ export default function People() {
               maxLength={120}
               placeholder="Search name, person code, family or address..."
               aria-label="Search people"
-              onChange={(event) =>
-                setSearchInput(event.target.value)
-              }
+
+              onChange={(event) => {
+                setSearchInput(
+                  event.target.value
+                );
+
+                setPage(1);
+              }}
             />
           </div>
+
+          {/* FILTER TOGGLE */}
 
           <button
             type="button"
             className="ca-adv-filter-toggle"
             aria-expanded={showFilters}
+
             onClick={() =>
               setShowFilters(
                 (value) => !value
@@ -507,10 +598,13 @@ export default function People() {
           </button>
         </div>
 
+        {/* FILTER OPTIONS */}
+
         {showFilters && (
           <div className="ca-adv-filters">
 
-            {/* FAMILY FILTER */}
+            {/* FAMILY */}
+
             <label>
               Family
 
@@ -540,7 +634,8 @@ export default function People() {
               </select>
             </label>
 
-            {/* DISTRICT FILTER */}
+            {/* DISTRICT */}
+
             <label>
               District
 
@@ -567,7 +662,8 @@ export default function People() {
               </select>
             </label>
 
-            {/* VILLAGE FILTER */}
+            {/* VILLAGE */}
+
             <label>
               Village
 
@@ -599,7 +695,8 @@ export default function People() {
               </select>
             </label>
 
-            {/* AGE FILTER */}
+            {/* AGE GROUP */}
+
             <label>
               Age Group
 
@@ -634,7 +731,8 @@ export default function People() {
               </select>
             </label>
 
-            {/* GENDER FILTER */}
+            {/* GENDER */}
+
             <label>
               Gender
 
@@ -673,7 +771,8 @@ export default function People() {
               </select>
             </label>
 
-            {/* ADMIN STATUS FILTER */}
+            {/* RECORD STATUS - ADMIN ONLY */}
+
             {isAdmin && (
               <label>
                 Record Status
@@ -702,7 +801,8 @@ export default function People() {
               </label>
             )}
 
-            {/* SORT FILTER */}
+            {/* SORT ORDER */}
+
             <label>
               Sort Results
 
@@ -736,8 +836,11 @@ export default function People() {
                 </option>
               </select>
             </label>
+
           </div>
         )}
+
+        {/* CLEAR FILTERS */}
 
         {hasFilters && (
           <div className="ca-adv-filter-footer">
@@ -752,10 +855,15 @@ export default function People() {
         )}
       </section>
 
-      {/* NOTIFICATIONS */}
+      {/* ====================================
+          NOTIFICATIONS
+      ==================================== */}
 
       {optionsError && (
-        <div className="ca-ind-alert" role="alert">
+        <div
+          className="ca-ind-alert"
+          role="alert"
+        >
           <AlertCircle size={17} />
           Filter options: {optionsError}
         </div>
@@ -781,14 +889,19 @@ export default function People() {
         </div>
       )}
 
-      {/* RESULTS SUMMARY */}
+      {/* ====================================
+          RESULTS SUMMARY
+      ==================================== */}
 
-      <div className="ca-adv-summary">
+      <div
+        className="ca-adv-summary"
+        aria-busy={isSearching}
+      >
         <div>
           <Users size={19} />
 
           <strong>
-            {loading
+            {isSearching
               ? "Searching..."
               : `${total} matching people`}
           </strong>
@@ -802,7 +915,7 @@ export default function People() {
 
       {/* LOADING */}
 
-      {loading && (
+      {isSearching && (
         <div
           className="page-card"
           role="status"
@@ -813,7 +926,7 @@ export default function People() {
 
       {/* FETCH ERROR */}
 
-      {!loading && error && (
+      {!isSearching && error && (
         <div
           className="page-card"
           role="alert"
@@ -825,13 +938,15 @@ export default function People() {
 
       {/* EMPTY RESULTS */}
 
-      {!loading &&
+      {!isSearching &&
         !error &&
         people.length === 0 && (
           <div className="ca-ind-state">
             <Search size={40} />
 
-            <h2>No Matching Individuals</h2>
+            <h2>
+              No Matching Individuals
+            </h2>
 
             <p>
               Try different filters or register
@@ -849,13 +964,17 @@ export default function People() {
           </div>
         )}
 
-      {/* PEOPLE CARDS */}
+      {/* ====================================
+          PEOPLE CARDS
+      ==================================== */}
 
-      {!loading &&
+      {!isSearching &&
         !error &&
         people.length > 0 && (
           <>
+
             <div className="ca-people-grid">
+
               {people.map((person) => (
                 <article
                   className="ca-person-card"
@@ -863,19 +982,27 @@ export default function People() {
                 >
 
                   {/* PERSON IDENTITY */}
+
                   <div className="ca-person-top">
                     <div className="ca-person-avatar">
                       <UserRound size={22} />
                     </div>
 
                     <div className="ca-person-identity">
-                      <h3>{person.full_name}</h3>
-                      <span>{person.person_code}</span>
+                      <h3>
+                        {person.full_name}
+                      </h3>
+
+                      <span>
+                        {person.person_code}
+                      </span>
                     </div>
                   </div>
 
-                  {/* STATUS */}
+                  {/* STATUS BADGES */}
+
                   <div className="ca-adv-badges">
+
                     {person.is_archived && (
                       <span className="ca-adv-archived">
                         Archived
@@ -890,8 +1017,10 @@ export default function People() {
                       )}
                   </div>
 
-                  {/* PERSONAL DETAILS */}
+                  {/* PERSON DETAILS */}
+
                   <div className="ca-person-details">
+
                     <p>
                       <House size={16} />
 
@@ -940,12 +1069,13 @@ export default function People() {
                   </div>
 
                   {/* ==================================
-                      DIRECT MANAGEMENT ACTIONS
+                      MANAGEMENT ACTIONS
                   ================================== */}
 
                   <div className="ca-people-card-actions">
 
-                    {/* VIEW PROFILE */}
+                    {/* VIEW / MANAGE */}
+
                     {!person.is_archived ? (
                       <Link
                         className="ca-people-action-btn"
@@ -964,7 +1094,8 @@ export default function People() {
                       </Link>
                     ) : null}
 
-                    {/* EDIT PERSON */}
+                    {/* EDIT */}
+
                     {canEdit &&
                       !person.is_archived && (
                         <Link
@@ -976,21 +1107,25 @@ export default function People() {
                         </Link>
                       )}
 
-                    {/* REMOVE PERSON */}
+                    {/* REMOVE */}
+
                     {isAdmin &&
                       !person.is_archived && (
                         <button
                           type="button"
                           className="ca-people-action-btn is-danger"
+
                           disabled={
                             Boolean(busyPersonId) ||
                             person.is_head
                           }
+
                           title={
                             person.is_head
                               ? "Assign another family head first"
                               : "Archive this person"
                           }
+
                           onClick={() =>
                             openRemove(person)
                           }
@@ -1000,13 +1135,15 @@ export default function People() {
                         </button>
                       )}
 
-                    {/* RESTORE PERSON */}
+                    {/* RESTORE */}
+
                     {isAdmin &&
                       person.is_archived && (
                         <button
                           type="button"
                           className="ca-people-action-btn is-restore"
                           disabled={Boolean(busyPersonId)}
+
                           onClick={() =>
                             handleRestore(person)
                           }
@@ -1019,7 +1156,8 @@ export default function People() {
                         </button>
                       )}
 
-                    {/* VIEW HOUSEHOLD */}
+                    {/* HOUSEHOLD */}
+
                     <Link
                       className="ca-people-action-btn is-household"
                       to={`/households/${person.family_id}`}
@@ -1043,7 +1181,10 @@ export default function People() {
               ))}
             </div>
 
-            {/* PAGINATION */}
+            {/* ==================================
+                PAGINATION
+            ================================== */}
+
             <nav
               className="ca-adv-pagination"
               aria-label="People results pages"
@@ -1057,10 +1198,15 @@ export default function People() {
               <div>
                 <button
                   type="button"
-                  disabled={page <= 1 || loading}
+                  disabled={
+                    page <= 1 ||
+                    isSearching
+                  }
+
                   onClick={() =>
-                    setPage((current) =>
-                      Math.max(1, current - 1)
+                    setPage(
+                      (current) =>
+                        Math.max(1, current - 1)
                     )
                   }
                 >
@@ -1076,10 +1222,13 @@ export default function People() {
                   type="button"
                   disabled={
                     page >= totalPages ||
-                    loading
+                    isSearching
                   }
+
                   onClick={() =>
-                    setPage((current) => current + 1)
+                    setPage(
+                      (current) => current + 1
+                    )
                   }
                 >
                   Next
@@ -1087,12 +1236,13 @@ export default function People() {
                 </button>
               </div>
             </nav>
+
           </>
         )}
 
-      {/* ======================================
+      {/* ====================================
           REMOVE CONFIRMATION DIALOG
-      ====================================== */}
+      ==================================== */}
 
       {isAdmin && removeTarget && (
         <div className="ca-people-modal-backdrop">
@@ -1102,18 +1252,21 @@ export default function People() {
             aria-modal="true"
             aria-labelledby="ca-people-remove-title"
           >
+
             <div className="ca-people-modal-heading">
+
               <h2 id="ca-people-remove-title">
                 Remove Individual
               </h2>
 
               <button
                 type="button"
+                disabled={Boolean(busyPersonId)}
+                aria-label="Close dialog"
+
                 onClick={() =>
                   setRemoveTarget(null)
                 }
-                disabled={Boolean(busyPersonId)}
-                aria-label="Close dialog"
               >
                 <X size={19} />
               </button>
@@ -1147,9 +1300,13 @@ export default function People() {
                 autoComplete="off"
                 value={confirmCode}
                 disabled={Boolean(busyPersonId)}
+
                 onChange={(event) =>
-                  setConfirmCode(event.target.value)
+                  setConfirmCode(
+                    event.target.value
+                  )
                 }
+
                 placeholder={removeTarget.person_code}
               />
 
@@ -1166,6 +1323,7 @@ export default function People() {
                 <button
                   type="button"
                   disabled={Boolean(busyPersonId)}
+
                   onClick={() =>
                     setRemoveTarget(null)
                   }
@@ -1176,6 +1334,7 @@ export default function People() {
                 <button
                   type="submit"
                   className="is-danger"
+
                   disabled={
                     Boolean(busyPersonId) ||
                     confirmCode.trim() !==
@@ -1190,9 +1349,11 @@ export default function People() {
                 </button>
               </div>
             </form>
+
           </section>
         </div>
       )}
+
     </div>
   );
 }

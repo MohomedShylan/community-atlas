@@ -1,35 +1,33 @@
 
-import { useEffect, useState } from "react";
-
 /**
- * Returns a debounced version of a value.
+ * Measure a request without logging
+ * personally identifiable data.
  *
- * Example:
- * const delayedSearch = useDebouncedValue(
- *   search,
- *   300
- * );
- *
- * @param {*} value
- * @param {number} delay
- * @returns {*}
+ * Timings appear in development only.
  */
-export default function useDebouncedValue(
-  value,
-  delay = 300
+
+export async function measureRequest(
+  label,
+  operation
 ) {
-  const [debouncedValue, setDebouncedValue] =
-    useState(value);
+  if (typeof operation !== "function") {
+    throw new TypeError(
+      "measureRequest requires an operation function."
+    );
+  }
 
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
+  const startedAt = performance.now();
 
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [value, delay]);
+  try {
+    return await operation();
+  } finally {
+    const duration =
+      performance.now() - startedAt;
 
-  return debouncedValue;
+    if (import.meta.env.DEV) {
+      console.info(
+        `[Community Atlas Performance] ${label}: ${duration.toFixed(1)} ms`
+      );
+    }
+  }
 }
