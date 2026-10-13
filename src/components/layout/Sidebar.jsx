@@ -10,9 +10,9 @@ import {
   Settings,
   ShieldCheck,
   ChevronRight,
+  WifiOff,
 } from "lucide-react";
 
-// STEP 10 - Authentication hook
 import useAuth from "../../hooks/useAuth";
 
 // ==========================================
@@ -52,15 +52,61 @@ const navigationItems = [
 // ==========================================
 
 function Sidebar({ isOpen, onNavigate }) {
-
-  // STEP 10 - Get authenticated user profile
   const { profile } = useAuth();
 
-  // Only approved Administrators can see
-  // the Administration navigation link.
-  const isAdmin =
-    profile?.role === "admin" &&
+  // ========================================
+  // ROLE PERMISSIONS
+  // ========================================
+
+  const isActive =
     profile?.is_active === true;
+
+  const isAdmin =
+    isActive &&
+    profile?.role === "admin";
+
+  const canUseOffline =
+    isActive &&
+    (
+      profile?.role === "admin" ||
+      profile?.role === "editor"
+    );
+
+  // ========================================
+  // NAVIGATION LINK HELPER
+  // ========================================
+
+  function renderLink(item) {
+    const Icon = item.icon;
+
+    return (
+      <NavLink
+        key={item.path}
+        to={item.path}
+        end={item.path === "/"}
+        onClick={onNavigate}
+        className={({ isActive: selected }) =>
+          `sidebar-link ${selected ? "active" : ""}`
+        }
+      >
+        <Icon
+          size={19}
+          strokeWidth={1.9}
+        />
+
+        <span>{item.label}</span>
+
+        <ChevronRight
+          className="sidebar-link-arrow"
+          size={16}
+        />
+      </NavLink>
+    );
+  }
+
+  // ========================================
+  // MAIN SIDEBAR
+  // ========================================
 
   return (
     <aside
@@ -69,9 +115,7 @@ function Sidebar({ isOpen, onNavigate }) {
       aria-label="Application sidebar"
     >
 
-      {/* ====================================
-          SIDEBAR HEADER
-      ==================================== */}
+      {/* SIDEBAR HEADER */}
 
       <div className="sidebar-header">
         <div className="sidebar-logo">
@@ -87,13 +131,11 @@ function Sidebar({ isOpen, onNavigate }) {
         </div>
       </div>
 
-      {/* ====================================
-          SIDEBAR CONTENT
-      ==================================== */}
+      {/* SIDEBAR CONTENT */}
 
       <div className="sidebar-content">
 
-        {/* WORKSPACE SECTION */}
+        {/* WORKSPACE */}
 
         <p className="sidebar-section-title">
           WORKSPACE
@@ -103,38 +145,10 @@ function Sidebar({ isOpen, onNavigate }) {
           className="sidebar-nav"
           aria-label="Main navigation"
         >
-          {navigationItems.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.path === "/"}
-                onClick={onNavigate}
-                className={({ isActive }) =>
-                  `sidebar-link ${isActive ? "active" : ""}`
-                }
-              >
-                <Icon
-                  size={19}
-                  strokeWidth={1.9}
-                />
-
-                <span>{item.label}</span>
-
-                <ChevronRight
-                  className="sidebar-link-arrow"
-                  size={16}
-                />
-              </NavLink>
-            );
-          })}
+          {navigationItems.map(renderLink)}
         </nav>
 
-        {/* ====================================
-            SYSTEM SECTION
-        ==================================== */}
+        {/* SYSTEM */}
 
         <p className="sidebar-section-title sidebar-settings-title">
           SYSTEM
@@ -145,19 +159,14 @@ function Sidebar({ isOpen, onNavigate }) {
           aria-label="System navigation"
         >
 
-          {/* ==================================
-              STEP 10 - ADMINISTRATION LINK
-
-              Visible only to approved
-              Administrators.
-          ================================== */}
+          {/* ADMINISTRATION - ADMIN ONLY */}
 
           {isAdmin && (
             <NavLink
               to="/admin/users"
               onClick={onNavigate}
-              className={({ isActive }) =>
-                `sidebar-link ${isActive ? "active" : ""}`
+              className={({ isActive: selected }) =>
+                `sidebar-link ${selected ? "active" : ""}`
               }
             >
               <ShieldCheck
@@ -174,13 +183,37 @@ function Sidebar({ isOpen, onNavigate }) {
             </NavLink>
           )}
 
+          {/* OFFLINE WORKSPACE - ADMIN / EDITOR */}
+
+          {canUseOffline && (
+            <NavLink
+              to="/offline"
+              onClick={onNavigate}
+              className={({ isActive: selected }) =>
+                `sidebar-link ${selected ? "active" : ""}`
+              }
+            >
+              <WifiOff
+                size={19}
+                strokeWidth={1.9}
+              />
+
+              <span>Offline Workspace</span>
+
+              <ChevronRight
+                className="sidebar-link-arrow"
+                size={16}
+              />
+            </NavLink>
+          )}
+
           {/* SETTINGS */}
 
           <NavLink
             to="/settings"
             onClick={onNavigate}
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? "active" : ""}`
+            className={({ isActive: selected }) =>
+              `sidebar-link ${selected ? "active" : ""}`
             }
           >
             <Settings
@@ -199,9 +232,7 @@ function Sidebar({ isOpen, onNavigate }) {
         </nav>
       </div>
 
-      {/* ====================================
-          SIDEBAR FOOTER
-      ==================================== */}
+      {/* SIDEBAR FOOTER */}
 
       <div className="sidebar-footer">
         <div className="sidebar-footer-icon">

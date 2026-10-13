@@ -22,6 +22,9 @@ import "./styles/advanced-people.css";
 import "./styles/reports.css";
 import "./styles/admin-users.css";
 import "./styles/person-management.css";
+import "./styles/offline.css";
+
+
 
 // Custom map styling
 import "./styles/map.css";

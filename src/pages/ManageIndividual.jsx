@@ -19,6 +19,7 @@ import {
   House,
   Save,
   X,
+  WifiOff,
 } from "lucide-react";
 
 import useAuth from "../hooks/useAuth";
@@ -148,18 +149,17 @@ export default function ManageIndividual() {
   // TRANSFER STATE
   // ========================================
 
-  const [targetFamilyId, setTargetFamilyId] =
-    useState("");
+  const [
+    targetFamilyId,
+    setTargetFamilyId,
+  ] = useState("");
 
   // ========================================
   // ARCHIVE CONFIRMATION
   // ========================================
 
-  const [showRemove, setShowRemove] =
-    useState(false);
-
-  const [confirmCode, setConfirmCode] =
-    useState("");
+  const [showRemove, setShowRemove] = useState(false);
+  const [confirmCode, setConfirmCode] = useState("");
 
   // ========================================
   // REFRESH HELPER
@@ -214,8 +214,8 @@ export default function ManageIndividual() {
 
         setTargetFamilyId("");
 
-        // Family choices are only needed
-        // for Administrator transfers.
+        // Destination families are needed
+        // only for Administrator transfers.
         if (isAdmin) {
           try {
             const familyData =
@@ -234,6 +234,8 @@ export default function ManageIndividual() {
               );
             }
           }
+        } else {
+          setFamilies([]);
         }
       } catch (err) {
         if (!active) return;
@@ -384,7 +386,10 @@ export default function ManageIndividual() {
   // ========================================
 
   async function handleTransfer() {
-    if (!record?.person || !targetFamilyId) {
+    if (
+      !record?.person ||
+      !targetFamilyId
+    ) {
       return;
     }
 
@@ -615,9 +620,7 @@ export default function ManageIndividual() {
   return (
     <div className="ca-pm-page">
 
-      {/* ====================================
-          BACK NAVIGATION
-      ==================================== */}
+      {/* BACK NAVIGATION */}
 
       <Link
         to={backLink}
@@ -665,8 +668,28 @@ export default function ManageIndividual() {
       </header>
 
       {/* ====================================
-          SUCCESS MESSAGE
+          STEP 11.3 - OFFLINE EDIT ACTION
+
+          Available only for active people
+          in active households.
       ==================================== */}
+
+      {canModify && (
+        <div className="ca-pm-actions">
+          <Link
+            to={`/offline?personId=${encodeURIComponent(
+              person.id
+            )}`}
+            className="ca-pm-secondary"
+            title="Save this person for encrypted offline editing"
+          >
+            <WifiOff size={17} />
+            Offline Edit
+          </Link>
+        </div>
+      )}
+
+      {/* SUCCESS MESSAGE */}
 
       {success && (
         <div
@@ -678,9 +701,7 @@ export default function ManageIndividual() {
         </div>
       )}
 
-      {/* ====================================
-          ERROR MESSAGE
-      ==================================== */}
+      {/* ERROR MESSAGE */}
 
       {error && (
         <div
@@ -692,9 +713,7 @@ export default function ManageIndividual() {
         </div>
       )}
 
-      {/* ====================================
-          ARCHIVED HOUSEHOLD WARNING
-      ==================================== */}
+      {/* ARCHIVED HOUSEHOLD WARNING */}
 
       {!familyActive && (
         <div className="ca-pm-warning">
@@ -708,9 +727,7 @@ export default function ManageIndividual() {
           </span>
 
           {isAdmin && family?.id && (
-            <Link
-              to={`/households/${family.id}`}
-            >
+            <Link to={`/households/${family.id}`}>
               View Household
             </Link>
           )}
@@ -723,22 +740,19 @@ export default function ManageIndividual() {
 
       <div className="ca-pm-layout">
 
-        {/* ==================================
-            MAIN CONTENT
-        ================================== */}
+        {/* MAIN CONTENT */}
 
         <main className="ca-pm-main">
 
-          {/* ================================
+          {/* ==============================
               EDIT PERSONAL INFORMATION
-          ================================ */}
+          ============================== */}
 
           {canModify && (
             <section className="ca-pm-card">
 
               <div className="ca-pm-heading">
                 <UserRound size={21} />
-
                 <h2>Edit Personal Information</h2>
               </div>
 
@@ -749,6 +763,7 @@ export default function ManageIndividual() {
                 <div className="ca-pm-grid">
 
                   {/* FULL NAME */}
+
                   <label className="ca-pm-wide">
                     Full Name *
 
@@ -769,6 +784,7 @@ export default function ManageIndividual() {
                   </label>
 
                   {/* DATE OF BIRTH */}
+
                   <label>
                     Date of Birth
 
@@ -786,6 +802,7 @@ export default function ManageIndividual() {
                   </label>
 
                   {/* GENDER */}
+
                   <label>
                     Gender
 
@@ -822,6 +839,7 @@ export default function ManageIndividual() {
                   </label>
 
                   {/* RELATIONSHIP */}
+
                   <label>
                     Relationship to Head
 
@@ -829,7 +847,10 @@ export default function ManageIndividual() {
                       type="text"
                       value={form.relationshipToHead}
                       maxLength={100}
-                      disabled={saving || person.is_head}
+                      disabled={
+                        saving ||
+                        person.is_head
+                      }
                       onChange={(event) =>
                         updateField(
                           "relationshipToHead",
@@ -840,6 +861,7 @@ export default function ManageIndividual() {
                   </label>
 
                   {/* PHONE NUMBER */}
+
                   <label>
                     Phone Number
 
@@ -858,6 +880,7 @@ export default function ManageIndividual() {
                   </label>
 
                   {/* NOTES */}
+
                   <label className="ca-pm-wide">
                     Notes
 
@@ -895,16 +918,15 @@ export default function ManageIndividual() {
             </section>
           )}
 
-          {/* ================================
+          {/* ==============================
               CHANGE HEAD OF FAMILY
-          ================================ */}
+          ============================== */}
 
           {canModify && (
             <section className="ca-pm-card">
 
               <div className="ca-pm-heading">
                 <Users size={21} />
-
                 <h2>Family Head Management</h2>
               </div>
 
@@ -975,17 +997,16 @@ export default function ManageIndividual() {
             </section>
           )}
 
-          {/* ================================
+          {/* ==============================
               TRANSFER INDIVIDUAL
               ADMIN ONLY
-          ================================ */}
+          ============================== */}
 
           {isAdmin && canModify && (
             <section className="ca-pm-card">
 
               <div className="ca-pm-heading">
                 <ArrowRightLeft size={21} />
-
                 <h2>Transfer Individual</h2>
               </div>
 
@@ -1054,17 +1075,16 @@ export default function ManageIndividual() {
             </section>
           )}
 
-          {/* ================================
+          {/* ==============================
               REMOVE / ARCHIVE
               ADMIN ONLY
-          ================================ */}
+          ============================== */}
 
           {isAdmin && canModify && (
             <section className="ca-pm-card ca-pm-danger-zone">
 
               <div className="ca-pm-heading">
                 <Archive size={21} />
-
                 <h2>Remove Individual</h2>
               </div>
 
@@ -1122,7 +1142,6 @@ export default function ManageIndividual() {
                       />
 
                       <div className="ca-pm-actions">
-
                         <button
                           type="button"
                           className="ca-pm-secondary"
@@ -1149,7 +1168,6 @@ export default function ManageIndividual() {
                           <Archive size={17} />
                           Confirm Removal
                         </button>
-
                       </div>
                     </div>
                   )}
@@ -1158,17 +1176,16 @@ export default function ManageIndividual() {
             </section>
           )}
 
-          {/* ================================
+          {/* ==============================
               RESTORE ARCHIVED INDIVIDUAL
               ADMIN ONLY
-          ================================ */}
+          ============================== */}
 
           {isAdmin && person.is_archived && (
             <section className="ca-pm-card">
 
               <div className="ca-pm-heading">
                 <RotateCcw size={21} />
-
                 <h2>Restore Individual</h2>
               </div>
 
@@ -1183,7 +1200,6 @@ export default function ManageIndividual() {
               {!familyActive && (
                 <div className="ca-pm-warning">
                   <AlertCircle size={18} />
-
                   Restore the household first.
                 </div>
               )}
@@ -1215,11 +1231,10 @@ export default function ManageIndividual() {
         <aside className="ca-pm-sidebar">
 
           {/* FAMILY DETAILS */}
-          <section className="ca-pm-card">
 
+          <section className="ca-pm-card">
             <div className="ca-pm-heading">
               <House size={21} />
-
               <h2>Family Information</h2>
             </div>
 
@@ -1253,12 +1268,11 @@ export default function ManageIndividual() {
             )}
           </section>
 
-          {/* FAMILY MEMBERS */}
-          <section className="ca-pm-card">
+          {/* ACTIVE FAMILY MEMBERS */}
 
+          <section className="ca-pm-card">
             <div className="ca-pm-heading">
               <Users size={21} />
-
               <h2>Active Family Members</h2>
             </div>
 
@@ -1286,10 +1300,8 @@ export default function ManageIndividual() {
                       </strong>
                     )}
                   </span>
-
                 </div>
               ))}
-
             </div>
           </section>
 
