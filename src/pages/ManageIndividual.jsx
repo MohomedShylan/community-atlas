@@ -19,7 +19,6 @@ import {
   House,
   Save,
   X,
-  WifiOff,
 } from "lucide-react";
 
 import useAuth from "../hooks/useAuth";
@@ -674,21 +673,7 @@ export default function ManageIndividual() {
           in active households.
       ==================================== */}
 
-      {canModify && (
-        <div className="ca-pm-actions">
-          <Link
-            to={`/offline?personId=${encodeURIComponent(
-              person.id
-            )}`}
-            className="ca-pm-secondary"
-            title="Save this person for encrypted offline editing"
-          >
-            <WifiOff size={17} />
-            Offline Edit
-          </Link>
-        </div>
-      )}
-
+      
       {/* SUCCESS MESSAGE */}
 
       {success && (

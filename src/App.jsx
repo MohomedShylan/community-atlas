@@ -53,7 +53,6 @@ import ArchivedIndividuals from "./pages/ArchivedIndividuals";
 
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
-import OfflineWorkspace from "./pages/OfflineWorkspace";
 // ==========================================
 // STEP 10 - ADMINISTRATOR MANAGEMENT
 // ==========================================
@@ -211,10 +210,7 @@ export default function App() {
           }
         />
 
-        <Route
-  path="/offline"
-  element={<OfflineWorkspace />}
-/>
+
 
       </Routes>
     </BrowserRouter>

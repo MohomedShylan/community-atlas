@@ -10,7 +10,6 @@ import {
   Settings,
   ShieldCheck,
   ChevronRight,
-  WifiOff,
 } from "lucide-react";
 
 import useAuth from "../../hooks/useAuth";
@@ -65,12 +64,6 @@ function Sidebar({ isOpen, onNavigate }) {
     isActive &&
     profile?.role === "admin";
 
-  const canUseOffline =
-    isActive &&
-    (
-      profile?.role === "admin" ||
-      profile?.role === "editor"
-    );
 
   // ========================================
   // NAVIGATION LINK HELPER
@@ -185,28 +178,7 @@ function Sidebar({ isOpen, onNavigate }) {
 
           {/* OFFLINE WORKSPACE - ADMIN / EDITOR */}
 
-          {canUseOffline && (
-            <NavLink
-              to="/offline"
-              onClick={onNavigate}
-              className={({ isActive: selected }) =>
-                `sidebar-link ${selected ? "active" : ""}`
-              }
-            >
-              <WifiOff
-                size={19}
-                strokeWidth={1.9}
-              />
-
-              <span>Offline Workspace</span>
-
-              <ChevronRight
-                className="sidebar-link-arrow"
-                size={16}
-              />
-            </NavLink>
-          )}
-
+        
           {/* SETTINGS */}
 
           <NavLink
