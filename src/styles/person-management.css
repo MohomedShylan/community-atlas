@@ -1,0 +1,869 @@
+
+/* ============================================
+   COMMUNITY ATLAS
+   STEP 8.3 - INDIVIDUAL MANAGEMENT
+   Edit / Transfer / Remove / Restore
+============================================ */
+
+/* ============================================
+   PAGE CONTAINER
+============================================ */
+
+.ca-pm-page {
+  width: 100%;
+  max-width: 1400px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 8px 0 35px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+
+  color: #26384b;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.ca-pm-page *,
+.ca-pm-page *::before,
+.ca-pm-page *::after {
+  box-sizing: border-box;
+}
+
+/* ============================================
+   BACK NAVIGATION
+============================================ */
+
+.ca-pm-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  width: fit-content;
+
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+
+  transition: color 0.2s ease;
+}
+
+.ca-pm-back:hover {
+  color: #087f69;
+}
+
+/* ============================================
+   PROFILE HEADER
+============================================ */
+
+.ca-pm-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  padding: 26px 28px;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+
+  box-shadow: 0 3px 14px rgba(15, 23, 42, 0.035);
+}
+
+.ca-pm-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
+
+  background: #e8f7f0;
+  border: 1px solid #cae9dc;
+  border-radius: 18px;
+
+  color: #087f69;
+}
+
+.ca-pm-header > div:nth-child(2) {
+  min-width: 0;
+  flex: 1;
+}
+
+.ca-pm-eyebrow {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #087f69;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+}
+
+.ca-pm-header h1 {
+  margin: 0 0 9px;
+
+  color: #1e293b;
+  font-size: clamp(21px, 2.5vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  line-height: 1.25;
+
+  overflow-wrap: anywhere;
+}
+
+.ca-pm-header p {
+  margin: 0;
+
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.ca-pm-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 8px 15px;
+
+  border-radius: 30px;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+
+  color: #15803d;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.ca-pm-status.is-archived {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+/* ============================================
+   MAIN CONTENT LAYOUT
+============================================ */
+
+.ca-pm-layout {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.7fr)
+    minmax(280px, 0.85fr);
+
+  gap: 22px;
+  align-items: start;
+
+  width: 100%;
+  min-width: 0;
+}
+
+.ca-pm-main,
+.ca-pm-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+
+  min-width: 0;
+}
+
+/* ============================================
+   CONTENT CARDS
+============================================ */
+
+.ca-pm-card {
+  width: 100%;
+  min-width: 0;
+
+  padding: 26px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 15px;
+  background: #ffffff;
+
+  box-shadow: 0 3px 14px rgba(15, 23, 42, 0.035);
+}
+
+.ca-pm-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  margin-bottom: 21px;
+  padding-bottom: 17px;
+
+  border-bottom: 1px solid #edf2f7;
+  color: #087f69;
+}
+
+.ca-pm-heading svg {
+  flex-shrink: 0;
+}
+
+.ca-pm-heading h2 {
+  margin: 0;
+
+  color: #1e293b;
+  font-size: 17px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.ca-pm-card > p {
+  margin: 0 0 15px;
+
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.ca-pm-muted {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.ca-pm-muted strong {
+  color: #334155;
+}
+
+/* ============================================
+   EDIT PERSONAL INFORMATION FORM
+============================================ */
+
+.ca-pm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+.ca-pm-grid {
+  display: grid;
+
+  grid-template-columns: repeat(
+    2,
+    minmax(0, 1fr)
+  );
+
+  gap: 20px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* IMPORTANT:
+   Makes labels display as vertical form fields
+   rather than inline text.
+*/
+
+.ca-pm-grid label,
+.ca-pm-label {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 9px;
+
+  width: 100%;
+  min-width: 0;
+
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+/* Full name and notes take the entire row */
+
+.ca-pm-grid .ca-pm-wide {
+  grid-column: 1 / -1;
+}
+
+/* ============================================
+   INPUTS, SELECTS AND TEXTAREAS
+============================================ */
+
+.ca-pm-grid input,
+.ca-pm-grid select,
+.ca-pm-grid textarea,
+.ca-pm-label input,
+.ca-pm-label select,
+.ca-pm-label textarea,
+.ca-pm-confirm input {
+  display: block;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 46px;
+
+  padding: 11px 14px;
+
+  border: 1px solid #d8e2ea;
+  border-radius: 9px;
+
+  background: #ffffff;
+  color: #26384b;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.ca-pm-grid input::placeholder,
+.ca-pm-grid textarea::placeholder,
+.ca-pm-confirm input::placeholder {
+  color: #94a3b8;
+}
+
+.ca-pm-grid input:focus,
+.ca-pm-grid select:focus,
+.ca-pm-grid textarea:focus,
+.ca-pm-label select:focus,
+.ca-pm-confirm input:focus {
+  border-color: #087f69;
+
+  box-shadow:
+    0 0 0 3px rgba(8, 127, 105, 0.12);
+}
+
+.ca-pm-grid input:disabled,
+.ca-pm-grid select:disabled,
+.ca-pm-grid textarea:disabled,
+.ca-pm-label select:disabled {
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.ca-pm-grid textarea {
+  min-height: 115px;
+  resize: vertical;
+}
+
+.ca-pm-grid select,
+.ca-pm-label select {
+  cursor: pointer;
+}
+
+.ca-pm-label {
+  margin: 16px 0;
+}
+
+/* ============================================
+   BUTTONS
+============================================ */
+
+.ca-pm-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.ca-pm-primary,
+.ca-pm-secondary,
+.ca-pm-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 44px;
+  padding: 11px 18px;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+
+  text-decoration: none;
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* SAVE / RESTORE */
+
+.ca-pm-primary {
+  border: 1px solid #087f69;
+  background: #087f69;
+  color: #ffffff;
+}
+
+.ca-pm-primary:hover:not(:disabled) {
+  background: #066b59;
+  border-color: #066b59;
+  transform: translateY(-1px);
+}
+
+/* SECONDARY ACTIONS */
+
+.ca-pm-secondary {
+  border: 1px solid #bbddce;
+  background: #eaf7f0;
+  color: #087f69;
+}
+
+.ca-pm-secondary:hover:not(:disabled) {
+  border-color: #94cdb4;
+  background: #ddf1e5;
+}
+
+/* REMOVE / ARCHIVE */
+
+.ca-pm-danger {
+  border: 1px solid #b91c1c;
+  background: #b91c1c;
+  color: #ffffff;
+}
+
+.ca-pm-danger:hover:not(:disabled) {
+  background: #991b1b;
+  border-color: #991b1b;
+}
+
+/* DISABLED BUTTONS */
+
+.ca-pm-primary:disabled,
+.ca-pm-secondary:disabled,
+.ca-pm-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============================================
+   FAMILY HEAD MANAGEMENT
+============================================ */
+
+.ca-pm-card .ca-pm-label {
+  margin-top: 19px;
+  margin-bottom: 17px;
+}
+
+.ca-pm-card .ca-pm-label select {
+  min-height: 46px;
+}
+
+/* ============================================
+   REMOVE / ARCHIVE SECTION
+============================================ */
+
+.ca-pm-danger-zone {
+  border-color: #fecaca;
+}
+
+.ca-pm-danger-zone .ca-pm-heading {
+  color: #dc2626;
+  border-bottom-color: #fee2e2;
+}
+
+.ca-pm-danger-zone .ca-pm-heading h2 {
+  color: #991b1b;
+}
+
+.ca-pm-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  margin-top: 18px;
+  padding: 18px;
+
+  background: #fffafa;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+}
+
+.ca-pm-confirm p {
+  margin: 0;
+
+  color: #7f1d1d;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.ca-pm-confirm strong {
+  color: #991b1b;
+  font-weight: 800;
+}
+
+/* ============================================
+   SUCCESS, ERROR AND WARNING MESSAGES
+============================================ */
+
+.ca-pm-success,
+.ca-pm-error,
+.ca-pm-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+
+  padding: 14px 17px;
+
+  border-radius: 10px;
+
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.75;
+}
+
+.ca-pm-success svg,
+.ca-pm-error svg,
+.ca-pm-warning svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ca-pm-success {
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+  color: #087f69;
+}
+
+.ca-pm-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+.ca-pm-warning {
+  margin: 14px 0;
+
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+
+.ca-pm-warning a {
+  color: #92400e;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* ============================================
+   FAMILY DETAILS SIDEBAR
+============================================ */
+
+.ca-pm-sidebar .ca-pm-card {
+  padding: 22px;
+}
+
+.ca-pm-sidebar .ca-pm-card > p {
+  margin: 0 0 12px;
+}
+
+.ca-pm-sidebar .ca-pm-secondary {
+  margin-top: 9px;
+  width: 100%;
+}
+
+/* ============================================
+   FAMILY MEMBERS
+============================================ */
+
+.ca-pm-member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ca-pm-member {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  padding: 12px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.ca-pm-member svg {
+  flex-shrink: 0;
+  color: #087f69;
+}
+
+.ca-pm-member span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ca-pm-member strong {
+  color: #087f69;
+}
+
+/* ============================================
+   ARCHIVED INDIVIDUALS DIRECTORY
+============================================ */
+
+.ca-pm-archived-list {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.ca-pm-archived-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  padding: 20px 22px;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 13px;
+}
+
+.ca-pm-archived-item > div {
+  min-width: 0;
+}
+
+.ca-pm-archived-item h3 {
+  margin: 0 0 8px;
+
+  color: #1e293b;
+  font-size: 15px;
+}
+
+.ca-pm-archived-item p {
+  margin: 0 0 9px;
+
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* ============================================
+   PAGINATION
+============================================ */
+
+.ca-pm-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  padding: 15px 18px;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+}
+
+.ca-pm-pagination span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.ca-pm-pagination button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  min-height: 39px;
+  padding: 9px 12px;
+
+  background: #ffffff;
+  border: 1px solid #d8e2ea;
+  border-radius: 8px;
+
+  color: #334155;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.ca-pm-pagination button:hover:not(:disabled) {
+  background: #f0fdf4;
+}
+
+.ca-pm-pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   EMPTY / LOADING STATES
+============================================ */
+
+.ca-pm-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+
+  min-height: 260px;
+  padding: 35px 25px;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 15px;
+
+  color: #087f69;
+  text-align: center;
+}
+
+.ca-pm-state h2 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 20px;
+}
+
+.ca-pm-state p {
+  max-width: 470px;
+  margin: 0;
+
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+/* ============================================
+   TABLET
+============================================ */
+
+@media (max-width: 1100px) {
+  .ca-pm-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ca-pm-sidebar {
+    display: grid;
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ============================================
+   MOBILE
+============================================ */
+
+@media (max-width: 700px) {
+  .ca-pm-page {
+    gap: 17px;
+    padding-bottom: 25px;
+  }
+
+  .ca-pm-header {
+    gap: 14px;
+    padding: 20px;
+  }
+
+  .ca-pm-avatar {
+    width: 55px;
+    height: 55px;
+    border-radius: 13px;
+  }
+
+  .ca-pm-header h1 {
+    font-size: 21px;
+  }
+
+  .ca-pm-status {
+    margin-left: 0;
+  }
+
+  .ca-pm-card {
+    padding: 19px;
+  }
+
+  .ca-pm-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .ca-pm-grid .ca-pm-wide {
+    grid-column: auto;
+  }
+
+  .ca-pm-sidebar {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ca-pm-archived-item {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 17px;
+  }
+
+  .ca-pm-archived-item .ca-pm-secondary {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   SMALL PHONES
+============================================ */
+
+@media (max-width: 450px) {
+  .ca-pm-header {
+    padding: 17px;
+  }
+
+  .ca-pm-header > div:nth-child(2) {
+    flex-basis: calc(100% - 75px);
+  }
+
+  .ca-pm-card {
+    padding: 16px;
+  }
+
+  .ca-pm-heading h2 {
+    font-size: 15px;
+  }
+
+  .ca-pm-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ca-pm-primary,
+  .ca-pm-secondary,
+  .ca-pm-danger {
+    width: 100%;
+  }
+
+  .ca-pm-confirm {
+    padding: 14px;
+  }
+
+  .ca-pm-pagination {
+    justify-content: center;
+  }
+}

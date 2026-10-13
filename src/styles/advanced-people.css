@@ -419,3 +419,343 @@
     font-size: 11px;
   }
 }
+
+/* ============================================
+   COMMUNITY ATLAS
+   PEOPLE DIRECTORY - MANAGEMENT ACTIONS
+============================================ */
+
+/* ACTION BUTTON CONTAINER */
+
+.ca-people-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #e8eef0;
+}
+
+/* BASE BUTTON */
+
+.ca-people-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 39px;
+  padding: 9px 13px;
+
+  border: 1px solid #dce7e3;
+  border-radius: 9px;
+
+  background: #f3f8f5;
+  color: #405b4e;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.ca-people-action-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #e7f2eb;
+  border-color: #b8d7c5;
+}
+
+/* EDIT BUTTON */
+
+.ca-people-action-btn.is-edit {
+  background: #e8f3ff;
+  border-color: #c4defb;
+  color: #2563a7;
+}
+
+.ca-people-action-btn.is-edit:hover {
+  background: #dcecff;
+}
+
+/* REMOVE BUTTON */
+
+.ca-people-action-btn.is-danger {
+  background: #fff0f0;
+  border-color: #f6cdcd;
+  color: #b42332;
+}
+
+.ca-people-action-btn.is-danger:hover:not(:disabled) {
+  background: #ffe0e0;
+  border-color: #edabab;
+}
+
+/* RESTORE BUTTON */
+
+.ca-people-action-btn.is-restore {
+  background: #e6f8ed;
+  border-color: #b9e8cc;
+  color: #087f69;
+}
+
+.ca-people-action-btn.is-restore:hover:not(:disabled) {
+  background: #d6f3e2;
+}
+
+/* HOUSEHOLD BUTTON */
+
+.ca-people-action-btn.is-household {
+  background: #f4f6f9;
+  border-color: #dce4eb;
+  color: #596c7e;
+}
+
+/* DISABLED BUTTON */
+
+.ca-people-action-btn:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* HEAD-OF-FAMILY REMOVAL NOTICE */
+
+.ca-people-head-hint {
+  margin: 10px 0 0;
+  color: #9a6b2d;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* ============================================
+   SUCCESS AND ERROR NOTIFICATIONS
+============================================ */
+
+.ca-people-feedback {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 14px 16px;
+  margin: 12px 0;
+
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.ca-people-feedback svg {
+  flex-shrink: 0;
+}
+
+.ca-people-feedback.is-success {
+  background: #ecfdf5;
+  border: 1px solid #b7ebca;
+  color: #087f69;
+}
+
+.ca-people-feedback.is-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+/* ============================================
+   REMOVE CONFIRMATION MODAL
+============================================ */
+
+.ca-people-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(18, 33, 45, 0.65);
+}
+
+.ca-people-modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+
+  padding: 24px;
+
+  background: #ffffff;
+  border: 1px solid #e6eaef;
+  border-radius: 16px;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.ca-people-modal-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  margin-bottom: 18px;
+}
+
+.ca-people-modal-heading h2 {
+  margin: 0;
+  color: #b42332;
+  font-size: 20px;
+}
+
+.ca-people-modal-heading > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #f2f4f7;
+  color: #64748b;
+
+  cursor: pointer;
+}
+
+.ca-people-modal p {
+  margin: 0 0 15px;
+  color: #536579;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.ca-people-modal p strong {
+  color: #293d50;
+}
+
+.ca-people-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.ca-people-modal label {
+  color: #3a4b5e;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ca-people-modal input {
+  width: 100%;
+  min-height: 45px;
+  padding: 11px 13px;
+
+  border: 1px solid #dce4eb;
+  border-radius: 9px;
+  outline: none;
+
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.ca-people-modal input:focus {
+  border-color: #087f69;
+  box-shadow: 0 0 0 3px #087f691a;
+}
+
+.ca-people-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  margin-top: 15px;
+}
+
+.ca-people-modal-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 42px;
+  padding: 10px 16px;
+
+  border: 1px solid #dce4ea;
+  border-radius: 9px;
+
+  background: #f3f5f7;
+  color: #4a6074;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.ca-people-modal-actions button.is-danger {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  color: white;
+}
+
+.ca-people-modal-actions button.is-danger:hover:not(:disabled) {
+  background: #991b1b;
+}
+
+.ca-people-modal-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ca-people-modal-error {
+  color: #b91c1c !important;
+  font-size: 12px;
+}
+
+/* ============================================
+   RESPONSIVE ACTION BUTTONS
+============================================ */
+
+@media (max-width: 700px) {
+  .ca-people-card-actions {
+    display: grid;
+    grid-template-columns: repeat(
+      2,
+      minmax(0, 1fr)
+    );
+    gap: 9px;
+  }
+
+  .ca-people-action-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  .ca-people-modal {
+    padding: 18px;
+  }
+
+  .ca-people-modal-actions {
+    flex-direction: column;
+  }
+
+  .ca-people-modal-actions button {
+    width: 100%;
+  }
+}
