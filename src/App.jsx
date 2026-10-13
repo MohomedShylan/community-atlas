@@ -1,4 +1,6 @@
 
+import { lazy, Suspense } from "react";
+
 import {
   BrowserRouter,
   Routes,
@@ -12,6 +14,13 @@ import {
 
 import MainLayout from "./components/layout/MainLayout";
 import ProtectedRoute from "./components/common/ProtectedRoute";
+import RequireAdmin from "./components/common/RequireAdmin";
+
+// ==========================================
+// LOADING COMPONENT
+// ==========================================
+
+import PageLoader from "./components/common/PageLoader";
 
 // ==========================================
 // AUTHENTICATION PAGES
@@ -21,44 +30,71 @@ import Login from "./pages/Login";
 import SetPassword from "./pages/SetPassword";
 
 // ==========================================
+// STEP 11.4 - LAZY-LOADED PAGES
+// ==========================================
+
 // DASHBOARD AND MAP
-// ==========================================
 
-import Dashboard from "./pages/Dashboard";
-import MapExplorer from "./pages/MapExplorer";
+const Dashboard = lazy(
+  () => import("./pages/Dashboard")
+);
 
-// ==========================================
+const MapExplorer = lazy(
+  () => import("./pages/MapExplorer")
+);
+
 // HOUSEHOLD MANAGEMENT
-// ==========================================
 
-import Households from "./pages/Households";
-import RegisterHousehold from "./pages/RegisterHousehold";
-import HouseholdProfile from "./pages/HouseholdProfile";
+const Households = lazy(
+  () => import("./pages/Households")
+);
 
-// ==========================================
+const RegisterHousehold = lazy(
+  () => import("./pages/RegisterHousehold")
+);
+
+const HouseholdProfile = lazy(
+  () => import("./pages/HouseholdProfile")
+);
+
 // INDIVIDUAL MANAGEMENT
-// ==========================================
 
-import People from "./pages/People";
-import RegisterIndividual from "./pages/RegisterIndividual";
-import IndividualProfile from "./pages/IndividualProfile";
+const People = lazy(
+  () => import("./pages/People")
+);
 
-// Step 8.3 - Individual Lifecycle Management
-import ManageIndividual from "./pages/ManageIndividual";
-import ArchivedIndividuals from "./pages/ArchivedIndividuals";
+const RegisterIndividual = lazy(
+  () => import("./pages/RegisterIndividual")
+);
 
-// ==========================================
+const IndividualProfile = lazy(
+  () => import("./pages/IndividualProfile")
+);
+
+const ManageIndividual = lazy(
+  () => import("./pages/ManageIndividual")
+);
+
+const ArchivedIndividuals = lazy(
+  () => import("./pages/ArchivedIndividuals")
+);
+
 // REPORTS AND SETTINGS
-// ==========================================
 
-import Reports from "./pages/Reports";
-import Settings from "./pages/Settings";
-// ==========================================
-// STEP 10 - ADMINISTRATOR MANAGEMENT
-// ==========================================
+const Reports = lazy(
+  () => import("./pages/Reports")
+);
 
-import AdminUsers from "./pages/AdminUsers";
-import RequireAdmin from "./components/common/RequireAdmin";
+const Settings = lazy(
+  () => import("./pages/Settings")
+);
+
+// ADMINISTRATOR MANAGEMENT
+
+const AdminUsers = lazy(
+  () => import("./pages/AdminUsers")
+);
+
 // ==========================================
 // MAIN APPLICATION
 // ==========================================
@@ -66,153 +102,131 @@ import RequireAdmin from "./components/common/RequireAdmin";
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
 
-        {/* ====================================
-            PUBLIC ROUTES
-        ==================================== */}
+          {/* PUBLIC ROUTES */}
 
-        <Route
-          path="/login"
-          element={<Login />}
-        />
+          <Route
+            path="/login"
+            element={<Login />}
+          />
 
-        <Route
-          path="/set-password"
-          element={<SetPassword />}
-        />
+          <Route
+            path="/set-password"
+            element={<SetPassword />}
+          />
 
-        {/* ====================================
-            PROTECTED APPLICATION
-        ==================================== */}
+          {/* PROTECTED APPLICATION */}
 
-        <Route element={<ProtectedRoute />}>
-          <Route element={<MainLayout />}>
+          <Route element={<ProtectedRoute />}>
+            <Route element={<MainLayout />}>
 
-            {/* ================================
-                DASHBOARD
-            ================================ */}
+              {/* DASHBOARD */}
 
-            <Route
-              index
-              element={<Dashboard />}
-            />
+              <Route
+                index
+                element={<Dashboard />}
+              />
 
-            {/* ================================
-                MAP EXPLORER
-            ================================ */}
+              {/* MAP EXPLORER */}
 
-            <Route
-              path="map"
-              element={<MapExplorer />}
-            />
+              <Route
+                path="map"
+                element={<MapExplorer />}
+              />
 
-            {/* ================================
-                HOUSEHOLD MANAGEMENT
-            ================================ */}
+              {/* HOUSEHOLDS */}
 
-            <Route
-              path="households"
-              element={<Households />}
-            />
+              <Route
+                path="households"
+                element={<Households />}
+              />
 
-            <Route
-              path="households/new"
-              element={<RegisterHousehold />}
-            />
+              <Route
+                path="households/new"
+                element={<RegisterHousehold />}
+              />
 
-            <Route
-              path="households/:familyId"
-              element={<HouseholdProfile />}
-            />
+              <Route
+                path="households/:familyId"
+                element={<HouseholdProfile />}
+              />
 
-            {/* ================================
-                PEOPLE MANAGEMENT
-            ================================ */}
+              {/* PEOPLE DIRECTORY */}
 
-            {/* Step 8.4 - People Directory */}
-            <Route
-              path="people"
-              element={<People />}
-            />
+              <Route
+                path="people"
+                element={<People />}
+              />
 
-            {/* Step 8.1 - Register Individual */}
-            <Route
-              path="people/new"
-              element={<RegisterIndividual />}
-            />
+              {/* REGISTER INDIVIDUAL */}
 
-            {/* Step 8.3 - Archived Individuals */}
-            <Route
-              path="people/archived"
-              element={<ArchivedIndividuals />}
-            />
+              <Route
+                path="people/new"
+                element={<RegisterIndividual />}
+              />
 
-            {/* Step 8.3 - Manage Individual */}
-            <Route
-              path="people/:personId/manage"
-              element={<ManageIndividual />}
-            />
+              {/* ARCHIVED INDIVIDUALS */}
 
-            {/* Step 8.2 - Individual Profile */}
-            <Route
-              path="people/:personId"
-              element={<IndividualProfile />}
-            />
+              <Route
+                path="people/archived"
+                element={<ArchivedIndividuals />}
+              />
 
-            {/* ================================
-                REPORTS AND ANALYTICS
-            ================================ */}
+              {/* MANAGE INDIVIDUAL */}
 
-            {/* Step 9 - Reports */}
-            <Route
-              path="reports"
-              element={<Reports />}
-            />
+              <Route
+                path="people/:personId/manage"
+                element={<ManageIndividual />}
+              />
 
-            {/* ================================
-                ADMINISTRATOR MANAGEMENT
-            ================================ */}
+              {/* INDIVIDUAL PROFILE */}
 
-            {/* Step 10 - Staff and Audit Logs */}
-            <Route
-              path="admin/users"
-                 element={
+              <Route
+                path="people/:personId"
+                element={<IndividualProfile />}
+              />
+
+              {/* REPORTS */}
+
+              <Route
+                path="reports"
+                element={<Reports />}
+              />
+
+              {/* ADMINISTRATOR MANAGEMENT */}
+
+              <Route
+                path="admin/users"
+                element={
                   <RequireAdmin>
                     <AdminUsers />
                   </RequireAdmin>
-  }
-/>
+                }
+              />
 
-            {/* ================================
-                APPLICATION SETTINGS
-            ================================ */}
+              {/* SETTINGS */}
 
-            <Route
-              path="settings"
-              element={<Settings />}
-            />
+              <Route
+                path="settings"
+                element={<Settings />}
+              />
 
+            </Route>
           </Route>
-        </Route>
 
-        {/* ====================================
-            FALLBACK ROUTE
-        ==================================== */}
+          {/* UNKNOWN URLS */}
 
-        <Route
-          path="*"
-          element={
-            <Navigate
-              to="/"
-              replace
-            />
-          }
-        />
+          <Route
+            path="*"
+            element={
+              <Navigate to="/" replace />
+            }
+          />
 
-
-
-      </Routes>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

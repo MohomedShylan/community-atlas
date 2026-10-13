@@ -1,0 +1,71 @@
+
+/* ==========================================
+   COMMUNITY ATLAS
+   STEP 11.4 - PAGE LOADER
+========================================== */
+
+.ca-page-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 55vh;
+  padding: 32px 20px;
+}
+
+.ca-page-loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  max-width: 320px;
+  text-align: center;
+}
+
+.ca-page-loader-icon {
+  color: #087f69;
+  animation: ca-page-loader-spin 1s linear infinite;
+}
+
+.ca-page-loader-content strong {
+  color: #263b4e;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.ca-page-loader-content p {
+  margin: 0;
+  color: #7b8e9e;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+@keyframes ca-page-loader-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 600px) {
+  .ca-page-loader {
+    min-height: 45vh;
+    padding: 24px 16px;
+  }
+
+  .ca-page-loader-content strong {
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ca-page-loader-icon {
+    animation: none;
+  }
+}
