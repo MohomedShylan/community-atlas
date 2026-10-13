@@ -1,0 +1,749 @@
+
+/* ============================================
+   COMMUNITY ATLAS
+   ACCOUNT SETTINGS PAGE
+============================================ */
+
+.ca-settings-page {
+  width: 100%;
+  max-width: 1200px;
+  min-width: 0;
+
+  margin: 0 auto;
+  padding: 12px 0 38px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  color: #273e52;
+}
+
+.ca-settings-page *,
+.ca-settings-page *::before,
+.ca-settings-page *::after {
+  box-sizing: border-box;
+}
+
+/* ============================================
+   PAGE HEADER
+============================================ */
+
+.ca-settings-header {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+
+  min-width: 0;
+  padding: 23px 26px;
+
+  border: 1px solid #e1e8ef;
+  border-radius: 16px;
+
+  background: #ffffff;
+  box-shadow: 0 2px 14px #14293b06;
+}
+
+.ca-settings-header-icon {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+  background: #e5f5ed;
+  color: #087f69;
+}
+
+.ca-settings-header > div:last-child {
+  min-width: 0;
+}
+
+.ca-settings-eyebrow {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #087f69;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+}
+
+.ca-settings-header h1 {
+  margin: 0 0 7px;
+
+  color: #172c41;
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.ca-settings-header p {
+  margin: 0;
+
+  max-width: 750px;
+
+  color: #8192a2;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+/* ============================================
+   CARDS
+============================================ */
+
+.ca-settings-card {
+  width: 100%;
+  min-width: 0;
+
+  padding: 24px 26px;
+
+  border: 1px solid #e1e8ef;
+  border-radius: 15px;
+
+  background: #ffffff;
+  box-shadow: 0 2px 14px #14293b06;
+}
+
+.ca-settings-card-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+
+  border-bottom: 1px solid #eaf0f4;
+}
+
+.ca-settings-card-heading > div {
+  min-width: 0;
+}
+
+.ca-settings-card-heading > svg {
+  flex-shrink: 0;
+  color: #087f69;
+}
+
+.ca-settings-card-heading h2 {
+  margin: 0 0 7px;
+
+  color: #263b4e;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.ca-settings-card-heading p {
+  margin: 0;
+
+  color: #8192a1;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* ============================================
+   PROFILE SUMMARY
+============================================ */
+
+.ca-settings-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  padding: 0 0 23px;
+  margin-bottom: 20px;
+
+  border-bottom: 1px solid #eaf0f4;
+}
+
+.ca-settings-avatar {
+  width: 62px;
+  height: 62px;
+  min-width: 62px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #dceefb;
+  color: #245a83;
+
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}
+
+.ca-settings-profile > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  min-width: 0;
+}
+
+.ca-settings-profile strong {
+  color: #22394e;
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+
+.ca-settings-profile span {
+  color: #8192a2;
+  font-size: 12px;
+}
+
+/* ============================================
+   ACCOUNT INFORMATION GRID
+============================================ */
+
+.ca-settings-info-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  column-gap: 20px;
+  row-gap: 12px;
+}
+
+.ca-settings-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  min-width: 0;
+  padding: 13px 14px;
+
+  background: #f8fafc;
+  border: 1px solid #ebf0f4;
+  border-radius: 10px;
+}
+
+.ca-settings-info-icon {
+  flex: 0 0 auto;
+
+  width: 35px;
+  height: 35px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: #e8f4ee;
+  color: #087f69;
+}
+
+.ca-settings-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.ca-settings-info-label {
+  color: #8697a5;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ca-settings-info-value {
+  color: #2e4458;
+  font-size: 12px;
+  font-weight: 700;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ============================================
+   NOTES AND LINKS
+============================================ */
+
+.ca-settings-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  margin: 19px 0 0;
+  padding: 13px 15px;
+
+  border-radius: 10px;
+
+  background: #f3f7fa;
+  color: #708395;
+
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.ca-settings-note svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.ca-settings-text-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  margin-top: 16px;
+  padding: 10px 14px;
+
+  color: #087f69;
+  background: #e8f5ed;
+
+  border: 1px solid #c8e9d6;
+  border-radius: 9px;
+
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ca-settings-text-link:hover {
+  background: #d9efe3;
+}
+
+/* ============================================
+   PASSWORD FORM
+============================================ */
+
+.ca-settings-password-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 13px;
+
+  width: 100%;
+  max-width: 530px;
+}
+
+.ca-settings-password-form > label {
+  display: block;
+
+  color: #40566a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ca-settings-password-input {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-height: 45px;
+
+  border: 1px solid #dce5ec;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  overflow: hidden;
+}
+
+.ca-settings-password-input:focus-within {
+  border-color: #087f69;
+  box-shadow: 0 0 0 3px #087f691a;
+}
+
+.ca-settings-password-input input {
+  flex: 1;
+
+  min-width: 0;
+  width: 100%;
+  min-height: 43px;
+
+  padding: 11px 13px;
+
+  border: 0;
+  outline: none;
+
+  background: transparent;
+  color: #263b4e;
+
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.ca-settings-password-input > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 46px;
+  min-width: 46px;
+  height: 43px;
+
+  border: 0;
+  background: transparent;
+
+  color: #7c8e9f;
+  cursor: pointer;
+}
+
+.ca-settings-password-input > button:hover {
+  color: #087f69;
+}
+
+.ca-settings-helper {
+  margin: 2px 0 0;
+
+  color: #8292a1;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.ca-settings-validation {
+  margin: 0;
+
+  color: #b45309;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ============================================
+   BUTTONS
+============================================ */
+
+.ca-settings-primary-button,
+.ca-settings-secondary-button,
+.ca-settings-signout-button,
+.ca-settings-primary-link {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+
+  min-height: 44px;
+  padding: 11px 17px;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-decoration: none;
+
+  cursor: pointer;
+}
+
+.ca-settings-primary-button,
+.ca-settings-primary-link {
+  background: #087f69;
+  color: #ffffff;
+  border: 1px solid #087f69;
+}
+
+.ca-settings-primary-button:hover:not(:disabled),
+.ca-settings-primary-link:hover {
+  background: #066c59;
+}
+
+.ca-settings-secondary-button {
+  margin-top: 19px;
+
+  background: #e9f6ee;
+  color: #087f69;
+
+  border: 1px solid #c5e7d3;
+}
+
+.ca-settings-secondary-button:hover:not(:disabled) {
+  background: #daefe4;
+}
+
+.ca-settings-primary-button:disabled,
+.ca-settings-secondary-button:disabled,
+.ca-settings-signout-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   FEEDBACK MESSAGES
+============================================ */
+
+.ca-settings-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  width: 100%;
+  margin: 15px 0;
+  padding: 12px 14px;
+
+  border-radius: 9px;
+
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.ca-settings-message svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.ca-settings-message.is-success {
+  background: #e9f8ef;
+  color: #087f69;
+  border: 1px solid #bfe7d1;
+}
+
+.ca-settings-message.is-error {
+  background: #fff1f1;
+  color: #b42332;
+  border: 1px solid #f3c9c9;
+}
+
+/* ============================================
+   PRIVACY TOGGLE
+============================================ */
+
+.ca-settings-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+
+  padding: 16px;
+
+  border: 1px solid #e5edf2;
+  border-radius: 11px;
+
+  background: #f9fbfc;
+
+  cursor: pointer;
+}
+
+.ca-settings-toggle-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  min-width: 0;
+}
+
+.ca-settings-toggle-row strong {
+  color: #34495b;
+  font-size: 13px;
+}
+
+.ca-settings-toggle-row span {
+  color: #8292a0;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.ca-settings-toggle-row input {
+  appearance: none;
+  -webkit-appearance: none;
+
+  position: relative;
+
+  flex: 0 0 auto;
+
+  width: 45px;
+  height: 25px;
+
+  margin: 0;
+
+  border: 1px solid #c9d5df;
+  border-radius: 20px;
+
+  background: #d9e1e8;
+  cursor: pointer;
+
+  transition: background 0.18s ease;
+}
+
+.ca-settings-toggle-row input::after {
+  content: "";
+
+  position: absolute;
+  top: 3px;
+  left: 3px;
+
+  width: 17px;
+  height: 17px;
+
+  border-radius: 50%;
+  background: #ffffff;
+
+  box-shadow: 0 1px 4px #00000026;
+  transition: transform 0.18s ease;
+}
+
+.ca-settings-toggle-row input:checked {
+  background: #087f69;
+  border-color: #087f69;
+}
+
+.ca-settings-toggle-row input:checked::after {
+  transform: translateX(20px);
+}
+
+.ca-settings-toggle-row input:focus-visible {
+  outline: 3px solid #80cbb9;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   SIGN OUT
+============================================ */
+
+.ca-settings-signout {
+  border-color: #f0dddd;
+}
+
+.ca-settings-signout .ca-settings-card-heading > svg {
+  color: #c44a52;
+}
+
+.ca-settings-signout-button {
+  background: #fff0f0;
+  color: #b42332;
+
+  border: 1px solid #efc5c5;
+}
+
+.ca-settings-signout-button:hover:not(:disabled) {
+  background: #ffe3e3;
+}
+
+/* ============================================
+   NOT SIGNED IN
+============================================ */
+
+.ca-settings-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+
+  max-width: 550px;
+  margin: 30px auto;
+
+  text-align: center;
+}
+
+.ca-settings-empty > svg {
+  color: #087f69;
+}
+
+.ca-settings-empty h2 {
+  margin: 0;
+
+  color: #263b4e;
+}
+
+.ca-settings-empty p {
+  margin: 0;
+
+  color: #7b8d9f;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+/* ============================================
+   SETTINGS FOOTER
+============================================ */
+
+.ca-settings-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 16px;
+
+  color: #96a5b1;
+  font-size: 11px;
+}
+
+/* ============================================
+   RESPONSIVE TABLET
+============================================ */
+
+@media (max-width: 900px) {
+  .ca-settings-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   RESPONSIVE MOBILE
+============================================ */
+
+@media (max-width: 600px) {
+  .ca-settings-page {
+    gap: 15px;
+    padding: 8px 0 26px;
+  }
+
+  .ca-settings-header {
+    align-items: flex-start;
+    gap: 13px;
+    padding: 18px;
+  }
+
+  .ca-settings-header-icon {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+  }
+
+  .ca-settings-header h1 {
+    font-size: 22px;
+  }
+
+  .ca-settings-card {
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .ca-settings-card-heading h2 {
+    font-size: 16px;
+  }
+
+  .ca-settings-profile strong {
+    font-size: 15px;
+  }
+
+  .ca-settings-avatar {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+  }
+
+  .ca-settings-toggle-row {
+    padding: 13px;
+    gap: 12px;
+  }
+
+  .ca-settings-primary-button,
+  .ca-settings-secondary-button,
+  .ca-settings-signout-button {
+    width: 100%;
+  }
+
+  .ca-settings-password-form {
+    max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ca-settings-toggle-row input,
+  .ca-settings-toggle-row input::after {
+    transition: none;
+  }
+}
