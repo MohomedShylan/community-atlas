@@ -1,33 +1,46 @@
 
+import { useEffect, useState } from "react";
+
+// ==========================================
+// COMMUNITY ATLAS
+// STEP 11.4 - DEBOUNCED VALUE HOOK
+// ==========================================
+
 /**
- * Measure a request without logging
- * personally identifiable data.
+ * Returns a value after a specified delay.
  *
- * Timings appear in development only.
+ * Used by:
+ * - People Directory
+ * - Map Explorer
+ *
+ * @param {*} value
+ * @param {number} delay
+ * @returns {*}
  */
 
-export async function measureRequest(
-  label,
-  operation
+export function useDebouncedValue(
+  value,
+  delay = 350
 ) {
-  if (typeof operation !== "function") {
-    throw new TypeError(
-      "measureRequest requires an operation function."
-    );
-  }
+  const [debouncedValue, setDebouncedValue] =
+    useState(value);
 
-  const startedAt = performance.now();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
 
-  try {
-    return await operation();
-  } finally {
-    const duration =
-      performance.now() - startedAt;
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, delay]);
 
-    if (import.meta.env.DEV) {
-      console.info(
-        `[Community Atlas Performance] ${label}: ${duration.toFixed(1)} ms`
-      );
-    }
-  }
+  return debouncedValue;
 }
+
+// ==========================================
+// DEFAULT EXPORT
+// Required by People.jsx and MapExplorer.jsx
+// ==========================================
+
+export default useDebouncedValue;
