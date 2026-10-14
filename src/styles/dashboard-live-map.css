@@ -1,0 +1,262 @@
+
+/* ============================================
+   COMMUNITY ATLAS
+   LIVE DASHBOARD MAP
+============================================ */
+
+/* MAP PREVIEW CONTAINER */
+
+.ca-dashboard-map-shell {
+  position: relative;
+  width: 100%;
+  height: 390px;
+  min-height: 300px;
+
+  overflow: hidden;
+  border-radius: 16px;
+
+  background: #e8f1ed;
+  border: 1px solid #dce9e3;
+
+  isolation: isolate;
+}
+
+/* LIVE MAP WRAPPER */
+
+.ca-dashboard-live-map {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+}
+
+/* MAPLIBRE CANVAS CONTAINER */
+
+.ca-dashboard-map-canvas {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  z-index: 0;
+}
+
+/* COUNT OVERLAY */
+
+.ca-dashboard-map-count {
+  position: absolute;
+  left: 20px;
+  bottom: 36px;
+
+  z-index: 5;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-width: 185px;
+  max-width: calc(100% - 40px);
+
+  padding: 14px 18px;
+
+  border: 1px solid #e5ece8;
+  border-radius: 13px;
+
+  background: rgba(
+    255,
+    255,
+    255,
+    0.96
+  );
+
+  box-shadow:
+    0 8px 24px rgba(
+      24,
+      62,
+      46,
+      0.12
+    );
+
+  color: #087f69;
+
+  pointer-events: none;
+}
+
+.ca-dashboard-map-count > svg {
+  flex-shrink: 0;
+}
+
+.ca-dashboard-map-count > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.ca-dashboard-map-count strong {
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #087f69;
+}
+
+.ca-dashboard-map-count span {
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* LOADING / UNAVAILABLE STATES */
+
+.ca-dashboard-map-state {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+
+  padding: 24px;
+
+  background: #f0f6f3;
+  color: #617588;
+
+  text-align: center;
+}
+
+.ca-dashboard-map-state svg {
+  color: #087f69;
+}
+
+.ca-dashboard-map-state strong {
+  color: #264c3d;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.ca-dashboard-map-state p {
+  max-width: 320px;
+  margin: 0;
+
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* MAP LOAD ERROR */
+
+.ca-dashboard-map-error {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 16px;
+
+  z-index: 6;
+
+  padding: 12px 16px;
+
+  border-radius: 10px;
+  border: 1px solid #fecaca;
+
+  background: rgba(
+    255,
+    245,
+    245,
+    0.96
+  );
+
+  color: #b42332;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* EMPTY DATA MESSAGE */
+
+.ca-dashboard-map-empty {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  right: 18px;
+
+  z-index: 5;
+
+  padding: 12px 16px;
+
+  border-radius: 10px;
+
+  background: rgba(
+    255,
+    255,
+    255,
+    0.94
+  );
+
+  color: #556f62;
+  font-size: 12px;
+
+  text-align: center;
+}
+
+/* KEEP MAP ATTRIBUTION VISIBLE */
+
+.ca-dashboard-map-shell
+.maplibregl-ctrl-bottom-right {
+  z-index: 4;
+}
+
+/* TABLET */
+
+@media (max-width: 1024px) {
+  .ca-dashboard-map-shell {
+    height: 360px;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 640px) {
+  .ca-dashboard-map-shell {
+    height: 310px;
+    min-height: 280px;
+    border-radius: 12px;
+  }
+
+  .ca-dashboard-map-count {
+    left: 12px;
+    bottom: 30px;
+
+    min-width: 155px;
+    max-width: calc(100% - 24px);
+
+    padding: 11px 13px;
+    gap: 9px;
+  }
+
+  .ca-dashboard-map-count strong {
+    font-size: 20px;
+  }
+
+  .ca-dashboard-map-count span {
+    font-size: 10px;
+  }
+}
+
+/* SMALL MOBILE SCREENS */
+
+@media (max-width: 390px) {
+  .ca-dashboard-map-shell {
+    height: 280px;
+  }
+
+  .ca-dashboard-map-count {
+    min-width: 0;
+  }
+}

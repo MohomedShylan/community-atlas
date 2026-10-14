@@ -7,6 +7,11 @@ import {
 } from "react";
 
 import {
+  Link,
+  useNavigate,
+} from "react-router";
+
+import {
   MapPinned,
   MapPin,
   House,
@@ -18,14 +23,15 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-import MapLibreMap from "../components/map/MapLibreMap";
-import LocationSearch from "../components/map/LocationSearch";
-
+import useAuth from "../hooks/useAuth";
 import useDebouncedValue from "../hooks/useDebouncedValue";
 
 import {
   measureRequest,
 } from "../utils/measureRequest";
+
+import MapLibreMap from "../components/map/MapLibreMap";
+import LocationSearch from "../components/map/LocationSearch";
 
 import {
   getMappedLocations,
@@ -40,8 +46,22 @@ const mapTilerKey =
 // ==========================================
 
 export default function MapExplorer() {
+  const navigate = useNavigate();
+  const { profile } = useAuth();
+
   // ========================================
-  // LOCATION STATES
+  // ROLE PERMISSIONS
+  // ========================================
+
+  const canRegister =
+    profile?.is_active === true &&
+    (
+      profile?.role === "admin" ||
+      profile?.role === "editor"
+    );
+
+  // ========================================
+  // MAP LOCATION STATES
   // ========================================
 
   const [locations, setLocations] =
@@ -83,7 +103,7 @@ export default function MapExplorer() {
     useState("");
 
   // ========================================
-  // DIRECTORY SEARCH
+  // LOCATION DIRECTORY SEARCH
   // ========================================
 
   const [filter, setFilter] =
@@ -93,7 +113,7 @@ export default function MapExplorer() {
     useDebouncedValue(filter, 200);
 
   // ========================================
-  // 1. LOAD MAP LOCATIONS
+  // 1. LOAD REGISTERED LOCATIONS
   // ========================================
 
   useEffect(() => {
@@ -118,7 +138,7 @@ export default function MapExplorer() {
         if (active) {
           setLoadError(
             err.message ||
-            "Failed to load map locations."
+            "Failed to load registered locations."
           );
         }
       } finally {
@@ -136,7 +156,7 @@ export default function MapExplorer() {
   }, []);
 
   // ========================================
-  // 2. FIND SELECTED LOCATION
+  // 2. SELECTED REGISTERED LOCATION
   // ========================================
 
   const selectedLocation = useMemo(
@@ -177,7 +197,7 @@ export default function MapExplorer() {
   }, [locations, debouncedFilter]);
 
   // ========================================
-  // 4. GROUP FAMILY MEMBERS ONCE
+  // 4. GROUP MEMBERS BY FAMILY
   // ========================================
 
   const membersByFamily = useMemo(() => {
@@ -197,7 +217,7 @@ export default function MapExplorer() {
   }, [details]);
 
   // ========================================
-  // 5. FETCH SELECTED LOCATION DETAILS
+  // 5. LOAD SELECTED LOCATION DETAILS
   // ========================================
 
   useEffect(() => {
@@ -230,7 +250,7 @@ export default function MapExplorer() {
         if (active) {
           setDetailsError(
             err.message ||
-            "Failed to load household information."
+            "Failed to load household details."
           );
         }
       })
@@ -246,7 +266,7 @@ export default function MapExplorer() {
   }, [selectedId]);
 
   // ========================================
-  // 6. SELECT REGISTERED LOCATION
+  // 6. SELECT AN EXISTING LOCATION
   // ========================================
 
   const handleSelectLocation = useCallback(
@@ -261,8 +281,8 @@ export default function MapExplorer() {
       setSelectedPoint(null);
 
       setFocusTarget({
-        lng: location.longitude,
-        lat: location.latitude,
+        lng: Number(location.longitude),
+        lat: Number(location.latitude),
         zoom: 16,
       });
     },
@@ -270,13 +290,12 @@ export default function MapExplorer() {
   );
 
   // ========================================
-  // 7. SELECT A NEW MAP POINT
+  // 7. SELECT A NEW POINT ON THE MAP
   // ========================================
 
   const handleSelectPoint = useCallback(
     (point) => {
       setSelectedId(null);
-
       setSelectedPoint({
         ...point,
         kind: "manual",
@@ -287,7 +306,7 @@ export default function MapExplorer() {
   );
 
   // ========================================
-  // 8. SELECT PUBLIC PLACE SEARCH RESULT
+  // 8. SELECT A PUBLIC SEARCH RESULT
   // ========================================
 
   const handleSelectPlace = useCallback(
@@ -311,18 +330,84 @@ export default function MapExplorer() {
   );
 
   // ========================================
-  // 9. CLEAR SELECTION
+  // 9. REGISTER A HOUSEHOLD AT NEW POINT
   // ========================================
 
-  const handleClearSelection = () => {
+  function handleRegisterNewLocation() {
+    if (!canRegister || !selectedPoint) {
+      return;
+    }
+
+    const lat = Number(selectedPoint.lat);
+    const lng = Number(selectedPoint.lng);
+
+    if (
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lng) ||
+      lat < -90 ||
+      lat > 90 ||
+      lng < -180 ||
+      lng > 180
+    ) {
+      setMapError(
+        "The selected GPS coordinates are invalid."
+      );
+      return;
+    }
+
+    // Pass coordinates to the existing
+    // household registration page.
+    //
+    // No database record is created here.
+    navigate("/households/new", {
+      state: {
+        point: {
+          lat,
+          lng,
+        },
+      },
+    });
+  }
+
+  // ========================================
+  // 10. ADD ANOTHER FAMILY TO EXISTING
+  //     REGISTERED LOCATION
+  // ========================================
+
+  function handleRegisterExistingLocation() {
+    if (!canRegister || !selectedLocation) {
+      return;
+    }
+
+    // Reuse the existing registered location.
+    // The registration form must consume
+    // this navigation state.
+    navigate("/households/new", {
+      state: {
+        existingLocation: {
+          id: selectedLocation.id,
+          location_code:
+            selectedLocation.location_code,
+          address_line:
+            selectedLocation.address_line,
+        },
+      },
+    });
+  }
+
+  // ========================================
+  // 11. CLEAR MAP SELECTION
+  // ========================================
+
+  function handleClearSelection() {
     setSelectedId(null);
     setSelectedPoint(null);
     setDetails(null);
     setDetailsError("");
-  };
+  }
 
   // ========================================
-  // 10. MAP ERROR HANDLER
+  // 12. MAP ERROR HANDLER
   // ========================================
 
   const handleMapError = useCallback(
@@ -339,7 +424,9 @@ export default function MapExplorer() {
   return (
     <div className="ca-map-page">
 
-      {/* PAGE HEADER */}
+      {/* ====================================
+          PAGE HEADER
+      ==================================== */}
 
       <header className="ca-map-header">
         <div>
@@ -350,8 +437,8 @@ export default function MapExplorer() {
           <h1>Map Explorer</h1>
 
           <p>
-            Locate registered households and
-            view their authorized family information.
+            Locate registered households, select
+            new coordinates, and register families.
           </p>
         </div>
 
@@ -370,7 +457,26 @@ export default function MapExplorer() {
         </div>
       </header>
 
-      {/* LOCATION LOADING */}
+      {/* ====================================
+          REGISTER HOUSEHOLD GUIDANCE
+      ==================================== */}
+
+      {canRegister && (
+        <div className="ca-map-notice">
+          <House size={18} />
+
+          <span>
+            To register a new household, click
+            an empty point on the map. To add a
+            family to an existing location,
+            select its green marker.
+          </span>
+        </div>
+      )}
+
+      {/* ====================================
+          LOADING MESSAGE
+      ==================================== */}
 
       {loading && (
         <div
@@ -381,7 +487,9 @@ export default function MapExplorer() {
         </div>
       )}
 
-      {/* LOCATION ERROR */}
+      {/* ====================================
+          LOCATION ERROR
+      ==================================== */}
 
       {loadError && (
         <div
@@ -394,7 +502,7 @@ export default function MapExplorer() {
       )}
 
       {/* ====================================
-          MAP AND DETAILS LAYOUT
+          MAP + DETAILS LAYOUT
       ==================================== */}
 
       <div className="ca-map-layout">
@@ -423,9 +531,10 @@ export default function MapExplorer() {
             />
           )}
 
-          {/* MAP CONTAINER */}
+          {/* INTERACTIVE MAP */}
 
           <div className="ca-map-area">
+
             {!mapTilerKey ? (
               <div className="ca-map-empty">
                 <MapPin size={38} />
@@ -438,6 +547,15 @@ export default function MapExplorer() {
                   Add VITE_MAPTILER_API_KEY
                   to your .env.local file.
                 </p>
+
+                {canRegister && (
+                  <Link
+                    to="/households/new"
+                    className="ca-edit-secondary"
+                  >
+                    Register Household Manually
+                  </Link>
+                )}
               </div>
             ) : (
               <MapLibreMap
@@ -451,6 +569,7 @@ export default function MapExplorer() {
                 onMapError={handleMapError}
               />
             )}
+
           </div>
 
           {/* MAP ERROR */}
@@ -471,15 +590,16 @@ export default function MapExplorer() {
             <Info size={16} />
 
             <span>
-              Green markers are saved locations.
-              Clicking anywhere else selects
-              coordinates without saving them.
+              Green markers represent saved
+              locations. Clicking an empty point
+              selects coordinates without
+              immediately creating a record.
             </span>
           </div>
         </section>
 
         {/* ====================================
-            LOCATION DETAILS COLUMN
+            LOCATION DETAILS
         ==================================== */}
 
         <aside
@@ -487,12 +607,12 @@ export default function MapExplorer() {
           aria-label="Location details"
         >
 
-          {/* SELECTED REGISTERED LOCATION */}
+          {/* EXISTING LOCATION SELECTED */}
 
           {selectedLocation ? (
             <>
 
-              {/* LOCATION HEADER */}
+              {/* LOCATION HEADING */}
 
               <div className="ca-panel-heading">
                 <div className="ca-panel-icon">
@@ -526,7 +646,7 @@ export default function MapExplorer() {
                 </span>
               </p>
 
-              {/* COORDINATES */}
+              {/* GPS COORDINATES */}
 
               <div className="ca-coordinates">
                 <small>
@@ -544,7 +664,26 @@ export default function MapExplorer() {
                 </strong>
               </div>
 
-              {/* LOADING DETAILS */}
+              {/* ==================================
+                  RESTORED REGISTRATION BUTTON
+                  FOR EXISTING LOCATIONS
+              ================================== */}
+
+              {canRegister && (
+                <button
+                  type="button"
+                  className="ca-register-action"
+                  onClick={
+                    handleRegisterExistingLocation
+                  }
+                >
+                  <House size={18} />
+
+                  Add Another Family Here
+                </button>
+              )}
+
+              {/* LOCATION DETAILS LOADING */}
 
               {detailsLoading && (
                 <p
@@ -555,7 +694,7 @@ export default function MapExplorer() {
                 </p>
               )}
 
-              {/* DETAILS ERROR */}
+              {/* LOCATION DETAILS ERROR */}
 
               {detailsError && (
                 <div
@@ -566,7 +705,7 @@ export default function MapExplorer() {
                 </div>
               )}
 
-              {/* FAMILIES AND MEMBERS */}
+              {/* FAMILY AND MEMBER DETAILS */}
 
               {details && !detailsLoading && (
                 <>
@@ -574,6 +713,7 @@ export default function MapExplorer() {
                   {/* FAMILY STATISTICS */}
 
                   <div className="ca-family-stats">
+
                     <div>
                       <House size={18} />
 
@@ -581,7 +721,9 @@ export default function MapExplorer() {
                         {details.families.length}
                       </strong>
 
-                      <span>Families</span>
+                      <span>
+                        Families
+                      </span>
                     </div>
 
                     <div>
@@ -591,11 +733,14 @@ export default function MapExplorer() {
                         {details.people.length}
                       </strong>
 
-                      <span>Individuals</span>
+                      <span>
+                        Individuals
+                      </span>
                     </div>
+
                   </div>
 
-                  {/* EMPTY FAMILIES */}
+                  {/* NO FAMILIES */}
 
                   {details.families.length === 0 && (
                     <p className="ca-muted">
@@ -618,9 +763,10 @@ export default function MapExplorer() {
                         className="ca-family-card"
                       >
 
-                        {/* FAMILY HEADING */}
+                        {/* FAMILY HEADER */}
 
                         <div className="ca-family-heading">
+
                           <h3>
                             {family.family_name}
                           </h3>
@@ -628,13 +774,24 @@ export default function MapExplorer() {
                           <span>
                             {family.family_code}
                           </span>
+
+                          <Link
+                            className="ca-edit-secondary"
+                            to={`/households/${family.id}`}
+                          >
+                            View Household
+                            {canRegister
+                              ? " / Edit"
+                              : ""}
+                          </Link>
+
                         </div>
+
+                        {/* FAMILY MEMBERS */}
 
                         <p className="ca-member-title">
                           Members ({members.length})
                         </p>
-
-                        {/* EMPTY MEMBERS */}
 
                         {members.length === 0 && (
                           <p className="ca-muted">
@@ -642,11 +799,11 @@ export default function MapExplorer() {
                           </p>
                         )}
 
-                        {/* MEMBER LIST */}
-
                         <ul className="ca-member-list">
+
                           {members.map((person) => (
                             <li key={person.id}>
+
                               <div className="ca-member-icon">
                                 <Users size={15} />
                               </div>
@@ -665,8 +822,10 @@ export default function MapExplorer() {
                                     : ""}
                                 </span>
                               </div>
+
                             </li>
                           ))}
+
                         </ul>
 
                       </article>
@@ -675,26 +834,32 @@ export default function MapExplorer() {
 
                 </>
               )}
+
             </>
 
           ) : selectedPoint ? (
 
-            /* MANUALLY SELECTED POINT */
+            /* ==================================
+                NEW LOCATION SELECTED
+            ================================== */
 
             <div className="ca-point-details">
+
               <div className="ca-panel-icon">
                 <MapPin size={24} />
               </div>
 
               <h2>
                 {selectedPoint.kind === "place"
-                  ? "Public place selected"
-                  : "New location selected"}
+                  ? "Public Place Selected"
+                  : "New Location Selected"}
               </h2>
 
               <p>
                 {selectedPoint.label}
               </p>
+
+              {/* SELECTED COORDINATES */}
 
               <div className="ca-coordinates">
                 <small>
@@ -712,17 +877,40 @@ export default function MapExplorer() {
                 </strong>
               </div>
 
+              {/* ==================================
+                  RESTORED REGISTRATION BUTTON
+                  FOR NEW LOCATIONS
+              ================================== */}
+
+              {canRegister && (
+                <button
+                  type="button"
+                  className="ca-register-action"
+                  onClick={
+                    handleRegisterNewLocation
+                  }
+                >
+                  <House size={18} />
+
+                  Register Household Here
+                </button>
+              )}
+
+              {/* COPY COORDINATES */}
+
               <button
                 type="button"
                 className="ca-copy-button"
                 onClick={() => {
+                  const coordinates =
+                    `${Number(selectedPoint.lat).toFixed(6)}, ` +
+                    `${Number(selectedPoint.lng).toFixed(6)}`;
+
                   navigator.clipboard
-                    .writeText(
-                      `${Number(selectedPoint.lat).toFixed(6)}, ${Number(selectedPoint.lng).toFixed(6)}`
-                    )
+                    .writeText(coordinates)
                     .catch((err) => {
                       console.error(
-                        "Coordinate copy failed:",
+                        "Could not copy coordinates:",
                         err.message
                       );
                     });
@@ -732,16 +920,24 @@ export default function MapExplorer() {
               </button>
 
               <p className="ca-muted">
-                Nothing has been saved to Supabase.
+                This location has not been saved
+                to Supabase yet. Complete the
+                household registration form to
+                create the new family.
               </p>
+
             </div>
 
           ) : (
 
-            /* REGISTERED LOCATION DIRECTORY */
+            /* ==================================
+                LOCATION DIRECTORY
+            ================================== */
 
             <>
+
               <div className="ca-panel-heading">
+
                 <div className="ca-panel-icon">
                   <MapPin size={24} />
                 </div>
@@ -755,14 +951,15 @@ export default function MapExplorer() {
                     Registered Locations
                   </h2>
                 </div>
+
               </div>
 
               <p className="ca-muted">
-                Select a green marker or search
-                your registered addresses below.
+                Select a green marker or click
+                an empty point on the map to begin.
               </p>
 
-              {/* SEARCH INPUT */}
+              {/* DIRECTORY SEARCH */}
 
               <div className="ca-directory-search">
                 <Search size={17} />
@@ -771,16 +968,19 @@ export default function MapExplorer() {
                   type="search"
                   value={filter}
                   onChange={(event) =>
-                    setFilter(event.target.value)
+                    setFilter(
+                      event.target.value
+                    )
                   }
                   placeholder="Location code or address"
                   aria-label="Search registered locations"
                 />
               </div>
 
-              {/* LOCATION SEARCH RESULTS */}
+              {/* REGISTERED LOCATION LIST */}
 
               <div className="ca-directory-list">
+
                 {filteredLocations.map(
                   (location) => (
                     <button
@@ -793,6 +993,7 @@ export default function MapExplorer() {
                         )
                       }
                     >
+
                       <MapPin size={18} />
 
                       <div>
@@ -804,6 +1005,7 @@ export default function MapExplorer() {
                           {location.address_line}
                         </span>
                       </div>
+
                     </button>
                   )
                 )}
@@ -814,7 +1016,9 @@ export default function MapExplorer() {
                       No registered locations found.
                     </p>
                   )}
+
               </div>
+
             </>
           )}
 
@@ -824,9 +1028,12 @@ export default function MapExplorer() {
             <button
               type="button"
               className="ca-back-button"
-              onClick={handleClearSelection}
+              onClick={
+                handleClearSelection
+              }
             >
               <ArrowLeft size={16} />
+
               Back to Location Directory
             </button>
           )}
