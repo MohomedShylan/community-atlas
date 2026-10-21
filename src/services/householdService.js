@@ -1,6 +1,10 @@
 
 import { supabase } from "../lib/supabase";
 
+// ==========================================
+// CONFIGURATION
+// ==========================================
+
 const DOCUMENT_BUCKET = "ca-member-documents";
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -58,7 +62,7 @@ export async function getHouseholds() {
 }
 
 // ==========================================
-// VALIDATE DOCUMENT TYPES
+// DOCUMENT TYPE VALIDATION
 // ==========================================
 
 function getDocumentType(file) {
@@ -79,7 +83,10 @@ function getDocumentType(file) {
     );
   }
 
-  if (file.type && file.type !== mime) {
+  if (
+    file.type &&
+    file.type !== mime
+  ) {
     throw new Error(
       `Unsupported document type: ${file.name}`
     );
@@ -87,7 +94,9 @@ function getDocumentType(file) {
 
   return {
     extension:
-      extension === "jpeg" ? "jpg" : extension,
+      extension === "jpeg"
+        ? "jpg"
+        : extension,
     mime,
   };
 }
@@ -139,7 +148,7 @@ async function uploadDocument(
 }
 
 // ==========================================
-// SECTION 1
+// SECTION 1 DATA
 // ==========================================
 
 function prepareFamilySheet(form) {
@@ -156,10 +165,7 @@ function prepareFamilySheet(form) {
 }
 
 // ==========================================
-// SECTION 7
-//
-// Arrival year is included when residency
-// is either Temporary OR Rental.
+// SECTION 7 DATA
 // ==========================================
 
 function prepareHousingSheet(housing = {}) {
@@ -177,18 +183,16 @@ function prepareHousingSheet(housing = {}) {
     residencyType === "rental";
 
   return {
-    residency_type: residencyType,
-
-    // Existing database key is preserved.
-    // It now represents the approximate year
-    // of arrival for Temporary or Rental.
+    residency_type:
+      residencyType,
 
     temporary_arrival_year:
       needsArrivalYear
         ? housing.temporaryArrivalYear || null
         : null,
 
-    house_type: houseType,
+    house_type:
+      houseType,
 
     temporary_house_material:
       houseType === "temporary"
@@ -223,6 +227,46 @@ function prepareHousingSheet(housing = {}) {
 }
 
 // ==========================================
+// SECTION 8 DATA - MULTIPLE LANDS
+// ==========================================
+
+function prepareLands(lands = []) {
+  if (!Array.isArray(lands)) {
+    throw new Error(
+      "Land information must be an array."
+    );
+  }
+
+  return lands.map((land) => ({
+    owner_name:
+      land.ownerName?.trim() || null,
+
+    land_name:
+      land.landName?.trim() || null,
+
+    land_size:
+      land.landSize?.trim() || null,
+
+    land_type:
+      land.landType || null,
+
+    ownership_category:
+      land.ownershipCategory || null,
+
+    deed_permit_number:
+      land.ownershipCategory === "government"
+        ? land.deedPermitNumber?.trim() || null
+        : null,
+
+    tenure_type:
+      land.tenureType || null,
+
+    main_crops:
+      land.mainCrops?.trim() || null,
+  }));
+}
+
+// ==========================================
 // REGISTER HOUSEHOLD
 // ==========================================
 
@@ -240,15 +284,17 @@ export async function registerHousehold(form) {
     );
   }
 
-  const registrationId = crypto.randomUUID();
+  const registrationId =
+    crypto.randomUUID();
+
   const uploadedPaths = [];
 
   try {
-    const members = [];
+    // ======================================
+    // SECTION 6 - MEMBER DOCUMENTS
+    // ======================================
 
-    // ======================================
-    // UPLOAD SECTION 6 DOCUMENTS
-    // ======================================
+    const members = [];
 
     for (const member of form.members) {
       const birthCertificatePath =
@@ -274,7 +320,8 @@ export async function registerHousehold(form) {
         );
 
       members.push({
-        full_name: member.fullName,
+        full_name:
+          member.fullName,
 
         date_of_birth:
           member.dateOfBirth,
@@ -315,7 +362,7 @@ export async function registerHousehold(form) {
     }
 
     // ======================================
-    // PREPARE SECTIONS 1 AND 7
+    // PREPARE ALL FAMILY SECTIONS
     // ======================================
 
     const familySheet =
@@ -324,12 +371,15 @@ export async function registerHousehold(form) {
     const housingSheet =
       prepareHousingSheet(form.housing);
 
+    const landEntries =
+      prepareLands(form.lands);
+
     // ======================================
-    // SAVE USING EXISTING RPC
+    // SAVE USING NEW TRANSACTIONAL RPC
     // ======================================
 
     const { data, error } = await db.rpc(
-      "register_household_with_housing",
+      "register_household_with_lands",
       {
         p_family_name:
           form.familyName,
@@ -367,6 +417,10 @@ export async function registerHousehold(form) {
 
         p_housing_sheet:
           housingSheet,
+
+        // NEW SECTION 8
+        p_lands:
+          landEntries,
       }
     );
 
@@ -377,9 +431,8 @@ export async function registerHousehold(form) {
     return data;
 
   } catch (err) {
-    // Database registration is atomic.
-    // Storage uploads must be cleaned up
-    // separately if registration fails.
+    // The database RPC is transactional.
+    // Storage uploads are separate operations.
 
     if (uploadedPaths.length > 0) {
       const { error: cleanupError } =

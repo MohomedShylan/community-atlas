@@ -11,14 +11,20 @@ import {
   FileUp,
   FileText,
   X,
+  LandPlot,
 } from "lucide-react";
 
 const MAX_MEMBERS = 25;
+const MAX_LANDS = 25;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 const ALLOWED_EXTENSIONS = [
   "pdf", "jpg", "jpeg", "png", "webp",
 ];
+
+// ==========================================
+// DROPDOWN OPTIONS
+// ==========================================
 
 const RESIDENCY_OPTIONS = [
   { value: "permanent", label: "ස්ථිර පදිංචිය — Permanent" },
@@ -35,7 +41,7 @@ const HOUSE_TYPE_OPTIONS = [
 const HOUSE_MATERIAL_OPTIONS = [
   { value: "mud", label: "මැටි — Mud" },
   { value: "straw", label: "පිදුරු — Straw" },
-  { value: "coconut_leaves", label: "පොල් අතු — Coconut leaves" },
+  { value: "coconut_leaves", label: "පොල් අතු — Coconut Leaves" },
   { value: "other", label: "වෙනත් — Other" },
 ];
 
@@ -46,9 +52,9 @@ const ROOF_OPTIONS = [
 ];
 
 const FLOOR_OPTIONS = [
-  { value: "one", label: "එක් මහලක් — One floor" },
-  { value: "two", label: "මහල් දෙකක් — Two floors" },
-  { value: "three", label: "මහල් තුනක් — Three floors" },
+  { value: "one", label: "එක් මහලක් — One Floor" },
+  { value: "two", label: "මහල් දෙකක් — Two Floors" },
+  { value: "three", label: "මහල් තුනක් — Three Floors" },
 ];
 
 const YES_NO_OPTIONS = [
@@ -57,23 +63,48 @@ const YES_NO_OPTIONS = [
 ];
 
 const WATER_SOURCE_OPTIONS = [
-  { value: "protected_well", label: "ආරක්ෂිත ළිඳක් — Protected well" },
-  { value: "piped_water", label: "නල ජලය — Piped water" },
-  { value: "tube_well", label: "නල ළිඳක් — Tube well" },
+  { value: "protected_well", label: "ආරක්ෂිත ළිඳක් — Protected Well" },
+  { value: "piped_water", label: "නල ජලය — Piped Water" },
+  { value: "tube_well", label: "නල ළිඳක් — Tube Well" },
   { value: "other", label: "වෙනත් — Other" },
 ];
 
 const TOILET_OPTIONS = [
   { value: "water_sealed", label: "ජල මුද්‍රිත — Water-sealed" },
-  { value: "pit", label: "වල වැසිකිළි — Pit toilet" },
+  { value: "pit", label: "වල වැසිකිළි — Pit Toilet" },
   { value: "commode", label: "කොමඩ් — Commode" },
-  { value: "none", label: "වැසිකිළියක් නැත — No toilet" },
+  { value: "none", label: "වැසිකිළියක් නැත — No Toilet" },
 ];
 
 const MARITAL_OPTIONS = [
   { value: "married", label: "විවාහක — Married" },
   { value: "single", label: "අවිවාහක — Single" },
 ];
+
+// ==========================================
+// SECTION 8 OPTIONS
+// ==========================================
+
+const LAND_TYPE_OPTIONS = [
+  { value: "highland", label: "ගොඩ — Highland" },
+  { value: "paddy", label: "මඩ — Paddy Land" },
+];
+
+const LAND_OWNERSHIP_OPTIONS = [
+  { value: "government", label: "රජය සතු — Government" },
+  { value: "private", label: "පෞද්ගලික — Private" },
+];
+
+const LAND_TENURE_OPTIONS = [
+  { value: "freehold", label: "සින්නක්කර — Freehold" },
+  { value: "lease", label: "බදු — Lease" },
+  { value: "joint", label: "හවුල් — Joint Ownership" },
+  { value: "litigation", label: "නඩු සහිත — Under Litigation" },
+];
+
+// ==========================================
+// SECTION 6 QUESTION DEFINITIONS
+// ==========================================
 
 const MEMBER_QUESTIONS = [
   {
@@ -85,7 +116,6 @@ const MEMBER_QUESTIONS = [
     maxLength: 150,
     required: true,
     wide: true,
-    placeholder: "Enter full name",
   },
   {
     number: "6.2",
@@ -99,7 +129,7 @@ const MEMBER_QUESTIONS = [
     number: "6.3",
     key: "birthCertificate",
     sinhala: "උප්පැන්න සහතිකය පිටපත",
-    english: "Copy of the Birth Certificate",
+    english: "Copy of Birth Certificate",
     type: "file",
   },
   {
@@ -114,7 +144,7 @@ const MEMBER_QUESTIONS = [
     number: "6.5",
     key: "nicCopy",
     sinhala: "ජාතික හැඳුනුම්පතේ පිටපත",
-    english: "Copy of the National Identity Card",
+    english: "Copy of National Identity Card",
     type: "file",
   },
   {
@@ -153,7 +183,7 @@ const MEMBER_QUESTIONS = [
     number: "6.10",
     key: "workplaceAddress",
     sinhala: "රැකියා ස්ථානයේ ලිපිනය",
-    english: "Address of Workplace",
+    english: "Workplace Address",
     type: "textarea",
     maxLength: 500,
     wide: true,
@@ -167,6 +197,10 @@ const MEMBER_QUESTIONS = [
     options: MARITAL_OPTIONS,
   },
 ];
+
+// ==========================================
+// INITIAL FORM OBJECTS
+// ==========================================
 
 function createMember() {
   return {
@@ -185,6 +219,24 @@ function createMember() {
   };
 }
 
+function createLand() {
+  return {
+    id: crypto.randomUUID(),
+    ownerName: "",
+    landName: "",
+    landSize: "",
+    landType: "",
+    ownershipCategory: "",
+    deedPermitNumber: "",
+    tenureType: "",
+    mainCrops: "",
+  };
+}
+
+// ==========================================
+// REUSABLE BILINGUAL LABEL
+// ==========================================
+
 function BilingualLabel({
   htmlFor,
   number,
@@ -198,17 +250,26 @@ function BilingualLabel({
       className="ca-bilingual-label"
     >
       <span className="ca-label-si">
-        {number}. {sinhala}
+        {number ? `${number}. ` : ""}
+        {sinhala}
       </span>
+
       <span className="ca-label-en">
         ({english})
       </span>
+
       {required && (
-        <span className="ca-required">*</span>
+        <span className="ca-required">
+          {" *"}
+        </span>
       )}
     </label>
   );
 }
+
+// ==========================================
+// REUSABLE DROPDOWN
+// ==========================================
 
 function DropdownField({
   id,
@@ -219,6 +280,7 @@ function DropdownField({
   options,
   onChange,
   disabled,
+  required = false,
 }) {
   return (
     <div className="ca-field">
@@ -227,17 +289,22 @@ function DropdownField({
         number={number}
         sinhala={sinhala}
         english={english}
+        required={required}
       />
 
       <select
         id={id}
         value={value}
         disabled={disabled}
+        required={required}
         onChange={(event) =>
           onChange(event.target.value)
         }
       >
-        <option value="">Select an option</option>
+        <option value="">
+          Select an option
+        </option>
+
         {options.map((option) => (
           <option
             key={option.value}
@@ -250,6 +317,10 @@ function DropdownField({
     </div>
   );
 }
+
+// ==========================================
+// PRIVATE DOCUMENT SELECTION
+// ==========================================
 
 function DocumentField({
   id,
@@ -267,7 +338,10 @@ function DocumentField({
         english={question.english}
       />
 
-      <label htmlFor={id} className="ca-upload-box">
+      <label
+        className="ca-upload-box"
+        htmlFor={id}
+      >
         {file
           ? <FileText size={22} />
           : <FileUp size={22} />}
@@ -275,6 +349,7 @@ function DocumentField({
         <span>
           {file ? file.name : "Choose image or PDF"}
         </span>
+
         <small>
           JPG, PNG, WebP or PDF — maximum 10 MB
         </small>
@@ -282,8 +357,8 @@ function DocumentField({
 
       <input
         id={id}
-        type="file"
         className="ca-file-input"
+        type="file"
         accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
         disabled={disabled}
         onChange={(event) => {
@@ -309,11 +384,15 @@ function DocumentField({
   );
 }
 
+// ==========================================
+// MAIN HOUSEHOLD FORM
+// ==========================================
+
 export default function HouseholdForm({
   selectedPoint,
   existingLocation,
-  saving,
   onSave,
+  saving,
 }) {
   const usingExistingLocation =
     Boolean(existingLocation?.id);
@@ -325,16 +404,20 @@ export default function HouseholdForm({
   const [addressLine, setAddressLine] = useState(
     existingLocation?.address_line ?? ""
   );
+
   const [
     numberOfFamiliesInHouse,
     setNumberOfFamiliesInHouse,
   ] = useState("");
+
   const [
     headOfHouseholdNumber,
     setHeadOfHouseholdNumber,
   ] = useState("");
+
   const [telephoneNumber, setTelephoneNumber] =
     useState("");
+
   const [whatsappNumber, setWhatsappNumber] =
     useState("");
 
@@ -365,7 +448,13 @@ export default function HouseholdForm({
   });
 
   // ========================================
-  // LOCATION
+  // SECTION 8 - MULTIPLE LANDS
+  // ========================================
+
+  const [lands, setLands] = useState([]);
+
+  // ========================================
+  // GPS / LOCATION
   // ========================================
 
   const [village, setVillage] = useState("");
@@ -385,54 +474,23 @@ export default function HouseholdForm({
 
   const [error, setError] = useState("");
 
-  const currentYear = new Date().getFullYear();
-  const today = new Date().toLocaleDateString("en-CA");
+  const now = new Date();
 
-  // ========================================
-  // RESIDENCY YEAR CONDITIONS
-  //
-  // NEW: Both Temporary AND Rental now
-  // display the arrival-year text field.
-  // ========================================
+  const currentYear = now.getFullYear();
+
+  const today = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join("-");
 
   const needsArrivalYear =
     housing.residencyType === "temporary" ||
     housing.residencyType === "rental";
 
-  function updateHousing(field, value) {
-    setHousing((current) => {
-      const next = {
-        ...current,
-        [field]: value,
-      };
-
-      if (
-        field === "residencyType" &&
-        value !== "temporary" &&
-        value !== "rental"
-      ) {
-        next.temporaryArrivalYear = "";
-      }
-
-      if (
-        field === "houseType" &&
-        value !== "temporary"
-      ) {
-        next.temporaryHouseMaterial = "";
-      }
-
-      if (field === "waterAvailable") {
-        if (value !== "yes") {
-          next.waterSource = "";
-        }
-        if (value !== "no") {
-          next.waterSourceWithoutFacility = "";
-        }
-      }
-
-      return next;
-    });
-  }
+  // ========================================
+  // SECTION 6 ACTIONS
+  // ========================================
 
   function updateMember(id, field, value) {
     setMembers((current) =>
@@ -445,10 +503,7 @@ export default function HouseholdForm({
   }
 
   function addMember() {
-    if (
-      saving ||
-      members.length >= MAX_MEMBERS
-    ) {
+    if (saving || members.length >= MAX_MEMBERS) {
       return;
     }
 
@@ -485,13 +540,102 @@ export default function HouseholdForm({
         file.size > MAX_FILE_SIZE
       ) {
         setError(
-          "Use a JPG, PNG, WebP or PDF file, maximum 10 MB."
+          "Use a JPG, PNG, WebP or PDF file up to 10 MB."
         );
         return;
       }
     }
 
     updateMember(memberId, field, file);
+  }
+
+  // ========================================
+  // SECTION 7 ACTIONS
+  // ========================================
+
+  function updateHousing(field, value) {
+    setHousing((current) => {
+      const next = {
+        ...current,
+        [field]: value,
+      };
+
+      if (
+        field === "residencyType" &&
+        value !== "temporary" &&
+        value !== "rental"
+      ) {
+        next.temporaryArrivalYear = "";
+      }
+
+      if (
+        field === "houseType" &&
+        value !== "temporary"
+      ) {
+        next.temporaryHouseMaterial = "";
+      }
+
+      if (field === "waterAvailable") {
+        if (value !== "yes") {
+          next.waterSource = "";
+        }
+
+        if (value !== "no") {
+          next.waterSourceWithoutFacility = "";
+        }
+      }
+
+      return next;
+    });
+  }
+
+  // ========================================
+  // SECTION 8 ACTIONS
+  // ========================================
+
+  function addLand() {
+    if (saving || lands.length >= MAX_LANDS) {
+      return;
+    }
+
+    setLands((current) => [
+      ...current,
+      createLand(),
+    ]);
+  }
+
+  function updateLand(id, field, value) {
+    setLands((current) =>
+      current.map((land) => {
+        if (land.id !== id) {
+          return land;
+        }
+
+        const next = {
+          ...land,
+          [field]: value,
+        };
+
+        // Clear permit/deed number if
+        // no longer government-owned.
+        if (
+          field === "ownershipCategory" &&
+          value !== "government"
+        ) {
+          next.deedPermitNumber = "";
+        }
+
+        return next;
+      })
+    );
+  }
+
+  function removeLand(id) {
+    if (saving) return;
+
+    setLands((current) =>
+      current.filter((land) => land.id !== id)
+    );
   }
 
   // ========================================
@@ -506,21 +650,19 @@ export default function HouseholdForm({
       return "Please enter a valid address.";
     }
 
-    const familyCount = Number(
+    const count = Number(
       numberOfFamiliesInHouse
     );
 
     if (
-      !Number.isInteger(familyCount) ||
-      familyCount < 1 ||
-      familyCount > 999
+      !Number.isInteger(count) ||
+      count < 1 ||
+      count > 999
     ) {
       return "Number of families must be between 1 and 999.";
     }
 
-    if (
-      headOfHouseholdNumber.trim().length > 50
-    ) {
+    if (headOfHouseholdNumber.trim().length > 50) {
       return "Head of Household Number is too long.";
     }
 
@@ -528,7 +670,7 @@ export default function HouseholdForm({
       telephoneNumber.trim().length > 30 ||
       whatsappNumber.trim().length > 30
     ) {
-      return "Telephone and WhatsApp numbers are too long.";
+      return "Telephone or WhatsApp number is too long.";
     }
 
     if (
@@ -537,6 +679,8 @@ export default function HouseholdForm({
     ) {
       return "Register between 1 and 25 family members.";
     }
+
+    // Validate family members
 
     for (let index = 0; index < members.length; index++) {
       const person = members[index];
@@ -571,9 +715,7 @@ export default function HouseholdForm({
       }
     }
 
-    // ======================================
-    // 7.1 - TEMPORARY OR RENTAL ARRIVAL YEAR
-    // ======================================
+    // Validate conditional Section 7 fields
 
     if (needsArrivalYear) {
       const year = housing.temporaryArrivalYear.trim();
@@ -583,10 +725,7 @@ export default function HouseholdForm({
         Number(year) < 1800 ||
         Number(year) > currentYear
       ) {
-        return (
-          "Enter a valid approximate arrival year " +
-          "for Temporary or Rental residence."
-        );
+        return "Enter a valid approximate arrival year.";
       }
     }
 
@@ -617,6 +756,45 @@ export default function HouseholdForm({
       return "Water source description is too long.";
     }
 
+    // Validate Section 8 lands
+
+    if (lands.length > MAX_LANDS) {
+      return "You can register up to 25 lands.";
+    }
+
+    for (let index = 0; index < lands.length; index++) {
+      const land = lands[index];
+      const number = index + 1;
+
+      // Each added land should have at least
+      // one identifying detail.
+      if (
+        !land.ownerName.trim() &&
+        !land.landName.trim()
+      ) {
+        return (
+          `Land ${number}: enter the landowner's name ` +
+          "or the land name."
+        );
+      }
+
+      const limits = [
+        ["ownerName", 150],
+        ["landName", 200],
+        ["landSize", 100],
+        ["deedPermitNumber", 100],
+        ["mainCrops", 300],
+      ];
+
+      for (const [field, maxLength] of limits) {
+        if (land[field].trim().length > maxLength) {
+          return `Land ${number}: a field exceeds ${maxLength} characters.`;
+        }
+      }
+    }
+
+    // Validate location
+
     if (!usingExistingLocation) {
       const lat = Number(latitude);
       const lng = Number(longitude);
@@ -639,12 +817,11 @@ export default function HouseholdForm({
   }
 
   // ========================================
-  // SUBMIT REGISTRATION
+  // SAVE
   // ========================================
 
   async function handleSubmit(event) {
     event.preventDefault();
-
     if (saving) return;
 
     const validationError = validate();
@@ -658,78 +835,15 @@ export default function HouseholdForm({
 
     const payload = {
       // SECTION 1
-
       familyName: members[0].fullName.trim(),
-
       numberOfFamiliesInHouse:
         Number(numberOfFamiliesInHouse),
-
       headOfHouseholdNumber:
         headOfHouseholdNumber.trim(),
-
       contactPhone: telephoneNumber.trim(),
-
       whatsappNumber: whatsappNumber.trim(),
 
-      // SECTION 7
-
-      housing: {
-        residencyType: housing.residencyType,
-
-        // NEW: Preserve this value for
-        // Temporary and Rental residences.
-        temporaryArrivalYear: needsArrivalYear
-          ? housing.temporaryArrivalYear.trim()
-          : "",
-
-        houseType: housing.houseType,
-
-        temporaryHouseMaterial:
-          housing.houseType === "temporary"
-            ? housing.temporaryHouseMaterial
-            : "",
-
-        roofType: housing.roofType,
-        floorCount: housing.floorCount,
-
-        electricityAvailable:
-          housing.electricityAvailable,
-
-        waterAvailable: housing.waterAvailable,
-
-        waterSource:
-          housing.waterAvailable === "yes"
-            ? housing.waterSource
-            : "",
-
-        waterSourceWithoutFacility:
-          housing.waterAvailable === "no"
-            ? housing.waterSourceWithoutFacility.trim()
-            : "",
-
-        toiletFacility: housing.toiletFacility,
-      },
-
-      // LOCATION
-
-      existingLocationId:
-        existingLocation?.id ?? null,
-
-      addressLine: addressLine.trim(),
-      village: village.trim(),
-      district: district.trim(),
-
-      latitude: usingExistingLocation
-        ? null
-        : Number(latitude),
-
-      longitude: usingExistingLocation
-        ? null
-        : Number(longitude),
-
       // SECTION 6
-      // Member 1 is automatically the head.
-
       members: members.map((person, index) => ({
         clientId: person.id,
         fullName: person.fullName.trim(),
@@ -749,6 +863,61 @@ export default function HouseholdForm({
         relationshipToHead:
           index === 0 ? "Head" : "",
       })),
+
+      // SECTION 7
+      housing: {
+        residencyType: housing.residencyType,
+        temporaryArrivalYear: needsArrivalYear
+          ? housing.temporaryArrivalYear.trim()
+          : "",
+        houseType: housing.houseType,
+        temporaryHouseMaterial:
+          housing.houseType === "temporary"
+            ? housing.temporaryHouseMaterial
+            : "",
+        roofType: housing.roofType,
+        floorCount: housing.floorCount,
+        electricityAvailable:
+          housing.electricityAvailable,
+        waterAvailable: housing.waterAvailable,
+        waterSource:
+          housing.waterAvailable === "yes"
+            ? housing.waterSource
+            : "",
+        waterSourceWithoutFacility:
+          housing.waterAvailable === "no"
+            ? housing.waterSourceWithoutFacility.trim()
+            : "",
+        toiletFacility: housing.toiletFacility,
+      },
+
+      // SECTION 8 — MULTIPLE LANDS
+      lands: lands.map((land) => ({
+        ownerName: land.ownerName.trim(),
+        landName: land.landName.trim(),
+        landSize: land.landSize.trim(),
+        landType: land.landType,
+        ownershipCategory: land.ownershipCategory,
+        deedPermitNumber:
+          land.ownershipCategory === "government"
+            ? land.deedPermitNumber.trim()
+            : "",
+        tenureType: land.tenureType,
+        mainCrops: land.mainCrops.trim(),
+      })),
+
+      // LOCATION
+      existingLocationId:
+        existingLocation?.id ?? null,
+      addressLine: addressLine.trim(),
+      village: village.trim(),
+      district: district.trim(),
+      latitude: usingExistingLocation
+        ? null
+        : Number(latitude),
+      longitude: usingExistingLocation
+        ? null
+        : Number(longitude),
     };
 
     try {
@@ -762,7 +931,7 @@ export default function HouseholdForm({
   }
 
   // ========================================
-  // FORM
+  // RENDER
   // ========================================
 
   return (
@@ -779,7 +948,6 @@ export default function HouseholdForm({
           <div className="ca-form-icon">
             <House size={21} />
           </div>
-
           <div>
             <span className="ca-sheet-step">
               SECTION 01
@@ -798,7 +966,6 @@ export default function HouseholdForm({
               english="Address"
               required={!usingExistingLocation}
             />
-
             <textarea
               id="sheet-address"
               rows={2}
@@ -807,18 +974,11 @@ export default function HouseholdForm({
               readOnly={usingExistingLocation}
               disabled={saving}
               value={addressLine}
-              onChange={(event) =>
-                setAddressLine(event.target.value)
+              onChange={(e) =>
+                setAddressLine(e.target.value)
               }
               placeholder="Enter full address"
             />
-
-            {usingExistingLocation && (
-              <p className="ca-form-hint">
-                This address belongs to the
-                selected registered location.
-              </p>
-            )}
           </div>
 
           <div className="ca-field ca-sheet-field">
@@ -826,10 +986,9 @@ export default function HouseholdForm({
               htmlFor="sheet-family-count"
               number="2"
               sinhala="නිවසේ පදිංචි පවුල් සංඛ්‍යාව"
-              english="Number of families residing in the house"
+              english="Number of Families Residing in the House"
               required
             />
-
             <input
               id="sheet-family-count"
               type="number"
@@ -839,10 +998,8 @@ export default function HouseholdForm({
               required
               disabled={saving}
               value={numberOfFamiliesInHouse}
-              onChange={(event) =>
-                setNumberOfFamiliesInHouse(
-                  event.target.value
-                )
+              onChange={(e) =>
+                setNumberOfFamiliesInHouse(e.target.value)
               }
               placeholder="Number of families"
             />
@@ -855,17 +1012,15 @@ export default function HouseholdForm({
               sinhala="ගෘහමූලික අංකය"
               english="Head of Household Number"
             />
-
             <input
               id="sheet-head-number"
               type="text"
               maxLength={50}
               disabled={saving}
               value={headOfHouseholdNumber}
-              onChange={(event) =>
-                setHeadOfHouseholdNumber(event.target.value)
+              onChange={(e) =>
+                setHeadOfHouseholdNumber(e.target.value)
               }
-              placeholder="Head of Household Number"
             />
           </div>
 
@@ -874,19 +1029,17 @@ export default function HouseholdForm({
               htmlFor="sheet-telephone"
               number="4"
               sinhala="දුරකථන අංකය"
-              english="Telephone number"
+              english="Telephone Number"
             />
-
             <input
               id="sheet-telephone"
               type="tel"
               maxLength={30}
               disabled={saving}
               value={telephoneNumber}
-              onChange={(event) =>
-                setTelephoneNumber(event.target.value)
+              onChange={(e) =>
+                setTelephoneNumber(e.target.value)
               }
-              placeholder="Telephone number"
             />
           </div>
 
@@ -897,24 +1050,22 @@ export default function HouseholdForm({
               sinhala="WhatsApp අංකය"
               english="WhatsApp No."
             />
-
             <input
               id="sheet-whatsapp"
               type="tel"
               maxLength={30}
               disabled={saving}
               value={whatsappNumber}
-              onChange={(event) =>
-                setWhatsappNumber(event.target.value)
+              onChange={(e) =>
+                setWhatsappNumber(e.target.value)
               }
-              placeholder="WhatsApp number"
             />
           </div>
         </div>
       </section>
 
       {/* =====================================
-          SECTION 6
+          SECTION 6 — FAMILY MEMBERS
       ===================================== */}
 
       <section className="ca-form-section">
@@ -923,7 +1074,6 @@ export default function HouseholdForm({
             <div className="ca-form-icon">
               <Users size={21} />
             </div>
-
             <div>
               <span className="ca-sheet-step">
                 SECTION 06
@@ -952,16 +1102,15 @@ export default function HouseholdForm({
         </div>
 
         <p className="ca-form-hint">
-          Enter the family head as Member 1.
-          Full Name and Date of Birth are required
-          for every member.
+          Enter the household head as Member 1.
+          Full Name and Date of Birth are required.
         </p>
 
         <div className="ca-members-list">
           {members.map((person, index) => (
             <div
-              key={person.id}
               className="ca-member-form"
+              key={person.id}
             >
               <div className="ca-member-form-header">
                 <strong>Member {index + 1}</strong>
@@ -1029,11 +1178,11 @@ export default function HouseholdForm({
                           maxLength={question.maxLength}
                           disabled={saving}
                           value={person[question.key]}
-                          onChange={(event) =>
+                          onChange={(e) =>
                             updateMember(
                               person.id,
                               question.key,
-                              event.target.value
+                              e.target.value
                             )
                           }
                         />
@@ -1042,11 +1191,11 @@ export default function HouseholdForm({
                           id={id}
                           disabled={saving}
                           value={person[question.key]}
-                          onChange={(event) =>
+                          onChange={(e) =>
                             updateMember(
                               person.id,
                               question.key,
-                              event.target.value
+                              e.target.value
                             )
                           }
                         >
@@ -1075,12 +1224,11 @@ export default function HouseholdForm({
                           }
                           disabled={saving}
                           value={person[question.key]}
-                          placeholder={question.placeholder}
-                          onChange={(event) =>
+                          onChange={(e) =>
                             updateMember(
                               person.id,
                               question.key,
-                              event.target.value
+                              e.target.value
                             )
                           }
                         />
@@ -1095,7 +1243,7 @@ export default function HouseholdForm({
       </section>
 
       {/* =====================================
-          SECTION 7
+          SECTION 7 — HOUSING
       ===================================== */}
 
       <section className="ca-form-section">
@@ -1103,7 +1251,6 @@ export default function HouseholdForm({
           <div className="ca-form-icon">
             <Building2 size={21} />
           </div>
-
           <div>
             <span className="ca-sheet-step">
               SECTION 07
@@ -1114,10 +1261,8 @@ export default function HouseholdForm({
         </div>
 
         <div className="ca-form-grid">
-          {/* 7.1 NATURE OF RESIDENCE */}
-
           <DropdownField
-            id="housing-residency-type"
+            id="housing-residency"
             number="7.1"
             sinhala="පදිංචියේ ස්වභාවය"
             english="Nature of Residence"
@@ -1128,9 +1273,6 @@ export default function HouseholdForm({
               updateHousing("residencyType", value)
             }
           />
-
-          {/* NEW:
-              ARRIVAL YEAR FOR TEMPORARY AND RENTAL */}
 
           {needsArrivalYear && (
             <div className="ca-field">
@@ -1154,19 +1296,17 @@ export default function HouseholdForm({
                 maxLength={4}
                 required
                 disabled={saving}
-                placeholder="e.g. 2020"
                 value={housing.temporaryArrivalYear}
-                onChange={(event) =>
+                onChange={(e) =>
                   updateHousing(
                     "temporaryArrivalYear",
-                    event.target.value
+                    e.target.value
                   )
                 }
+                placeholder="e.g. 2020"
               />
             </div>
           )}
-
-          {/* 7.2 HOUSE TYPE */}
 
           <DropdownField
             id="housing-house-type"
@@ -1182,45 +1322,22 @@ export default function HouseholdForm({
           />
 
           {housing.houseType === "temporary" && (
-            <div className="ca-field">
-              <label htmlFor="housing-material">
-                තාවකාලික නිවසේ ද්‍රව්‍ය
-                <span className="ca-required">
-                  {" *"}
-                </span>
-                <span className="ca-label-en">
-                  {" "}(Temporary House Material)
-                </span>
-              </label>
-
-              <select
-                id="housing-material"
-                value={housing.temporaryHouseMaterial}
-                required
-                disabled={saving}
-                onChange={(event) =>
-                  updateHousing(
-                    "temporaryHouseMaterial",
-                    event.target.value
-                  )
-                }
-              >
-                <option value="">
-                  Select material
-                </option>
-                {HOUSE_MATERIAL_OPTIONS.map((option) => (
-                  <option
-                    key={option.value}
-                    value={option.value}
-                  >
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <DropdownField
+              id="housing-material"
+              sinhala="තාවකාලික නිවසේ ද්‍රව්‍ය"
+              english="Temporary House Material"
+              value={housing.temporaryHouseMaterial}
+              options={HOUSE_MATERIAL_OPTIONS}
+              disabled={saving}
+              required
+              onChange={(value) =>
+                updateHousing(
+                  "temporaryHouseMaterial",
+                  value
+                )
+              }
+            />
           )}
-
-          {/* 7.3 ROOF */}
 
           <DropdownField
             id="housing-roof"
@@ -1235,8 +1352,6 @@ export default function HouseholdForm({
             }
           />
 
-          {/* 7.4 FLOORS */}
-
           <DropdownField
             id="housing-floors"
             number="7.4"
@@ -1249,8 +1364,6 @@ export default function HouseholdForm({
               updateHousing("floorCount", value)
             }
           />
-
-          {/* 7.5 ELECTRICITY */}
 
           <DropdownField
             id="housing-electricity"
@@ -1268,8 +1381,6 @@ export default function HouseholdForm({
             }
           />
 
-          {/* 7.6 WATER */}
-
           <DropdownField
             id="housing-water"
             number="7.6"
@@ -1284,76 +1395,46 @@ export default function HouseholdForm({
           />
 
           {housing.waterAvailable === "yes" && (
-            <div className="ca-field">
-              <label htmlFor="housing-water-source">
-                ජලය ලබා ගන්නා ආකාරය
-                <span className="ca-required">
-                  {" *"}
-                </span>
-                <span className="ca-label-en">
-                  {" "}(Source of Water)
-                </span>
-              </label>
-
-              <select
-                id="housing-water-source"
-                required
-                disabled={saving}
-                value={housing.waterSource}
-                onChange={(event) =>
-                  updateHousing(
-                    "waterSource",
-                    event.target.value
-                  )
-                }
-              >
-                <option value="">
-                  Select water source
-                </option>
-
-                {WATER_SOURCE_OPTIONS.map((option) => (
-                  <option
-                    key={option.value}
-                    value={option.value}
-                  >
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <DropdownField
+              id="housing-water-source"
+              sinhala="ජලය ලබා ගන්නා ආකාරය"
+              english="Water Source"
+              value={housing.waterSource}
+              options={WATER_SOURCE_OPTIONS}
+              disabled={saving}
+              required
+              onChange={(value) =>
+                updateHousing("waterSource", value)
+              }
+            />
           )}
 
           {housing.waterAvailable === "no" && (
             <div className="ca-field ca-field-full">
-              <label htmlFor="housing-water-no-source">
-                ජලය ලබා ගන්නා ආකාරය
-                <span className="ca-required">
-                  {" *"}
-                </span>
-                <span className="ca-label-en">
-                  {" "}(How Water Is Obtained)
-                </span>
-              </label>
+              <BilingualLabel
+                htmlFor="housing-water-description"
+                sinhala="ජලය ලබා ගන්නා ආකාරය"
+                english="How Water Is Obtained"
+                required
+              />
 
               <input
-                id="housing-water-no-source"
+                id="housing-water-description"
                 type="text"
                 maxLength={300}
                 required
                 disabled={saving}
                 value={housing.waterSourceWithoutFacility}
-                onChange={(event) =>
+                onChange={(e) =>
                   updateHousing(
                     "waterSourceWithoutFacility",
-                    event.target.value
+                    e.target.value
                   )
                 }
                 placeholder="Describe how water is obtained"
               />
             </div>
           )}
-
-          {/* 7.7 TOILET */}
 
           <DropdownField
             id="housing-toilet"
@@ -1371,6 +1452,279 @@ export default function HouseholdForm({
       </section>
 
       {/* =====================================
+          SECTION 8 — LAND INFORMATION
+      ===================================== */}
+
+      <section className="ca-form-section">
+        <div className="ca-members-heading">
+          <div className="ca-form-section-heading">
+            <div className="ca-form-icon">
+              <LandPlot size={21} />
+            </div>
+
+            <div>
+              <span className="ca-sheet-step">
+                SECTION 08
+              </span>
+
+              <h2>
+                පදිංචි ඉඩම පිළිබඳ විස්තර
+              </h2>
+
+              <p>
+                Land Information — {lands.length} land(s)
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="ca-add-member"
+            disabled={
+              saving || lands.length >= MAX_LANDS
+            }
+            onClick={addLand}
+          >
+            <Plus size={16} />
+            Add Land
+          </button>
+        </div>
+
+        <p className="ca-form-hint">
+          Add each land separately. The same
+          landowner's name may be entered for
+          multiple lands. If there is no land to
+          register, leave this section empty.
+        </p>
+
+        {lands.length === 0 && (
+          <div className="ca-existing-location">
+            <strong>No lands added</strong>
+            <p>
+              Click "Add Land" to register the first land.
+            </p>
+          </div>
+        )}
+
+        <div className="ca-members-list">
+          {lands.map((land, index) => {
+            const prefix = `land-${land.id}`;
+
+            return (
+              <div
+                className="ca-member-form"
+                key={land.id}
+              >
+                <div className="ca-member-form-header">
+                  <strong>
+                    Land {index + 1}
+                  </strong>
+
+                  <button
+                    type="button"
+                    className="ca-remove-member"
+                    disabled={saving}
+                    onClick={() => removeLand(land.id)}
+                    aria-label={`Remove land ${index + 1}`}
+                  >
+                    <Trash2 size={17} />
+                  </button>
+                </div>
+
+                <div className="ca-form-grid">
+                  {/* LANDOWNER NAME */}
+
+                  <div className="ca-field ca-field-full">
+                    <BilingualLabel
+                      htmlFor={`${prefix}-owner`}
+                      sinhala="ඉඩම් හිමියන්ගේ නම"
+                      english="Landowner's Name"
+                    />
+
+                    <input
+                      id={`${prefix}-owner`}
+                      type="text"
+                      maxLength={150}
+                      disabled={saving}
+                      value={land.ownerName}
+                      onChange={(e) =>
+                        updateLand(
+                          land.id,
+                          "ownerName",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Enter landowner's name"
+                    />
+                  </div>
+
+                  {/* LAND NAME */}
+
+                  <div className="ca-field">
+                    <BilingualLabel
+                      htmlFor={`${prefix}-name`}
+                      sinhala="ඉඩමේ නම"
+                      english="Land Name"
+                    />
+
+                    <input
+                      id={`${prefix}-name`}
+                      type="text"
+                      maxLength={200}
+                      disabled={saving}
+                      value={land.landName}
+                      onChange={(e) =>
+                        updateLand(
+                          land.id,
+                          "landName",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Enter land name"
+                    />
+                  </div>
+
+                  {/* LAND SIZE */}
+
+                  <div className="ca-field">
+                    <BilingualLabel
+                      htmlFor={`${prefix}-size`}
+                      sinhala="ඉඩමේ ප්‍රමාණය"
+                      english="Land Size"
+                    />
+
+                    <input
+                      id={`${prefix}-size`}
+                      type="text"
+                      maxLength={100}
+                      disabled={saving}
+                      value={land.landSize}
+                      onChange={(e) =>
+                        updateLand(
+                          land.id,
+                          "landSize",
+                          e.target.value
+                        )
+                      }
+                      placeholder="e.g. 20 perches, 2 acres"
+                    />
+                  </div>
+
+                  {/* HIGHLAND / PADDY LAND */}
+
+                  <DropdownField
+                    id={`${prefix}-type`}
+                    sinhala="ගොඩ / මඩ ඉඩමක්ද යන වග"
+                    english="Land Type"
+                    value={land.landType}
+                    options={LAND_TYPE_OPTIONS}
+                    disabled={saving}
+                    onChange={(value) =>
+                      updateLand(
+                        land.id,
+                        "landType",
+                        value
+                      )
+                    }
+                  />
+
+                  {/* GOVERNMENT / PRIVATE */}
+
+                  <DropdownField
+                    id={`${prefix}-ownership`}
+                    sinhala="ඉඩම් අයිතිය"
+                    english="Government or Private Ownership"
+                    value={land.ownershipCategory}
+                    options={LAND_OWNERSHIP_OPTIONS}
+                    disabled={saving}
+                    onChange={(value) =>
+                      updateLand(
+                        land.id,
+                        "ownershipCategory",
+                        value
+                      )
+                    }
+                  />
+
+                  {/* GOVERNMENT DEED / PERMIT */}
+
+                  {land.ownershipCategory === "government" && (
+                    <div className="ca-field ca-field-full">
+                      <BilingualLabel
+                        htmlFor={`${prefix}-permit`}
+                        sinhala="රජයේ ඉඩමක් නම්, ඔප්පු අංකය/බලපත්‍ර අංකය"
+                        english="Government Land Deed / Permit Number"
+                      />
+
+                      <input
+                        id={`${prefix}-permit`}
+                        type="text"
+                        maxLength={100}
+                        disabled={saving}
+                        value={land.deedPermitNumber}
+                        onChange={(e) =>
+                          updateLand(
+                            land.id,
+                            "deedPermitNumber",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Enter deed or permit number"
+                      />
+                    </div>
+                  )}
+
+                  {/* TENURE TYPE */}
+
+                  <DropdownField
+                    id={`${prefix}-tenure`}
+                    sinhala="ඉඩම් අයිතිය"
+                    english="Tenure Type"
+                    value={land.tenureType}
+                    options={LAND_TENURE_OPTIONS}
+                    disabled={saving}
+                    onChange={(value) =>
+                      updateLand(
+                        land.id,
+                        "tenureType",
+                        value
+                      )
+                    }
+                  />
+
+                  {/* MAIN CROPS */}
+
+                  <div className="ca-field">
+                    <BilingualLabel
+                      htmlFor={`${prefix}-crops`}
+                      sinhala="ප්‍රධාන භෝග වගාව"
+                      english="Main Crop Cultivation"
+                    />
+
+                    <input
+                      id={`${prefix}-crops`}
+                      type="text"
+                      maxLength={300}
+                      disabled={saving}
+                      value={land.mainCrops}
+                      onChange={(e) =>
+                        updateLand(
+                          land.id,
+                          "mainCrops",
+                          e.target.value
+                        )
+                      }
+                      placeholder="e.g. Coconut, Paddy, Banana"
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* =====================================
           REGISTRATION DETAILS
       ===================================== */}
 
@@ -1379,7 +1733,6 @@ export default function HouseholdForm({
           <div className="ca-form-icon">
             <MapPin size={21} />
           </div>
-
           <div>
             <h2>Registration Details</h2>
             <p>
@@ -1395,13 +1748,15 @@ export default function HouseholdForm({
                 <strong>
                   {existingLocation.location_code}
                 </strong>
+
                 <p>
                   {existingLocation.address_line}
                 </p>
+
                 <span>
-                  This family will share the
-                  selected registered location.
-                  No new map marker will be created.
+                  This family will share the existing
+                  registered location. No new map
+                  marker will be created.
                 </span>
               </div>
             </div>
@@ -1415,10 +1770,10 @@ export default function HouseholdForm({
                   id="village"
                   type="text"
                   maxLength={120}
-                  value={village}
                   disabled={saving}
-                  onChange={(event) =>
-                    setVillage(event.target.value)
+                  value={village}
+                  onChange={(e) =>
+                    setVillage(e.target.value)
                   }
                 />
               </div>
@@ -1431,10 +1786,10 @@ export default function HouseholdForm({
                   id="district"
                   type="text"
                   maxLength={120}
-                  value={district}
                   disabled={saving}
-                  onChange={(event) =>
-                    setDistrict(event.target.value)
+                  value={district}
+                  onChange={(e) =>
+                    setDistrict(e.target.value)
                   }
                 />
               </div>
@@ -1455,8 +1810,8 @@ export default function HouseholdForm({
                   required
                   disabled={saving}
                   value={latitude}
-                  onChange={(event) =>
-                    setLatitude(event.target.value)
+                  onChange={(e) =>
+                    setLatitude(e.target.value)
                   }
                 />
               </div>
@@ -1477,8 +1832,8 @@ export default function HouseholdForm({
                   required
                   disabled={saving}
                   value={longitude}
-                  onChange={(event) =>
-                    setLongitude(event.target.value)
+                  onChange={(e) =>
+                    setLongitude(e.target.value)
                   }
                 />
               </div>
@@ -1491,6 +1846,8 @@ export default function HouseholdForm({
           family and individual codes.
         </p>
       </section>
+
+      {/* ERROR AND SAVE */}
 
       {error && (
         <div
