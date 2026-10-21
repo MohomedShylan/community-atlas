@@ -1,101 +1,180 @@
 
-/* =========================================
-   COMMUNITY ATLAS - HOUSEHOLD REGISTRATION
-========================================= */
+/* ============================================
+   COMMUNITY ATLAS
+   FAMILY REGISTRATION FORM
+
+   Modern dropdowns and document uploads
+   Sections 01, 06 and 07
+============================================ */
+
+/* ============================================
+   GLOBAL REGISTRATION PAGE
+============================================ */
 
 .ca-registration-page {
+  --ca-green: #087f69;
+  --ca-green-dark: #066b59;
+  --ca-green-light: #e8f7f0;
+  --ca-green-border: #b8e1d0;
+
+  --ca-text: #25384b;
+  --ca-muted: #8290a2;
+  --ca-border: #dfe7ed;
+
   max-width: 1020px;
   margin: 0 auto;
+
   display: flex;
   flex-direction: column;
   gap: 22px;
+
+  min-width: 0;
 }
+
+.ca-registration-page *,
+.ca-registration-page *::before,
+.ca-registration-page *::after {
+  box-sizing: border-box;
+}
+
+/* ============================================
+   BACK LINK
+============================================ */
 
 .ca-registration-back {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+
   width: fit-content;
+
   color: #66788c;
   font-size: 13px;
   font-weight: 600;
+  text-decoration: none;
+
+  transition: color 0.2s ease;
 }
 
 .ca-registration-back:hover {
-  color: #087f69;
+  color: var(--ca-green);
 }
 
-.ca-registration-heading > span {
-  color: #087f69;
+/* ============================================
+   PAGE HEADING
+============================================ */
+
+.ca-registration-heading > span,
+.ca-sheet-step {
+  color: var(--ca-green);
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.3px;
 }
 
 .ca-registration-heading h1 {
-  margin: 10px 0;
+  margin: 10px 0 5px;
+
   color: #19283b;
-  font-size: 29px;
-  letter-spacing: -0.8px;
+  font-size: 28px;
+  line-height: 1.5;
+}
+
+.ca-registration-heading h2 {
+  margin: 0;
+
+  color: var(--ca-green);
+  font-size: 17px;
+  font-weight: 700;
 }
 
 .ca-registration-heading p {
-  color: #8290a2;
+  margin: 12px 0 0;
+
+  color: var(--ca-muted);
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 1.8;
 }
+
+/* ============================================
+   MAIN REGISTRATION FORM
+============================================ */
 
 .ca-registration-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
 .ca-form-section {
-  padding: 25px;
-  background: #fff;
+  min-width: 0;
+  padding: 26px;
+
+  background: #ffffff;
   border: 1px solid #e5eaf0;
-  border-radius: 16px;
+  border-radius: 17px;
+
+  box-shadow: 0 3px 15px rgba(22, 50, 40, 0.025);
 }
+
+/* ============================================
+   SECTION HEADINGS
+============================================ */
 
 .ca-form-section-heading {
   display: flex;
   align-items: center;
-  gap: 13px;
-  margin-bottom: 22px;
+  gap: 14px;
+
+  margin-bottom: 23px;
 }
 
 .ca-form-icon {
-  width: 45px;
-  height: 45px;
-  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  background: #e7f6f0;
-  color: #087f69;
+
+  width: 47px;
+  height: 47px;
+
+  flex-shrink: 0;
+
+  background: var(--ca-green-light);
+  color: var(--ca-green);
+
+  border-radius: 13px;
 }
 
 .ca-form-section-heading h2 {
-  margin: 0;
+  margin: 5px 0 0;
+
+  color: var(--ca-text);
   font-size: 17px;
-  color: #25384b;
+  font-weight: 750;
+  line-height: 1.5;
 }
 
 .ca-form-section-heading p {
   margin: 6px 0 0;
-  font-size: 12px;
+
   color: #8b98aa;
+  font-size: 12px;
+  line-height: 1.6;
 }
 
-.ca-form-grid {
+/* ============================================
+   GRID LAYOUT
+============================================ */
+
+.ca-form-grid,
+.ca-sheet-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 19px;
+  gap: 20px;
 }
 
 .ca-field {
+  position: relative;
   min-width: 0;
 }
 
@@ -103,63 +182,609 @@
   grid-column: 1 / -1;
 }
 
+/* ============================================
+   FIELD LABELS
+============================================ */
+
 .ca-field label {
   display: block;
-  margin-bottom: 8px;
+
+  margin-bottom: 9px;
+
   color: #34475a;
   font-size: 12px;
   font-weight: 700;
-}
-
-.ca-field label span {
-  color: #e05252;
-}
-
-.ca-field input {
-  width: 100%;
-  min-height: 47px;
-  padding: 11px 13px;
-  border: 1px solid #dfe6ec;
-  border-radius: 9px;
-  background: #fff;
-  color: #24374a;
-  font-size: 13px;
-  outline: none;
-}
-
-.ca-field input:focus {
-  border-color: #087f69;
-  box-shadow: 0 0 0 3px #087f691a;
-}
-
-.ca-field input::placeholder {
-  color: #a5afbc;
-}
-
-.ca-form-hint {
-  margin: 13px 0 0;
-  color: #8b98a8;
-  font-size: 11px;
   line-height: 1.7;
 }
 
-/* Existing location */
+.ca-field .ca-bilingual-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 7px;
+
+  margin-bottom: 10px;
+}
+
+.ca-label-si,
+.ca-sheet-label-si {
+  color: #273b4a;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.ca-label-en,
+.ca-sheet-label-en {
+  color: #8190a1;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ca-field .ca-required {
+  color: #e05252;
+  font-weight: 800;
+}
+
+/* ============================================
+   ALL TEXT / NUMBER / DATE INPUTS
+============================================ */
+
+.ca-registration-form .ca-field
+input:not([type="file"]):not([type="radio"]),
+.ca-registration-form .ca-field textarea {
+  display: block;
+
+  width: 100%;
+  min-height: 49px;
+
+  padding: 12px 14px;
+
+  border: 1.5px solid var(--ca-border);
+  border-radius: 11px;
+
+  background: #ffffff;
+  color: var(--ca-text);
+
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.ca-registration-form .ca-field textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.ca-registration-form .ca-field
+input:not([type="file"]):not([type="radio"]):hover,
+.ca-registration-form .ca-field textarea:hover {
+  border-color: #b8c9c5;
+}
+
+.ca-registration-form .ca-field
+input:not([type="file"]):not([type="radio"]):focus,
+.ca-registration-form .ca-field textarea:focus {
+  background: #ffffff;
+  border-color: var(--ca-green);
+
+  box-shadow:
+    0 0 0 4px rgba(8, 127, 105, 0.1);
+}
+
+.ca-registration-form .ca-field
+input::placeholder,
+.ca-registration-form .ca-field
+textarea::placeholder {
+  color: #a0acb8;
+}
+
+.ca-registration-form .ca-field
+input:read-only,
+.ca-registration-form .ca-field
+textarea:read-only {
+  background: #f4f7f6;
+  color: #607286;
+}
+
+.ca-registration-form .ca-field
+input:disabled,
+.ca-registration-form .ca-field
+textarea:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   MODERN DROPDOWN MENUS
+
+   Applies to:
+   - Marital status
+   - Nature of residence
+   - Type of house
+   - Temporary house material
+   - Roof type
+   - Number of floors
+   - Electricity facilities
+   - Water facilities
+   - Water source
+   - Toilet facilities
+============================================ */
+
+.ca-registration-form .ca-field select {
+  display: block;
+
+  width: 100%;
+  min-width: 0;
+  height: 51px;
+
+  padding: 12px 46px 12px 15px;
+
+  border: 1.5px solid #d6e5df;
+  border-radius: 12px;
+
+  background-color: #fafffc;
+
+  /* Custom dropdown arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23087f69' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 19px 19px;
+
+  color: #273c4e;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+  outline: none;
+
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Dropdown hover */
+
+.ca-registration-form .ca-field select:hover {
+  background-color: #f0faf5;
+  border-color: #8bcab2;
+}
+
+/* Dropdown focus */
+
+.ca-registration-form .ca-field select:focus {
+  background-color: #ffffff;
+  border-color: var(--ca-green);
+
+  box-shadow:
+    0 0 0 4px rgba(8, 127, 105, 0.12);
+}
+
+/* Dropdown disabled */
+
+.ca-registration-form .ca-field select:disabled {
+  background-color: #f2f5f4;
+  border-color: #dfe6e3;
+  color: #9ba7b0;
+
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Native option appearance where supported */
+
+.ca-registration-form .ca-field select option {
+  background-color: #ffffff;
+  color: #25384b;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ============================================
+   SECTION 01 - FAMILY SHEET
+============================================ */
+
+.ca-sheet-section {
+  border-color: #cee7da;
+}
+
+.ca-sheet-section .ca-form-section-heading {
+  padding-bottom: 19px;
+  border-bottom: 1px solid #e6efe9;
+}
+
+.ca-sheet-field {
+  padding: 16px;
+
+  background: #fafcfb;
+
+  border: 1px solid #e7edf0;
+  border-radius: 12px;
+}
+
+.ca-sheet-field .ca-form-hint {
+  margin-top: 9px;
+}
+
+/* ============================================
+   SECTION 06 - FAMILY MEMBERS
+============================================ */
+
+.ca-members-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+.ca-members-heading .ca-form-section-heading {
+  margin-bottom: 0;
+}
+
+.ca-add-member {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+  flex-shrink: 0;
+
+  min-height: 43px;
+  padding: 10px 17px;
+
+  border: 1px solid var(--ca-green-border);
+  border-radius: 11px;
+
+  background: #eaf7f1;
+  color: var(--ca-green);
+
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.ca-add-member:hover {
+  background: #d9f1e5;
+  border-color: #80bfa8;
+}
+
+.ca-add-member:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ca-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ca-member-form {
+  padding: 22px;
+
+  background: #fafcfd;
+
+  border: 1px solid #e4ebef;
+  border-radius: 14px;
+}
+
+.ca-member-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+
+  border-bottom: 1px solid #e6edf0;
+}
+
+.ca-member-form-header strong {
+  color: var(--ca-green);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.ca-remove-member {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 35px;
+  min-height: 35px;
+
+  padding: 8px;
+
+  background: #fff4f4;
+  color: #dc2626;
+
+  border: 1px solid #fee2e2;
+  border-radius: 9px;
+
+  cursor: pointer;
+}
+
+.ca-remove-member:hover {
+  background: #fee2e2;
+}
+
+.ca-remove-member:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   MODERN FILE UPLOAD BUTTONS
+
+   Existing JSX classes:
+   .ca-document-field
+   .ca-upload-box
+   .ca-file-input
+   .ca-file-remove
+============================================ */
+
+.ca-document-field {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+}
+
+/* Full clickable upload area */
+
+.ca-document-field .ca-upload-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  width: 100%;
+  min-height: 165px;
+
+  padding: 20px 15px;
+  margin: 0;
+
+  background:
+    linear-gradient(
+      145deg,
+      #f5fcf8 0%,
+      #ebf8f1 100%
+    );
+
+  border: 2px dashed #aed8c8;
+  border-radius: 15px;
+
+  color: var(--ca-green);
+
+  text-align: center;
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Upload icon */
+
+.ca-document-field .ca-upload-box > svg {
+  width: 27px;
+  height: 27px;
+
+  color: var(--ca-green);
+
+  flex-shrink: 0;
+}
+
+/* Main file text */
+
+.ca-document-field .ca-upload-box > span {
+  display: block;
+
+  max-width: 100%;
+
+  color: #245a48;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+}
+
+/* Supported file types */
+
+.ca-document-field .ca-upload-box > small {
+  display: block;
+
+  color: #7f978d;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* Visual Browse Files button */
+
+.ca-document-field .ca-upload-box::after {
+  content: "Browse Files";
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 35px;
+  padding: 8px 20px;
+
+  margin-top: 3px;
+
+  background: var(--ca-green);
+  color: #ffffff;
+
+  border-radius: 9px;
+
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.15px;
+
+  box-shadow:
+    0 4px 10px rgba(8, 127, 105, 0.13);
+
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Upload hover */
+
+.ca-document-field .ca-upload-box:hover {
+  background: #e8f7ee;
+  border-color: var(--ca-green);
+
+  box-shadow:
+    0 0 0 4px rgba(8, 127, 105, 0.05);
+}
+
+.ca-document-field .ca-upload-box:hover::after {
+  background: var(--ca-green-dark);
+
+  box-shadow:
+    0 5px 12px rgba(8, 127, 105, 0.18);
+}
+
+/* Keep native file control accessible
+   but visually hidden */
+
+.ca-document-field .ca-file-input {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+
+  padding: 0;
+  margin: 0;
+
+  overflow: hidden;
+  opacity: 0;
+
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+/* Keyboard focus on upload */
+
+.ca-document-field:focus-within .ca-upload-box {
+  border-color: var(--ca-green);
+
+  box-shadow:
+    0 0 0 4px rgba(8, 127, 105, 0.12);
+}
+
+/* Selected file state */
+
+.ca-document-field:has(.ca-file-remove)
+.ca-upload-box {
+  background: #eaf8f0;
+  border-style: solid;
+  border-color: #8ccdb2;
+}
+
+.ca-document-field:has(.ca-file-remove)
+.ca-upload-box::after {
+  content: "Change File";
+  background: #137b63;
+}
+
+.ca-document-field:has(.ca-file-remove)
+.ca-upload-box > span {
+  color: #087f69;
+}
+
+/* Remove selected file */
+
+.ca-file-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  align-self: flex-start;
+  gap: 7px;
+
+  min-height: 32px;
+  padding: 7px 12px;
+
+  margin-top: 11px;
+
+  color: #bd3434;
+  background: #fff3f3;
+
+  border: 1px solid #f4cece;
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.ca-file-remove:hover {
+  background: #ffe5e5;
+  border-color: #eab1b1;
+}
+
+.ca-file-remove:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   SELECTED EXISTING LOCATION
+============================================ */
 
 .ca-existing-location {
   padding: 18px;
+
   background: #ecf8f2;
   border: 1px solid #c8e8d9;
-  border-radius: 11px;
+  border-radius: 12px;
 }
 
 .ca-existing-location strong {
   display: block;
-  color: #087f69;
+
+  color: var(--ca-green);
   font-size: 15px;
 }
 
 .ca-existing-location p {
   margin: 8px 0;
+
   color: #43586b;
   font-size: 13px;
 }
@@ -170,178 +795,152 @@
   line-height: 1.6;
 }
 
-/* Members */
+/* ============================================
+   FORM HINTS
+============================================ */
 
-.ca-members-heading {
+.ca-form-hint {
+  margin: 13px 0 0;
+
+  color: #8b98a8;
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.ca-sheet-footnote {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 15px;
-}
-
-.ca-add-member {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 11px 14px;
-  border: 1px solid #aed8c8;
-  border-radius: 9px;
-  background: #eaf7f1;
-  color: #087f69;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.ca-add-member:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.ca-members-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.ca-member-form {
-  padding: 19px;
-  border: 1px solid #e5eaf0;
-  border-radius: 12px;
-  background: #fafbfd;
-}
-
-.ca-member-form-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 17px;
-}
-
-.ca-member-form-header strong {
-  color: #34485c;
-  font-size: 13px;
-}
-
-.ca-remove-member {
-  padding: 7px;
-  border: 1px solid #fee2e2;
-  border-radius: 8px;
-  background: #fff5f5;
-  color: #dc2626;
-  cursor: pointer;
-}
-
-.ca-head-choice {
-  display: inline-flex;
-  align-items: center;
   gap: 9px;
-  margin-top: 17px;
-  color: #516579;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
+
+  padding: 12px 14px;
+  margin: 18px 0 0;
+
+  background: #f0f8f4;
+  color: #5d796c;
+
+  border-radius: 9px;
+
+  font-size: 11px;
+  line-height: 1.7;
 }
 
-.ca-head-choice input {
-  accent-color: #087f69;
-  width: 16px;
-  height: 16px;
-}
-
-/* Buttons and validation */
+/* ============================================
+   VALIDATION ERRORS
+============================================ */
 
 .ca-form-error {
-  padding: 15px;
-  border: 1px solid #fecaca;
-  border-radius: 9px;
+  padding: 15px 17px;
+
   background: #fef2f2;
   color: #b91c1c;
+
+  border: 1px solid #fecaca;
+  border-radius: 11px;
+
   font-size: 12px;
-  line-height: 1.6;
+  line-height: 1.7;
 }
+
+/* ============================================
+   MAIN BUTTONS
+============================================ */
 
 .ca-form-actions {
   display: flex;
   justify-content: flex-end;
 }
 
-.ca-save-household {
+.ca-save-household,
+.ca-register-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   gap: 9px;
-  min-height: 46px;
-  padding: 12px 21px;
+
+  min-height: 47px;
+  padding: 12px 22px;
+
+  color: #ffffff;
+  background: var(--ca-green);
+
   border: none;
-  border-radius: 10px;
-  background: #087f69;
-  color: white;
+  border-radius: 11px;
+
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
+  text-decoration: none;
+
   cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .ca-save-household:hover,
 .ca-register-action:hover {
-  background: #066b59;
+  background: var(--ca-green-dark);
+
+  box-shadow:
+    0 5px 14px rgba(8, 127, 105, 0.15);
 }
 
-.ca-save-household:disabled {
+.ca-save-household:disabled,
+.ca-register-action:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .ca-register-action {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
   width: 100%;
-  min-height: 44px;
   margin: 18px 0;
-  padding: 12px;
-  background: #087f69;
-  color: white;
-  border: none;
-  border-radius: 9px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
 }
 
 .ca-outline-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   gap: 9px;
+
   min-height: 43px;
   padding: 11px 15px;
-  border: 1px solid #b8ddcf;
-  border-radius: 9px;
+
   background: #eaf7f1;
-  color: #087f69;
+  color: var(--ca-green);
+
+  border: 1px solid var(--ca-green-border);
+  border-radius: 9px;
+
   font-size: 12px;
   font-weight: 700;
   text-decoration: none;
 }
 
-/* Success view */
+/* ============================================
+   REGISTRATION SUCCESS
+============================================ */
 
 .ca-registration-success {
   padding: 43px 30px;
-  background: white;
+
+  background: #ffffff;
+
   border: 1px solid #e5eaf0;
   border-radius: 17px;
+
   text-align: center;
 }
 
 .ca-registration-success > svg {
-  color: #087f69;
+  color: var(--ca-green);
 }
 
 .ca-registration-success h1 {
   margin: 17px 0 10px;
+
   color: #1d3547;
   font-size: 25px;
 }
@@ -355,14 +954,16 @@
 .ca-success-details {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+
   gap: 12px;
   margin: 27px 0;
 }
 
 .ca-success-details > div {
   padding: 16px 10px;
-  border-radius: 10px;
+
   background: #f2f7f5;
+  border-radius: 10px;
 }
 
 .ca-success-details span,
@@ -377,27 +978,68 @@
 }
 
 .ca-success-details strong {
-  color: #087f69;
+  color: var(--ca-green);
   font-size: 15px;
   overflow-wrap: anywhere;
 }
 
 .ca-success-links {
   display: flex;
+  align-items: center;
   justify-content: center;
   flex-wrap: wrap;
+
   gap: 12px;
 }
 
-/* Mobile */
+/* ============================================
+   KEYBOARD ACCESSIBILITY
+============================================ */
+
+.ca-registration-page button:focus-visible,
+.ca-registration-page a:focus-visible {
+  outline: 3px solid #4eaa91;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   TABLET
+============================================ */
+
+@media (max-width: 800px) {
+  .ca-sheet-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .ca-sheet-fields > .ca-field-full {
+    grid-column: auto;
+  }
+
+  .ca-form-grid {
+    gap: 17px;
+  }
+}
+
+/* ============================================
+   MOBILE
+============================================ */
 
 @media (max-width: 640px) {
+  .ca-registration-page {
+    gap: 18px;
+  }
+
   .ca-registration-heading h1 {
     font-size: 23px;
   }
 
+  .ca-registration-heading h2 {
+    font-size: 15px;
+  }
+
   .ca-form-section {
     padding: 18px;
+    border-radius: 13px;
   }
 
   .ca-form-grid {
@@ -409,9 +1051,13 @@
     grid-column: auto;
   }
 
+  .ca-sheet-field {
+    padding: 13px;
+  }
+
   .ca-members-heading {
     flex-direction: column;
-    margin-bottom: 15px;
+    margin-bottom: 16px;
   }
 
   .ca-members-heading .ca-form-section-heading {
@@ -420,11 +1066,20 @@
 
   .ca-add-member {
     width: 100%;
-    justify-content: center;
   }
 
   .ca-member-form {
-    padding: 14px;
+    padding: 15px;
+  }
+
+  .ca-registration-form .ca-field select {
+    height: 50px;
+    font-size: 12px;
+  }
+
+  .ca-document-field .ca-upload-box {
+    min-height: 145px;
+    padding: 17px 12px;
   }
 
   .ca-save-household {
@@ -437,5 +1092,37 @@
 
   .ca-registration-success {
     padding: 27px 18px;
+  }
+}
+
+@media (max-width: 380px) {
+  .ca-form-section {
+    padding: 14px;
+  }
+
+  .ca-sheet-field {
+    padding: 11px;
+  }
+
+  .ca-label-si {
+    font-size: 12px;
+  }
+
+  .ca-registration-form .ca-field select {
+    padding-left: 11px;
+    padding-right: 40px;
+    background-position: right 11px center;
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .ca-registration-page *,
+  .ca-registration-page *::before,
+  .ca-registration-page *::after {
+    transition: none !important;
   }
 }
