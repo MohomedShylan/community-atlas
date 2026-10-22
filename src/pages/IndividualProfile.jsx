@@ -19,7 +19,6 @@ import {
   CalendarDays,
   Phone,
   FileText,
-  BadgeCheck,
   ChevronRight,
   RefreshCw,
   UserPlus,
@@ -31,6 +30,10 @@ import useAuth from "../hooks/useAuth";
 import {
   getIndividualProfile,
 } from "../services/personProfileService";
+
+// NEW: Sections 1–18 survey viewer
+import IndividualSurveySections from
+  "../components/people/IndividualSurveySections";
 
 // ==========================================
 // HELPERS
@@ -45,7 +48,11 @@ function formatDate(dateString) {
     .split("-")
     .map(Number);
 
-  const date = new Date(year, month - 1, day);
+  const date = new Date(
+    year,
+    month - 1,
+    day
+  );
 
   if (Number.isNaN(date.getTime())) {
     return dateString;
@@ -89,9 +96,9 @@ function calculateAge(dateString) {
 
 function formatGender(gender) {
   const labels = {
-    male: "Male",
-    female: "Female",
-    other: "Other",
+    male: "පුරුෂ — Male",
+    female: "ස්ත්‍රී — Female",
+    other: "වෙනත් — Other",
     prefer_not_to_say: "Prefer not to say",
   };
 
@@ -125,7 +132,7 @@ function ProfileField({
 }
 
 // ==========================================
-// MAIN PROFILE PAGE
+// MAIN INDIVIDUAL PROFILE PAGE
 // ==========================================
 
 export default function IndividualProfile() {
@@ -141,9 +148,9 @@ export default function IndividualProfile() {
     profile?.role === "admin" ||
     profile?.role === "editor";
 
-  // ----------------------------------------
-  // Load the selected individual
-  // ----------------------------------------
+  // ========================================
+  // LOAD SELECTED INDIVIDUAL
+  // ========================================
 
   useEffect(() => {
     let active = true;
@@ -174,9 +181,9 @@ export default function IndividualProfile() {
     };
   }, [personId, revision]);
 
-  // ----------------------------------------
-  // Loading state
-  // ----------------------------------------
+  // ========================================
+  // LOADING STATE
+  // ========================================
 
   if (loading) {
     return (
@@ -189,13 +196,14 @@ export default function IndividualProfile() {
     );
   }
 
-  // ----------------------------------------
-  // Error state
-  // ----------------------------------------
+  // ========================================
+  // ERROR STATE
+  // ========================================
 
   if (error) {
     return (
       <div className="ca-ip-page">
+
         <Link
           to="/people"
           className="ca-ip-back"
@@ -218,24 +226,28 @@ export default function IndividualProfile() {
             type="button"
             className="ca-ip-button"
             onClick={() =>
-              setRevision((value) => value + 1)
+              setRevision(
+                (value) => value + 1
+              )
             }
           >
             <RefreshCw size={17} />
             Try Again
           </button>
         </section>
+
       </div>
     );
   }
 
-  // ----------------------------------------
-  // Missing / archived person
-  // ----------------------------------------
+  // ========================================
+  // MISSING / ARCHIVED PERSON
+  // ========================================
 
   if (!record) {
     return (
       <div className="ca-ip-page">
+
         <Link
           to="/people"
           className="ca-ip-back"
@@ -262,6 +274,7 @@ export default function IndividualProfile() {
             Return to People
           </Link>
         </section>
+
       </div>
     );
   }
@@ -282,11 +295,17 @@ export default function IndividualProfile() {
     location.latitude !== undefined &&
     location.longitude !== null &&
     location.longitude !== undefined &&
-    Number.isFinite(Number(location.latitude)) &&
-    Number.isFinite(Number(location.longitude));
+    Number.isFinite(
+      Number(location.latitude)
+    ) &&
+    Number.isFinite(
+      Number(location.longitude)
+    );
 
   const mapUrl =
-    `/map?locationId=${encodeURIComponent(location.id)}`;
+    `/map?locationId=${encodeURIComponent(
+      location.id
+    )}`;
 
   const address = [
     location.address_line,
@@ -300,12 +319,15 @@ export default function IndividualProfile() {
     ? person.phone.replace(/[^\d+]/g, "")
     : "";
 
-  // ----------------------------------------
-  // Profile interface
-  // ----------------------------------------
+  // ========================================
+  // PROFILE INTERFACE
+  // ========================================
 
   return (
     <div className="ca-ip-page">
+
+      {/* BACK NAVIGATION */}
+
       <Link
         to="/people"
         className="ca-ip-back"
@@ -314,8 +336,12 @@ export default function IndividualProfile() {
         Back to People Directory
       </Link>
 
-      {/* PROFILE HEADER */}
+      {/* =====================================
+          PROFILE HEADER
+      ===================================== */}
+
       <header className="ca-ip-header">
+
         <div className="ca-ip-avatar">
           <UserRound size={35} />
         </div>
@@ -327,21 +353,11 @@ export default function IndividualProfile() {
 
           <h1>{person.full_name}</h1>
 
-          <div className="ca-ip-tags">
-            <span className="ca-ip-code">
-              {person.person_code}
-            </span>
-
-            {person.is_head && (
-              <span className="ca-ip-head-badge">
-                <BadgeCheck size={14} />
-                Head of Family
-              </span>
-            )}
-          </div>
+          {/* Person Code and Family Role removed */}
         </div>
 
         <div className="ca-ip-header-actions">
+
           <Link
             className="ca-ip-button-secondary"
             to={`/households/${family.id}`}
@@ -359,30 +375,37 @@ export default function IndividualProfile() {
               View on Map
             </Link>
           )}
+
         </div>
       </header>
 
+      {/* =====================================
+          MAIN PROFILE LAYOUT
+      ===================================== */}
+
       <div className="ca-ip-layout">
+
         {/* MAIN COLUMN */}
+
         <div className="ca-ip-main">
-          {/* PERSONAL INFORMATION */}
+
+          {/* =================================
+              PERSONAL INFORMATION
+          ================================= */}
+
           <section className="ca-ip-card">
+
             <div className="ca-ip-card-heading">
               <UserRound size={21} />
               <h2>Personal Information</h2>
             </div>
 
             <dl className="ca-ip-fields-grid">
+
               <ProfileField
                 icon={UserRound}
                 label="Full Name"
                 value={person.full_name}
-              />
-
-              <ProfileField
-                icon={BadgeCheck}
-                label="Person Code"
-                value={person.person_code}
               />
 
               <ProfileField
@@ -412,14 +435,6 @@ export default function IndividualProfile() {
               />
 
               <ProfileField
-                icon={Users}
-                label="Relationship to Head"
-                value={
-                  person.relationship_to_head
-                }
-              />
-
-              <ProfileField
                 icon={Phone}
                 label="Contact Number"
                 value={
@@ -433,20 +448,26 @@ export default function IndividualProfile() {
                 }
               />
 
-              <ProfileField
-                icon={House}
-                label="Family Role"
-                value={
-                  person.is_head
-                    ? "Head of Family"
-                    : "Family Member"
-                }
-              />
             </dl>
           </section>
 
-          {/* ADDITIONAL NOTES */}
+          {/* =================================
+              FAMILY INFORMATION SHEET
+              SECTIONS 1–18
+          ================================= */}
+
+          <IndividualSurveySections
+            person={person}
+            family={family}
+            role={profile?.role}
+          />
+
+          {/* =================================
+              ADDITIONAL NOTES
+          ================================= */}
+
           <section className="ca-ip-card">
+
             <div className="ca-ip-card-heading">
               <FileText size={21} />
               <h2>Additional Notes</h2>
@@ -456,10 +477,15 @@ export default function IndividualProfile() {
               {person.notes ||
                 "No additional notes have been recorded."}
             </p>
+
           </section>
 
-          {/* OTHER FAMILY MEMBERS */}
+          {/* =================================
+              OTHER FAMILY MEMBERS
+          ================================= */}
+
           <section className="ca-ip-card">
+
             <div className="ca-ip-card-heading">
               <Users size={21} />
               <h2>Other Family Members</h2>
@@ -481,12 +507,14 @@ export default function IndividualProfile() {
               </p>
             ) : (
               <div className="ca-ip-member-list">
+
                 {relatedMembers.map((member) => (
                   <Link
                     key={member.id}
                     className="ca-ip-member"
                     to={`/people/${member.id}`}
                   >
+
                     <div className="ca-ip-member-avatar">
                       <UserRound size={18} />
                     </div>
@@ -496,34 +524,41 @@ export default function IndividualProfile() {
                         {member.full_name}
                       </strong>
 
-                      <span>
-                        {member.person_code}
-                        {" · "}
-                        {member.is_head
-                          ? "Head of Family"
-                          : member.relationship_to_head ||
-                            "Family Member"}
-                      </span>
+                      {/* Person Code, Relationship
+                          and Family Role removed */}
                     </div>
 
                     <ChevronRight size={17} />
+
                   </Link>
                 ))}
+
               </div>
             )}
+
           </section>
+
         </div>
 
-        {/* SIDEBAR */}
+        {/* =====================================
+            SIDEBAR
+        ===================================== */}
+
         <aside className="ca-ip-sidebar">
-          {/* FAMILY CARD */}
+
+          {/* =================================
+              REGISTERED FAMILY CARD
+          ================================= */}
+
           <section className="ca-ip-card">
+
             <div className="ca-ip-card-heading">
               <House size={21} />
               <h2>Registered Family</h2>
             </div>
 
             <div className="ca-ip-family-summary">
+
               <div className="ca-ip-family-icon">
                 <House size={26} />
               </div>
@@ -531,6 +566,7 @@ export default function IndividualProfile() {
               <h3>{family.family_name}</h3>
 
               <span>{family.family_code}</span>
+
             </div>
 
             <div className="ca-ip-stat">
@@ -555,23 +591,31 @@ export default function IndividualProfile() {
               <Link
                 className="ca-ip-sidebar-link"
                 to={
-                  `/people/new?familyId=${encodeURIComponent(family.id)}`
+                  `/people/new?familyId=${encodeURIComponent(
+                    family.id
+                  )}`
                 }
               >
                 <UserPlus size={17} />
                 Register Family Member
               </Link>
             )}
+
           </section>
 
-          {/* LOCATION CARD */}
+          {/* =================================
+              HOUSEHOLD LOCATION CARD
+          ================================= */}
+
           <section className="ca-ip-card">
+
             <div className="ca-ip-card-heading">
               <MapPinned size={21} />
               <h2>Household Location</h2>
             </div>
 
             <div className="ca-ip-location">
+
               <span className="ca-ip-code">
                 {location.location_code}
               </span>
@@ -582,14 +626,23 @@ export default function IndividualProfile() {
               </p>
 
               <div className="ca-ip-coordinates">
-                <small>GPS COORDINATES</small>
+
+                <small>
+                  GPS COORDINATES
+                </small>
 
                 <strong>
                   {hasCoordinates
-                    ? `${Number(location.latitude).toFixed(6)}, ${Number(location.longitude).toFixed(6)}`
+                    ? `${Number(
+                        location.latitude
+                      ).toFixed(6)}, ${Number(
+                        location.longitude
+                      ).toFixed(6)}`
                     : "Not recorded"}
                 </strong>
+
               </div>
+
             </div>
 
             {hasCoordinates ? (
@@ -606,7 +659,9 @@ export default function IndividualProfile() {
                 for this household.
               </p>
             )}
+
           </section>
+
         </aside>
       </div>
     </div>
