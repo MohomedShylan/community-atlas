@@ -18,9 +18,7 @@ const DOCUMENT_TYPES = {
 
 function getClient() {
   if (!supabase) {
-    throw new Error(
-      "Supabase is not configured."
-    );
+    throw new Error("Supabase is not configured.");
   }
 
   return supabase;
@@ -63,9 +61,9 @@ export async function getHouseholds() {
 // DOCUMENT VALIDATION
 // ==========================================
 
-function getDocumentType(file) {
-  const extension = file.name
-    .split(".")
+function documentInfo(file) {
+  const extension = file?.name
+    ?.split(".")
     .pop()
     ?.toLowerCase();
 
@@ -74,22 +72,16 @@ function getDocumentType(file) {
   if (
     !mime ||
     file.size <= 0 ||
-    file.size > MAX_FILE_SIZE
+    file.size > MAX_FILE_SIZE ||
+    (file.type && file.type !== mime)
   ) {
     throw new Error(
-      "Upload only JPG, PNG, WebP or PDF files up to 10 MB."
-    );
-  }
-
-  if (file.type && file.type !== mime) {
-    throw new Error(
-      `Unsupported document format: ${file.name}`
+      "Documents must be JPG, PNG, WebP or PDF, maximum 10 MB."
     );
   }
 
   return {
-    extension:
-      extension === "jpeg" ? "jpg" : extension,
+    extension: extension === "jpeg" ? "jpg" : extension,
     mime,
   };
 }
@@ -103,21 +95,16 @@ async function uploadDocument(
   userId,
   registrationId,
   memberId,
-  documentType,
+  type,
   file,
   uploadedPaths
 ) {
   if (!file) return null;
 
-  const { extension, mime } =
-    getDocumentType(file);
+  const { extension, mime } = documentInfo(file);
 
-  const path = [
-    userId,
-    registrationId,
-    memberId,
-    `${documentType}.${extension}`,
-  ].join("/");
+  const path =
+    `${userId}/${registrationId}/${memberId}/${type}.${extension}`;
 
   const { error } = await db.storage
     .from(DOCUMENT_BUCKET)
@@ -129,7 +116,7 @@ async function uploadDocument(
 
   if (error) {
     throw new Error(
-      `Failed to upload ${documentType}: ${error.message}`
+      `Failed to upload ${type}: ${error.message}`
     );
   }
 
@@ -160,47 +147,33 @@ function prepareFamilySheet(form) {
 // ==========================================
 
 function prepareHousingSheet(housing = {}) {
-  const residencyType =
-    housing.residencyType || null;
-
-  const houseType =
-    housing.houseType || null;
-
-  const waterAvailable =
-    housing.waterAvailable || null;
-
-  const needsArrivalYear =
-    residencyType === "temporary" ||
-    residencyType === "rental";
+  const residencyType = housing.residencyType || null;
+  const houseType = housing.houseType || null;
+  const waterAvailable = housing.waterAvailable || null;
 
   return {
-    residency_type:
-      residencyType,
+    residency_type: residencyType,
 
     temporary_arrival_year:
-      needsArrivalYear
+      ["temporary", "rental"].includes(residencyType)
         ? housing.temporaryArrivalYear || null
         : null,
 
-    house_type:
-      houseType,
+    house_type: houseType,
 
     temporary_house_material:
       houseType === "temporary"
         ? housing.temporaryHouseMaterial || null
         : null,
 
-    roof_type:
-      housing.roofType || null,
+    roof_type: housing.roofType || null,
 
-    floor_count:
-      housing.floorCount || null,
+    floor_count: housing.floorCount || null,
 
     electricity_available:
       housing.electricityAvailable || null,
 
-    water_available:
-      waterAvailable,
+    water_available: waterAvailable,
 
     water_source:
       waterAvailable === "yes"
@@ -212,34 +185,27 @@ function prepareHousingSheet(housing = {}) {
         ? housing.waterSourceWithoutFacility || null
         : null,
 
-    toilet_facility:
-      housing.toiletFacility || null,
+    toilet_facility: housing.toiletFacility || null,
   };
 }
 
 // ==========================================
-// SECTION 8 - MULTIPLE LANDS
+// SECTION 8 — MULTIPLE LANDS
 // ==========================================
 
 function prepareLands(lands = []) {
-  if (!Array.isArray(lands)) {
-    throw new Error(
-      "Land information must be an array."
-    );
+  if (!Array.isArray(lands) || lands.length > 25) {
+    throw new Error("Invalid land entries.");
   }
 
   return lands.map((land) => ({
-    owner_name:
-      land.ownerName?.trim() || null,
+    owner_name: land.ownerName?.trim() || null,
 
-    land_name:
-      land.landName?.trim() || null,
+    land_name: land.landName?.trim() || null,
 
-    land_size:
-      land.landSize?.trim() || null,
+    land_size: land.landSize?.trim() || null,
 
-    land_type:
-      land.landType || null,
+    land_type: land.landType || null,
 
     ownership_category:
       land.ownershipCategory || null,
@@ -249,59 +215,86 @@ function prepareLands(lands = []) {
         ? land.deedPermitNumber?.trim() || null
         : null,
 
-    tenure_type:
-      land.tenureType || null,
+    tenure_type: land.tenureType || null,
 
-    main_crops:
-      land.mainCrops?.trim() || null,
+    main_crops: land.mainCrops?.trim() || null,
   }));
 }
 
 // ==========================================
-// SECTION 9 - MULTIPLE SUBSIDIES
-//
-// Card/account information is submitted
-// to a separate protected database table.
+// SECTION 9 — MULTIPLE SUBSIDIES
 // ==========================================
 
 function prepareSubsidies(subsidies = []) {
-  if (!Array.isArray(subsidies)) {
-    throw new Error(
-      "Subsidy information must be an array."
-    );
+  if (!Array.isArray(subsidies) || subsidies.length > 50) {
+    throw new Error("Invalid subsidy entries.");
   }
 
-  if (subsidies.length > 50) {
-    throw new Error(
-      "You can register a maximum of 50 subsidies."
-    );
-  }
-
-  return subsidies.map((item) => ({
+  return subsidies.map((s) => ({
     recipient_name:
-      item.beneficiaryName?.trim() || "",
+      s.beneficiaryName?.trim() || "",
 
     assistance_type:
-      item.subsidyType || "",
+      s.subsidyType || "",
 
     amount_text:
-      item.amount?.trim() || null,
+      s.amount?.trim() || null,
 
     card_or_account_number:
-      item.cardOrAccountNumber?.trim() || null,
+      s.cardOrAccountNumber?.trim() || null,
 
     start_date_text:
-      item.startDate?.trim() || null,
+      s.startDate?.trim() || null,
 
     institution:
-      item.institution?.trim() || null,
+      s.institution?.trim() || null,
 
     representative_name:
-      item.representativeName?.trim() || null,
+      s.representativeName?.trim() || null,
 
     other_information:
-      item.other?.trim() || null,
+      s.other?.trim() || null,
   }));
+}
+
+// ==========================================
+// SECTIONS 10–18
+//
+// Supports multiple entries for each section.
+// Removes client-only card IDs before saving.
+// ==========================================
+
+function prepareExtendedSections(sections = {}) {
+  const prepared = {};
+
+  for (let number = 10; number <= 18; number++) {
+    const key = `section_${number}`;
+
+    const records = sections[key] ?? [];
+
+    if (
+      !Array.isArray(records) ||
+      records.length > 50
+    ) {
+      throw new Error(
+        `Invalid Section ${number} records.`
+      );
+    }
+
+    prepared[key] = records.map((entry) => {
+      const record = {};
+
+      for (const [field, value] of Object.entries(entry)) {
+        if (field !== "id") {
+          record[field] = String(value ?? "").trim();
+        }
+      }
+
+      return record;
+    });
+  }
+
+  return prepared;
 }
 
 // ==========================================
@@ -327,37 +320,53 @@ export async function registerHousehold(form) {
 
   try {
     // ======================================
-    // SECTION 6 - MEMBER DATA AND DOCUMENTS
+    // PREPARE ALL FAMILY SECTIONS
+    // ======================================
+
+    const familySheet =
+      prepareFamilySheet(form);
+
+    const housingSheet =
+      prepareHousingSheet(form.housing);
+
+    const lands =
+      prepareLands(form.lands);
+
+    const subsidies =
+      prepareSubsidies(form.subsidies);
+
+    const extendedSections =
+      prepareExtendedSections(form.extendedSections);
+
+    // ======================================
+    // SECTION 6 — MEMBER DOCUMENTS
     // ======================================
 
     const members = [];
 
     for (const member of form.members) {
-      const birthCertificatePath =
-        await uploadDocument(
-          db,
-          user.id,
-          registrationId,
-          member.clientId,
-          "birth_certificate",
-          member.birthCertificate,
-          uploadedPaths
-        );
+      const birthPath = await uploadDocument(
+        db,
+        user.id,
+        registrationId,
+        member.clientId,
+        "birth_certificate",
+        member.birthCertificate,
+        uploadedPaths
+      );
 
-      const nicCopyPath =
-        await uploadDocument(
-          db,
-          user.id,
-          registrationId,
-          member.clientId,
-          "nic_copy",
-          member.nicCopy,
-          uploadedPaths
-        );
+      const nicPath = await uploadDocument(
+        db,
+        user.id,
+        registrationId,
+        member.clientId,
+        "nic_copy",
+        member.nicCopy,
+        uploadedPaths
+      );
 
       members.push({
-        full_name:
-          member.fullName,
+        full_name: member.fullName,
 
         date_of_birth:
           member.dateOfBirth,
@@ -390,35 +399,22 @@ export async function registerHousehold(form) {
           member.maritalStatus || null,
 
         birth_certificate_path:
-          birthCertificatePath,
+          birthPath,
 
         nic_copy_path:
-          nicCopyPath,
+          nicPath,
       });
     }
 
     // ======================================
-    // PREPARE FAMILY INFORMATION
-    // ======================================
-
-    const familySheet =
-      prepareFamilySheet(form);
-
-    const housingSheet =
-      prepareHousingSheet(form.housing);
-
-    const landEntries =
-      prepareLands(form.lands);
-
-    const subsidyEntries =
-      prepareSubsidies(form.subsidies);
-
-    // ======================================
-    // NEW TRANSACTIONAL REGISTRATION RPC
+    // REGISTER ALL SECTIONS
+    //
+    // Section 10–18 migration must be applied
+    // before calling this function.
     // ======================================
 
     const { data, error } = await db.rpc(
-      "register_household_with_subsidies",
+      "register_household_with_extended_sections",
       {
         p_family_name:
           form.familyName,
@@ -458,11 +454,15 @@ export async function registerHousehold(form) {
           housingSheet,
 
         p_lands:
-          landEntries,
+          lands,
 
-        // SECTION 9
         p_subsidies:
-          subsidyEntries,
+          subsidies,
+
+        // NEW — SECTIONS 10–18
+
+        p_extended_sections:
+          extendedSections,
       }
     );
 
@@ -471,13 +471,14 @@ export async function registerHousehold(form) {
     }
 
     return data;
-  } catch (err) {
-    // Database RPC calls run inside one
-    // transaction. Storage uploads do not.
-    // Attempt to remove unused documents
-    // if the registration fails.
 
-    if (uploadedPaths.length > 0) {
+  } catch (err) {
+    // PostgreSQL rolls back failed RPCs.
+    // Supabase Storage is a separate service,
+    // so remove uploaded files if registration
+    // fails.
+
+    if (uploadedPaths.length) {
       const { error: cleanupError } =
         await db.storage
           .from(DOCUMENT_BUCKET)
@@ -485,14 +486,14 @@ export async function registerHousehold(form) {
 
       if (cleanupError) {
         console.error(
-          "Private document cleanup failed:",
+          "Document cleanup failed:",
           cleanupError.message
         );
 
         throw new Error(
           `${
             err.message || "Registration failed."
-          } Some uploaded documents may require administrator cleanup.`
+          } Some files may need administrator cleanup.`
         );
       }
     }

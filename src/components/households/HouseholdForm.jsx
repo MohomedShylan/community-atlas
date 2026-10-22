@@ -1,499 +1,587 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  House,
-  MapPin,
-  Users,
-  Building2,
-  LandPlot,
-  HandHeart,
-  Plus,
-  Trash2,
-  Save,
-  FileUp,
-  FileText,
-  X,
+  House, MapPin, Users, Building2, LandPlot, HandHeart,
+  ClipboardList, Plus, Trash2, Save, FileUp, FileText, X,
 } from "lucide-react";
-
-// ==========================================
-// CONFIGURATION
-// ==========================================
 
 const MAX_MEMBERS = 25;
 const MAX_LANDS = 25;
 const MAX_SUBSIDIES = 50;
+const MAX_EXTRA_ENTRIES = 50;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const FILE_EXTENSIONS = ["pdf", "jpg", "jpeg", "png", "webp"];
 
-const ALLOWED_EXTENSIONS = [
-  "pdf", "jpg", "jpeg", "png", "webp",
-];
+const choices = (rows) =>
+  rows.map(([value, label]) => ({ value, label }));
+
+const txt = (key, si, en, props = {}) => ({
+  key, si, en, type: "text", maxLength: 200, ...props,
+});
+
+const sel = (key, si, en, options) => ({
+  key, si, en, type: "select", options,
+});
 
 // ==========================================
-// SECTION 6 - MEMBER QUESTIONS
+// DROPDOWN OPTIONS — SECTIONS 6–9
 // ==========================================
 
-const MARITAL_OPTIONS = [
-  { value: "married", label: "විවාහක — Married" },
-  { value: "single", label: "අවිවාහක — Single" },
-];
+const MARITAL = choices([
+  ["married", "විවාහක — Married"],
+  ["single", "අවිවාහක — Single"],
+]);
 
-const MEMBER_QUESTIONS = [
+const RESIDENCE = choices([
+  ["permanent", "ස්ථිර පදිංචිය — Permanent"],
+  ["temporary", "තාවකාලික පදිංචිය — Temporary"],
+  ["rental", "බදු පදනම මත — Rental"],
+]);
+
+const HOUSE_TYPES = choices([
+  ["permanent", "ස්ථිර — Permanent"],
+  ["semi_permanent", "අර්ධ ස්ථිර — Semi-permanent"],
+  ["temporary", "තාවකාලික — Temporary"],
+]);
+
+const HOUSE_MATERIALS = choices([
+  ["mud", "මැටි — Mud"],
+  ["straw", "පිදුරු — Straw"],
+  ["coconut_leaves", "පොල් අතු — Coconut Leaves"],
+  ["other", "වෙනත් — Other"],
+]);
+
+const ROOFS = choices([
+  ["tiles", "උළු — Tiles"],
+  ["asbestos", "ඇස්බැස්ටෝස් — Asbestos"],
+  ["other", "වෙනත් — Other"],
+]);
+
+const FLOORS = choices([
+  ["one", "එක් මහලක් — One Floor"],
+  ["two", "මහල් දෙකක් — Two Floors"],
+  ["three", "මහල් තුනක් — Three Floors"],
+]);
+
+const YES_NO = choices([
+  ["yes", "ඇත — Yes"],
+  ["no", "නැත — No"],
+]);
+
+const WATER_SOURCES = choices([
+  ["protected_well", "ආරක්ෂිත ළිඳක් — Protected Well"],
+  ["piped_water", "නල ජලය — Piped Water"],
+  ["tube_well", "නල ළිඳක් — Tube Well"],
+  ["other", "වෙනත් — Other"],
+]);
+
+const TOILETS = choices([
+  ["water_sealed", "ජල මුද්‍රිත — Water-sealed"],
+  ["pit", "වල වැසිකිළි — Pit Toilet"],
+  ["commode", "කොමඩ් — Commode"],
+  ["none", "වැසිකිළියක් නැත — No Toilet"],
+]);
+
+const LAND_TYPES = choices([
+  ["highland", "ගොඩ — Highland"],
+  ["paddy", "මඩ — Paddy Land"],
+]);
+
+const OWNERSHIP = choices([
+  ["government", "රජය සතු — Government"],
+  ["private", "පෞද්ගලික — Private"],
+]);
+
+const TENURE = choices([
+  ["freehold", "සින්නක්කර — Freehold"],
+  ["lease", "බදු — Lease"],
+  ["joint", "හවුල් — Joint"],
+  ["litigation", "නඩු සහිත — Under Litigation"],
+]);
+
+const SUBSIDY_TYPES = choices([
+  ["samurdhi", "සමෘද්ධි දීමනාව — Samurdhi Allowance"],
+  ["elderly", "වැඩිහිටි දීමනාව — Elderly Allowance"],
+  [
+    "disability_public",
+    "ආබාධිත ජීවනාධාර / මහජනාධාර — Disability / Public Assistance",
+  ],
+  [
+    "cancer_tuberculosis",
+    "පිළිකාධාර / ක්ෂය රෝගය — Cancer / Tuberculosis Assistance",
+  ],
+  [
+    "special_government",
+    "වෙනත් විශේෂ දීමනා (රජයෙන් මාසිකව ලැබෙන) — Other Government Allowances",
+  ],
+  [
+    "scholarship_mahapola",
+    "ශිෂ්‍යත්ව / මහපොළ දීමනා — Scholarship / Mahapola",
+  ],
+]);
+
+// ==========================================
+// SECTION 6 — MEMBER FIELDS
+// ==========================================
+
+const MEMBER_FIELDS = [
+  txt("fullName", "6.1 සම්පූර්ණ නම", "Full Name", {
+    required: true, wide: true, maxLength: 150,
+  }),
+  txt("dateOfBirth", "6.2 උපන් දිනය", "Date of Birth", {
+    type: "date", required: true,
+  }),
   {
-    number: "6.1",
-    key: "fullName",
-    si: "සම්පූර්ණ නම",
-    en: "Full Name",
-    kind: "text",
-    maxLength: 150,
-    required: true,
-    wide: true,
-  },
-  {
-    number: "6.2",
-    key: "dateOfBirth",
-    si: "උපන් දිනය",
-    en: "Date of Birth",
-    kind: "date",
-    required: true,
-  },
-  {
-    number: "6.3",
     key: "birthCertificate",
-    si: "උප්පැන්න සහතිකය පිටපත",
+    si: "6.3 උප්පැන්න සහතිකය පිටපත",
     en: "Copy of Birth Certificate",
-    kind: "file",
+    type: "file",
   },
-  {
-    number: "6.4",
-    key: "nicNumber",
-    si: "ජාතික හැඳුනුම්පත් අංකය",
-    en: "NIC No.",
-    kind: "text",
+  txt("nicNumber", "6.4 ජාතික හැඳුනුම්පත් අංකය", "NIC No.", {
     maxLength: 30,
-  },
+  }),
   {
-    number: "6.5",
     key: "nicCopy",
-    si: "ජාතික හැඳුනුම්පතේ පිටපත",
+    si: "6.5 ජාතික හැඳුනුම්පතේ පිටපත",
     en: "Copy of National Identity Card",
-    kind: "file",
+    type: "file",
   },
-  {
-    number: "6.6",
-    key: "school",
-    si: "ඉගෙනුම ලබන/ලැබූ පාසල",
-    en: "School Attended/Attending",
-    kind: "text",
-    maxLength: 200,
-  },
-  {
-    number: "6.7",
-    key: "grade",
-    si: "ශ්‍රේණිය",
-    en: "Grade",
-    kind: "text",
-    maxLength: 50,
-  },
-  {
-    number: "6.8",
-    key: "educationLevel",
-    si: "අධ්‍යාපන මට්ටම",
-    en: "Education Level",
-    kind: "text",
+  txt("school", "6.6 ඉගෙනුම ලබන/ලැබූ පාසල", "School Attended/Attending"),
+  txt("grade", "6.7 ශ්‍රේණිය", "Grade", { maxLength: 50 }),
+  txt("educationLevel", "6.8 අධ්‍යාපන මට්ටම", "Education Level", {
     maxLength: 150,
+  }),
+  txt("job", "6.9 රැකියාව", "Job", { maxLength: 150 }),
+  txt("workplaceAddress", "6.10 රැකියා ස්ථානයේ ලිපිනය", "Workplace Address", {
+    type: "textarea", maxLength: 500, wide: true,
+  }),
+  sel("maritalStatus", "6.11 විවාහක/අවිවාහක", "Married/Single", MARITAL),
+];
+
+// ==========================================
+// SECTIONS 10–18 — REPEATABLE CONFIGURATIONS
+// ==========================================
+
+const EXTRA_SECTIONS = [
+  {
+    number: 10,
+    si: "පවුලේ සිටින රජයේ විශ්‍රාම වැටුප් ලබන අය පිළිබඳ තොරතුරු",
+    en: "Government Pensioners",
+    button: "Add Another Pensioner",
+    fields: [
+      txt("retiree_name", "විශ්‍රාමිකයාගේ නම", "Pensioner's Name", {
+        required: true, wide: true, member: true,
+      }),
+      txt("served_institution", "සේවය කල ආයතනය", "Institution Served"),
+      txt("held_position", "දැරූ තනතුර", "Position Held"),
+      txt("pension_number", "විශ්‍රාම වැටුප් අංකය", "Pension Number", {
+        maxLength: 100,
+      }),
+      txt("retirement_year", "විශ්‍රාම ගිය වසර", "Year of Retirement", {
+        maxLength: 30, placeholder: "e.g. 2020",
+      }),
+      txt("service_duration", "සේවා කාලය", "Length of Service"),
+      sel("pension_type", "විශ්‍රාම වැටුප් වර්ගය", "Pension Type", choices([
+        ["civil", "සිවිල් — Civil"],
+        ["widow_orphan", "වැන්දඹු අනත් දරු — Widow / Orphan"],
+        ["military_dependent", "හමුදා යැපීම — Military Dependent"],
+        ["other", "වෙනත් — Other"],
+      ])),
+      txt("other", "වෙනත්", "Other", {
+        maxLength: 1000, wide: true,
+      }),
+    ],
   },
   {
-    number: "6.9",
-    key: "job",
-    si: "රැකියාව",
-    en: "Job",
-    kind: "text",
-    maxLength: 150,
+    number: 11,
+    si: "ආරක්ෂක අංශයේ නියුතු අය පිළිබඳ තොරතුරු",
+    en: "Security Personnel",
+    button: "Add Another Security Member",
+    fields: [
+      txt("person_name", "නම", "Full Name", {
+        required: true, member: true, wide: true,
+      }),
+      sel("security_branch", "ආරක්ෂක අංශය", "Security Branch", choices([
+        ["army", "යුධ — Army"],
+        ["air_force", "ගුවන් — Air Force"],
+        ["navy", "නාවික — Navy"],
+        ["police", "පොලිස් — Police"],
+        ["vip_security", "ප්‍රභූ ආරක්ෂක — VIP Security"],
+      ])),
+      txt("service_address", "සේවා ස්ථානයේ ලිපිනය", "Service Address", {
+        maxLength: 300, wide: true,
+      }),
+      txt("position", "තනතුර", "Position"),
+      txt("service_duration", "දැනට සේවා කාලය", "Current Service Duration"),
+      sel("current_status", "දැනට සිටින තත්වය", "Current Status", choices([
+        ["disabled", "ආබාධිත — Disabled"],
+        ["deceased", "මිය ගිය — Deceased"],
+      ])),
+      txt("other", "වෙනත්", "Other", {
+        maxLength: 1000, wide: true,
+      }),
+    ],
   },
   {
-    number: "6.10",
-    key: "workplaceAddress",
-    si: "රැකියා ස්ථානයේ ලිපිනය",
-    en: "Address of Workplace",
-    kind: "textarea",
-    maxLength: 500,
-    wide: true,
+    number: 12,
+    si: "විදේශ ගත අය පිළිබඳ තොරතුරු",
+    en: "Overseas Family Members",
+    button: "Add Another Overseas Member",
+    fields: [
+      txt("person_name", "නම", "Full Name", {
+        required: true, member: true, wide: true,
+      }),
+      txt("country", "විදේශ ගත වී ඇති රට", "Country"),
+      txt("passport_number", "ගමන් බලපත් අංකය", "Passport Number", {
+        maxLength: 100,
+      }),
+      sel("travel_reason", "විදේශ ගත වූ හේතුව", "Reason for Travel", choices([
+        ["employment", "රැකියාවට — Employment"],
+        ["education", "අධ්‍යාපනයට — Education"],
+      ])),
+      txt("departure_date", "විදේශ ගත වූ දිනය", "Departure Date", {
+        placeholder: "e.g. 2023-05-20",
+      }),
+      txt("return_date", "නැවත ලංකාවට පැමිණ ඇත්නම් ඒ දිනය", "Return Date", {
+        placeholder: "e.g. 2025-01-10",
+      }),
+      txt("other", "වෙනත්", "Other", {
+        maxLength: 1000, wide: true,
+      }),
+    ],
   },
   {
-    number: "6.11",
-    key: "maritalStatus",
-    si: "විවාහක/අවිවාහක",
-    en: "Married/Single",
-    kind: "select",
-    options: MARITAL_OPTIONS,
+    number: 13,
+    si: "ආබාධිත අය පිළිබඳ තොරතුරු",
+    en: "Disability Information",
+    button: "Add Another Person",
+    fields: [
+      txt("person_name", "නම", "Full Name", {
+        required: true, member: true, wide: true,
+      }),
+      sel("disability_type", "ආබාධයේ ස්වභාවය", "Nature of Disability", choices([
+        ["mental", "මානසික — Mental"],
+        ["physical", "කායික — Physical"],
+        ["physical_impairment", "අංගවිකල — Physical Impairment"],
+      ])),
+      sel("disability_cause", "ආබාධිත බවට හේතුව", "Cause of Disability", choices([
+        ["from_birth", "උපතින් — From Birth"],
+        ["accident", "හදිසි අනතුරකින් — Accident"],
+        ["other", "වෙනත් — Other"],
+      ])),
+      sel("employment_status", "රැකියාවක නිරතවනවාද / නැද්ද යන වග", "Employment Status", choices([
+        ["employed", "නිරත වේ — Employed"],
+        ["not_employed", "නිරත නොවේ — Not Employed"],
+      ])),
+      txt("special_abilities", "විශේෂ හැකියාවන්", "Special Abilities", {
+        maxLength: 300,
+      }),
+      txt("assistance_amount", "ලැබෙන ආධාර මුදල්", "Assistance Amount"),
+    ],
+  },
+  {
+    number: 14,
+    si: "නිවසේ සිටින ව්‍යාපාර කරන අය පිළිබඳ විස්තර",
+    en: "Family Businesses",
+    button: "Add Another Business",
+    fields: [
+      txt("business_person_name", "ව්‍යාපාරය කරන අයගේ නම", "Business Owner's Name", {
+        required: true, member: true, wide: true,
+      }),
+      txt("business_nature", "ව්‍යාපාරයේ ස්වභාවය", "Nature of Business"),
+      txt("business_name", "ව්‍යාපාරයේ නම", "Business Name"),
+      txt("business_address", "ව්‍යාපාරික ස්ථානය ලිපිනය", "Business Address", {
+        maxLength: 300, wide: true,
+      }),
+      txt("registration_number", "ලියාපදිංචි අංකය", "Registration Number", {
+        maxLength: 100,
+      }),
+    ],
+  },
+  {
+    number: 15,
+    si: "ස්වයං රැකියාව පිළිබඳ විස්තර",
+    en: "Self-employment",
+    button: "Add Another Self-employment",
+    fields: [
+      txt("person_name", "ස්වයං රැකියාව කරන අයගේ නම", "Self-employed Person's Name", {
+        required: true, member: true,
+      }),
+      txt("self_employment", "ස්වයං රැකියාව", "Self-employment", {
+        maxLength: 300,
+      }),
+    ],
+  },
+  {
+    number: 16,
+    si: "නිවසේ ඇති වාහන පිළිබඳ තොරතුරු",
+    en: "Household Vehicles",
+    button: "Add Another Vehicle",
+    fields: [
+      txt("vehicle_type", "වාහන වර්ගය", "Vehicle Type", {
+        required: true, placeholder: "Car, Motorcycle...",
+      }),
+      txt("owner_name", "අයිතිකරුගේ නම", "Owner's Name", {
+        member: true,
+      }),
+      txt("vehicle_number", "වාහන අංකය", "Vehicle Registration Number", {
+        maxLength: 100, wide: true,
+      }),
+    ],
+  },
+  {
+    number: 17,
+    si: "සත්ව පාලන කටයුතු (කුකුළන්/ එළුවන්/හරක්)",
+    en: "Livestock Farming",
+    button: "Add Another Animal Type",
+    fields: [
+      txt("animal_type", "සත්ත්ව වර්ගය", "Animal Type", {
+        required: true, placeholder: "කුකුළන් / එළුවන් / හරක්",
+      }),
+      txt("quantity", "ප්‍රමාණය", "Quantity"),
+      sel("products", "ලබා ගන්නා දේවල්", "Products Obtained", choices([
+        ["meat", "මස් — Meat"],
+        ["eggs", "බිත්තර — Eggs"],
+        ["milk", "කිරි — Milk"],
+      ])),
+    ],
+  },
+  {
+    number: 18,
+    si: "නිවසේ සිටින වෘත්තීය පුහුණුව ලැබූ අය හෝ රැකියා අපේක්ෂිත අය පිළිබඳ තොරතුරු",
+    en: "Vocational Training and Job Seekers",
+    button: "Add Another Person",
+    fields: [
+      txt("person_name", "නම", "Full Name", {
+        required: true, member: true,
+      }),
+      txt("training_received", "ලබා ඇති පුහුණුව", "Training Received", {
+        maxLength: 300,
+      }),
+      txt("training_institution", "පුහුණුව ලැබූ ආයතනය", "Training Institution", {
+        maxLength: 300,
+      }),
+      txt("other_qualifications", "වෙනත් සුදුසුකම්", "Other Qualifications", {
+        maxLength: 1000, wide: true,
+      }),
+    ],
   },
 ];
 
 // ==========================================
-// SECTION 7 - HOUSING OPTIONS
+// RECORD FACTORIES AND LAND / SUBSIDY FIELDS
 // ==========================================
 
-const RESIDENCY_OPTIONS = [
-  { value: "permanent", label: "ස්ථිර පදිංචිය — Permanent" },
-  { value: "temporary", label: "තාවකාලික පදිංචිය — Temporary" },
-  { value: "rental", label: "බදු පදනම මත — Rental" },
-];
-
-const HOUSE_TYPE_OPTIONS = [
-  { value: "permanent", label: "ස්ථිර — Permanent" },
-  { value: "semi_permanent", label: "අර්ධ ස්ථිර — Semi-permanent" },
-  { value: "temporary", label: "තාවකාලික — Temporary" },
-];
-
-const HOUSE_MATERIAL_OPTIONS = [
-  { value: "mud", label: "මැටි — Mud" },
-  { value: "straw", label: "පිදුරු — Straw" },
-  { value: "coconut_leaves", label: "පොල් අතු — Coconut Leaves" },
-  { value: "other", label: "වෙනත් — Other" },
-];
-
-const ROOF_OPTIONS = [
-  { value: "tiles", label: "උළු — Tiles" },
-  { value: "asbestos", label: "ඇස්බැස්ටෝස් — Asbestos" },
-  { value: "other", label: "වෙනත් — Other" },
-];
-
-const FLOOR_OPTIONS = [
-  { value: "one", label: "එක් මහලක් — One Floor" },
-  { value: "two", label: "මහල් දෙකක් — Two Floors" },
-  { value: "three", label: "මහල් තුනක් — Three Floors" },
-];
-
-const YES_NO_OPTIONS = [
-  { value: "yes", label: "ඇත — Yes" },
-  { value: "no", label: "නැත — No" },
-];
-
-const WATER_SOURCE_OPTIONS = [
-  { value: "protected_well", label: "ආරක්ෂිත ළිඳක් — Protected Well" },
-  { value: "piped_water", label: "නල ජලය — Piped Water" },
-  { value: "tube_well", label: "නල ළිඳක් — Tube Well" },
-  { value: "other", label: "වෙනත් — Other" },
-];
-
-const TOILET_OPTIONS = [
-  { value: "water_sealed", label: "ජල මුද්‍රිත — Water-sealed" },
-  { value: "pit", label: "වල වැසිකිළි — Pit Toilet" },
-  { value: "commode", label: "කොමඩ් — Commode" },
-  { value: "none", label: "වැසිකිළියක් නැත — No Toilet" },
-];
-
-// ==========================================
-// SECTION 8 - LAND OPTIONS
-// ==========================================
-
-const LAND_TYPE_OPTIONS = [
-  { value: "highland", label: "ගොඩ — Highland" },
-  { value: "paddy", label: "මඩ — Paddy Land" },
-];
-
-const OWNERSHIP_OPTIONS = [
-  { value: "government", label: "රජය සතු — Government" },
-  { value: "private", label: "පෞද්ගලික — Private" },
-];
-
-const TENURE_OPTIONS = [
-  { value: "freehold", label: "සින්නක්කර — Freehold" },
-  { value: "lease", label: "බදු — Lease" },
-  { value: "joint", label: "හවුල් — Joint" },
-  { value: "litigation", label: "නඩු සහිත — Under Litigation" },
-];
-
-// ==========================================
-// SECTION 9 - SUBSIDY TYPES
-// ==========================================
-
-const SUBSIDY_TYPES = [
-  {
-    value: "samurdhi",
-    label: "සමෘද්ධි දීමනාව — Samurdhi Allowance",
-  },
-  {
-    value: "elderly",
-    label: "වැඩිහිටි දීමනාව — Elderly Allowance",
-  },
-  {
-    value: "disability_public",
-    label:
-      "ආබාධිත ජීවනාධාර / මහජනාධාර දීමනාව — Disability / Public Assistance",
-  },
-  {
-    value: "cancer_tuberculosis",
-    label:
-      "පිළිකාධාර / ක්ෂය රෝගය — Cancer / Tuberculosis Assistance",
-  },
-  {
-    value: "special_government",
-    label:
-      "වෙනත් විශේෂ දීමනා (රජයෙන් මාසිකව ලැබෙන) — Other Government Allowances",
-  },
-  {
-    value: "scholarship_mahapola",
-    label:
-      "ශිෂ්‍යත්ව / මහපොළ දීමනා — Scholarship / Mahapola",
-  },
-];
-
-// ==========================================
-// OBJECT FACTORIES
-// ==========================================
-
-function createMember() {
+function makeEntry(fields) {
   return {
     id: crypto.randomUUID(),
-    fullName: "",
-    dateOfBirth: "",
+    ...Object.fromEntries(fields.map(({ key }) => [key, ""])),
+  };
+}
+
+function makeMember() {
+  return {
+    ...makeEntry(MEMBER_FIELDS),
     birthCertificate: null,
-    nicNumber: "",
     nicCopy: null,
-    school: "",
-    grade: "",
-    educationLevel: "",
-    job: "",
-    workplaceAddress: "",
-    maritalStatus: "",
   };
 }
 
-function createLand() {
-  return {
-    id: crypto.randomUUID(),
-    ownerName: "",
-    landName: "",
-    landSize: "",
-    landType: "",
-    ownershipCategory: "",
-    deedPermitNumber: "",
-    tenureType: "",
-    mainCrops: "",
-  };
-}
+const LAND_FIELDS = [
+  txt("ownerName", "ඉඩම් හිමියන්ගේ නම", "Landowner's Name", {
+    maxLength: 150, wide: true,
+  }),
+  txt("landName", "ඉඩමේ නම", "Land Name"),
+  txt("landSize", "ඉඩමේ ප්‍රමාණය", "Land Size", {
+    maxLength: 100, placeholder: "e.g. 20 perches",
+  }),
+  sel("landType", "ගොඩ / මඩ ඉඩමක්ද යන වග", "Land Type", LAND_TYPES),
+  sel("ownershipCategory", "ඉඩම් අයිතිය", "Government or Private Ownership", OWNERSHIP),
+  txt("deedPermitNumber", "රජයේ ඉඩමක් නම්, ඔප්පු අංකය/බලපත්‍ර අංකය", "Deed / Permit Number", {
+    maxLength: 100,
+    wide: true,
+    when: (item) => item.ownershipCategory === "government",
+  }),
+  sel("tenureType", "ඉඩම් අයිතිය", "Tenure Type", TENURE),
+  txt("mainCrops", "ප්‍රධාන භෝග වගාව", "Main Crop Cultivation", {
+    maxLength: 300,
+  }),
+];
 
-function createSubsidy() {
-  return {
-    id: crypto.randomUUID(),
-    beneficiaryName: "",
-    subsidyType: "",
-    amount: "",
-    cardOrAccountNumber: "",
-    startDate: "",
-    institution: "",
-    representativeName: "",
-    other: "",
-  };
-}
+const SUBSIDY_FIELDS = [
+  txt("beneficiaryName", "ආධාරය ලබන පුද්ගලයාගේ නම", "Name of Subsidy Recipient", {
+    required: true, member: true, wide: true, maxLength: 150,
+  }),
+  sel("subsidyType", "ආධාර වර්ගය", "Subsidy Type", SUBSIDY_TYPES),
+  txt("amount", "ආධාර මුදල", "Subsidy Amount", {
+    maxLength: 50, placeholder: "e.g. Rs. 5,000",
+  }),
+  txt("cardOrAccountNumber", "කාඩ්පත් අංකය/ගිණුම් අංකය", "Card / Account Number", {
+    maxLength: 100, wide: true,
+  }),
+  txt("startDate", "දීමනාව පටන්ගත් දිනය", "Start Date", {
+    maxLength: 100, placeholder: "e.g. 2024-01-15",
+  }),
+  txt("institution", "දීමනාව ලබා ගන්නා බැංකුව හෝ තැපැල් කාර්යාලය", "Bank / Post Office"),
+  txt("representativeName", "දීමනාව ලබා ගැනීම සඳහා නියෝජිතයෙකු නම් කර ඇත්නම්, එම පුද්ගලයාගේ නම", "Representative's Name", {
+    maxLength: 150, wide: true,
+  }),
+  txt("other", "වෙනත්", "Other", {
+    type: "textarea", maxLength: 1000, wide: true,
+  }),
+];
 
 // ==========================================
-// REUSABLE FORM CONTROLS
+// REUSABLE FIELD
 // ==========================================
 
-function BilingualLabel({
-  htmlFor,
-  number,
-  si,
-  en,
-  required = false,
-}) {
-  return (
-    <label
-      htmlFor={htmlFor}
-      className="ca-bilingual-label"
-    >
-      <span className="ca-label-si">
-        {number ? `${number}. ` : ""}
-        {si}
-      </span>
-
-      {en && (
-        <span className="ca-label-en">
-          ({en})
-        </span>
-      )}
-
-      {required && (
-        <span className="ca-required">
-          {" *"}
-        </span>
-      )}
-    </label>
-  );
-}
-
-function TextField({
+function Field({
   id,
-  number,
-  si,
-  en,
-  value,
+  def,
+  value = "",
   onChange,
   disabled,
-  required = false,
-  maxLength,
-  placeholder,
-  type = "text",
-  multiline = false,
-  wide = false,
-  list,
+  readOnly,
   max,
-  className = "",
+  listId,
+  onFileChange,
 }) {
   return (
     <div
-      className={[
-        "ca-field",
-        wide ? "ca-field-full" : "",
-        className,
-      ].filter(Boolean).join(" ")}
+      className={`ca-field ${def.wide ? "ca-field-full" : ""} ${def.sheet ? "ca-sheet-field" : ""}`}
     >
-      <BilingualLabel
-        htmlFor={id}
-        number={number}
-        si={si}
-        en={en}
-        required={required}
-      />
+      <label className="ca-bilingual-label" htmlFor={id}>
+        <span className="ca-label-si">{def.si}</span>
+        {def.en && (
+          <span className="ca-label-en">({def.en})</span>
+        )}
+        {def.required && (
+          <span className="ca-required"> *</span>
+        )}
+      </label>
 
-      {multiline ? (
+      {def.type === "select" ? (
+        <select
+          id={id}
+          value={value}
+          required={!!def.required}
+          disabled={disabled}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          <option value="">Select an option</option>
+          {def.options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      ) : def.type === "file" ? (
+        <div className="ca-document-field">
+          <label htmlFor={id} className="ca-upload-box">
+            {value ? <FileText size={22} /> : <FileUp size={22} />}
+            <span>
+              {value ? value.name : "Choose image or PDF"}
+            </span>
+            <small>JPG, PNG, WebP or PDF — maximum 10 MB</small>
+          </label>
+
+          <input
+            id={id}
+            className="ca-file-input"
+            type="file"
+            disabled={disabled}
+            accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+            onChange={(e) => {
+              onFileChange(e.target.files?.[0] || null);
+              e.target.value = "";
+            }}
+          />
+
+          {value && (
+            <button
+              type="button"
+              className="ca-file-remove"
+              disabled={disabled}
+              onClick={() => onFileChange(null)}
+            >
+              <X size={15} /> Remove selected file
+            </button>
+          )}
+        </div>
+      ) : def.type === "textarea" ? (
         <textarea
           id={id}
           rows={2}
-          maxLength={maxLength}
-          required={required}
-          disabled={disabled}
-          placeholder={placeholder}
           value={value}
-          onChange={(event) =>
-            onChange(event.target.value)
-          }
+          required={!!def.required}
+          disabled={disabled}
+          readOnly={readOnly}
+          maxLength={def.maxLength}
+          placeholder={def.placeholder}
+          onChange={(e) => onChange(e.target.value)}
         />
       ) : (
         <input
           id={id}
-          type={type}
-          maxLength={maxLength}
-          max={max}
-          list={list}
-          required={required}
-          disabled={disabled}
-          placeholder={placeholder}
+          type={def.type || "text"}
           value={value}
-          onChange={(event) =>
-            onChange(event.target.value)
-          }
+          required={!!def.required}
+          disabled={disabled}
+          readOnly={readOnly}
+          maxLength={def.maxLength}
+          max={max}
+          min={def.min}
+          step={def.type === "number" ? "any" : undefined}
+          list={listId}
+          placeholder={def.placeholder}
+          onChange={(e) => onChange(e.target.value)}
         />
       )}
     </div>
   );
 }
 
-function DropdownField({
-  id,
+// ==========================================
+// SECTION HEADING
+// ==========================================
+
+function SectionHeading({
   number,
   si,
   en,
-  value,
-  options,
+  icon: Icon,
+  count,
+  button,
+  onAdd,
   disabled,
-  onChange,
-  required = false,
 }) {
   return (
-    <div className="ca-field">
-      <BilingualLabel
-        htmlFor={id}
-        number={number}
-        si={si}
-        en={en}
-        required={required}
-      />
+    <div className="ca-members-heading">
+      <div className="ca-form-section-heading">
+        <div className="ca-form-icon">
+          <Icon size={21} />
+        </div>
 
-      <select
-        id={id}
-        value={value}
-        required={required}
-        disabled={disabled}
-        onChange={(event) =>
-          onChange(event.target.value)
-        }
-      >
-        <option value="">
-          Select an option
-        </option>
+        <div>
+          <span className="ca-sheet-step">
+            SECTION {String(number).padStart(2, "0")}
+          </span>
+          <h2>{si}</h2>
+          <p>
+            {en}
+            {count !== undefined ? ` — ${count} record(s)` : ""}
+          </p>
+        </div>
+      </div>
 
-        {options.map((option) => (
-          <option
-            key={option.value}
-            value={option.value}
-          >
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
-function DocumentField({
-  id,
-  question,
-  file,
-  disabled,
-  onFileChange,
-}) {
-  return (
-    <div className="ca-field ca-document-field">
-      <BilingualLabel
-        htmlFor={id}
-        number={question.number}
-        si={question.si}
-        en={question.en}
-      />
-
-      <label
-        className="ca-upload-box"
-        htmlFor={id}
-      >
-        {file
-          ? <FileText size={22} />
-          : <FileUp size={22} />}
-
-        <span>
-          {file ? file.name : "Choose image or PDF"}
-        </span>
-
-        <small>
-          JPG, PNG, WebP or PDF — maximum 10 MB
-        </small>
-      </label>
-
-      <input
-        id={id}
-        type="file"
-        className="ca-file-input"
-        accept=".pdf,.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp,application/pdf"
-        disabled={disabled}
-        onChange={(event) => {
-          onFileChange(
-            event.target.files?.[0] ?? null
-          );
-          event.target.value = "";
-        }}
-      />
-
-      {file && (
+      {button && (
         <button
           type="button"
-          className="ca-file-remove"
+          className="ca-add-member"
           disabled={disabled}
-          onClick={() => onFileChange(null)}
+          onClick={onAdd}
         >
-          <X size={15} />
-          Remove selected file
+          <Plus size={16} /> {button}
         </button>
       )}
     </div>
@@ -501,53 +589,172 @@ function DocumentField({
 }
 
 // ==========================================
-// MAIN FORM
+// REPEATABLE SECTION COMPONENT
+// ==========================================
+
+function RepeatableSection({
+  number,
+  si,
+  en,
+  icon,
+  button,
+  label,
+  fields,
+  entries,
+  onChange,
+  saving,
+  maxEntries,
+  memberListId,
+}) {
+  const add = () =>
+    onChange((current) =>
+      current.length >= maxEntries
+        ? current
+        : [...current, makeEntry(fields)]
+    );
+
+  const update = (id, key, value) =>
+    onChange((current) =>
+      current.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              [key]: value,
+              ...(key === "ownershipCategory" && value !== "government"
+                ? { deedPermitNumber: "" }
+                : {}),
+            }
+          : item
+      )
+    );
+
+  const remove = (id) =>
+    onChange((current) =>
+      current.filter((item) => item.id !== id)
+    );
+
+  return (
+    <section className="ca-form-section">
+      <SectionHeading
+        number={number}
+        si={si}
+        en={en}
+        icon={icon}
+        count={entries.length}
+        button={button}
+        disabled={saving || entries.length >= maxEntries}
+        onAdd={add}
+      />
+
+      {entries.length === 0 && (
+        <div className="ca-existing-location">
+          <strong>No records added</strong>
+          <p>Click "{button}" if this section applies.</p>
+        </div>
+      )}
+
+      <div className="ca-members-list">
+        {entries.map((item, index) => (
+          <div key={item.id} className="ca-member-form">
+            <div className="ca-member-form-header">
+              <strong>
+                {label} {index + 1}
+              </strong>
+
+              <button
+                type="button"
+                className="ca-remove-member"
+                disabled={saving}
+                onClick={() => remove(item.id)}
+                aria-label={`Remove ${label} ${index + 1}`}
+              >
+                <Trash2 size={17} />
+              </button>
+            </div>
+
+            <div className="ca-form-grid">
+              {fields
+                .filter((field) => !field.when || field.when(item))
+                .map((field) => (
+                  <Field
+                    key={field.key}
+                    id={`section-${number}-${item.id}-${field.key}`}
+                    def={field}
+                    value={item[field.key]}
+                    disabled={saving}
+                    listId={field.member ? memberListId : undefined}
+                    onChange={(value) =>
+                      update(item.id, field.key, value)
+                    }
+                  />
+                ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ==========================================
+// ENTRY VALIDATION
+// ==========================================
+
+function validateEntries(entries, fields, sectionName) {
+  for (let i = 0; i < entries.length; i++) {
+    for (const field of fields) {
+      if (field.when && !field.when(entries[i])) continue;
+
+      const value = String(entries[i][field.key] ?? "").trim();
+
+      if (field.required && !value) {
+        return `${sectionName}, entry ${i + 1}: ${field.en} is required.`;
+      }
+
+      if (field.maxLength && value.length > field.maxLength) {
+        return `${sectionName}, entry ${i + 1}: ${field.en} is too long.`;
+      }
+
+      if (
+        field.type === "select" &&
+        value &&
+        !field.options.some((opt) => opt.value === value)
+      ) {
+        return `${sectionName}, entry ${i + 1}: invalid ${field.en}.`;
+      }
+    }
+  }
+
+  return "";
+}
+
+// ==========================================
+// MAIN HOUSEHOLD FORM
 // ==========================================
 
 export default function HouseholdForm({
   selectedPoint,
   existingLocation,
   onSave,
-  saving,
+  saving = false,
 }) {
-  const usingExistingLocation =
-    Boolean(existingLocation?.id);
+  const existing = !!existingLocation?.id;
 
-  // ========================================
-  // SECTION 1 STATE
-  // ========================================
+  // SECTION 1
 
   const [addressLine, setAddressLine] = useState(
     existingLocation?.address_line ?? ""
   );
+  const [familyCount, setFamilyCount] = useState("");
+  const [headNumber, setHeadNumber] = useState("");
+  const [telephone, setTelephone] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
 
-  const [
-    numberOfFamiliesInHouse,
-    setNumberOfFamiliesInHouse,
-  ] = useState("");
+  // SECTION 6
 
-  const [
-    headOfHouseholdNumber,
-    setHeadOfHouseholdNumber,
-  ] = useState("");
+  const [members, setMembers] = useState([makeMember()]);
 
-  const [telephoneNumber, setTelephoneNumber] =
-    useState("");
-
-  const [whatsappNumber, setWhatsappNumber] =
-    useState("");
-
-  // ========================================
-  // SECTION 6 STATE
-  // ========================================
-
-  const [members, setMembers] = useState([
-    createMember(),
-  ]);
-
-  // ========================================
-  // SECTION 7 STATE
-  // ========================================
+  // SECTION 7
 
   const [housing, setHousing] = useState({
     residencyType: "",
@@ -563,21 +770,13 @@ export default function HouseholdForm({
     toiletFacility: "",
   });
 
-  // ========================================
-  // SECTION 8 STATE
-  // ========================================
+  // SECTIONS 8, 9 AND 10–18
 
   const [lands, setLands] = useState([]);
-
-  // ========================================
-  // SECTION 9 STATE
-  // ========================================
-
   const [subsidies, setSubsidies] = useState([]);
+  const [extras, setExtras] = useState({});
 
-  // ========================================
-  // REGISTRATION LOCATION STATE
-  // ========================================
+  // LOCATION
 
   const [village, setVillage] = useState("");
   const [district, setDistrict] = useState("");
@@ -596,8 +795,22 @@ export default function HouseholdForm({
 
   const [error, setError] = useState("");
 
+  // Update map-derived values if the selection changes.
+
+  useEffect(() => {
+    setAddressLine(existingLocation?.address_line ?? "");
+  }, [existingLocation?.id, existingLocation?.address_line]);
+
+  useEffect(() => {
+    if (selectedPoint?.lat != null) {
+      setLatitude(Number(selectedPoint.lat).toFixed(6));
+    }
+    if (selectedPoint?.lng != null) {
+      setLongitude(Number(selectedPoint.lng).toFixed(6));
+    }
+  }, [selectedPoint?.lat, selectedPoint?.lng]);
+
   const now = new Date();
-  const currentYear = now.getFullYear();
 
   const today = [
     now.getFullYear(),
@@ -606,199 +819,88 @@ export default function HouseholdForm({
   ].join("-");
 
   const needsArrivalYear =
-    housing.residencyType === "temporary" ||
-    housing.residencyType === "rental";
+    ["temporary", "rental"].includes(housing.residencyType);
 
-  const beneficiaryNames = [
+  const names = [
     ...new Set(
-      members
-        .map((person) => person.fullName.trim())
-        .filter(Boolean)
+      members.map((m) => m.fullName.trim()).filter(Boolean)
     ),
   ];
 
+  const memberListId = "ca-family-member-names";
+
   // ========================================
-  // SECTION 6 ACTIONS
+  // MEMBER ACTIONS
   // ========================================
 
   function updateMember(id, field, value) {
     setMembers((current) =>
-      current.map((person) =>
-        person.id === id
-          ? { ...person, [field]: value }
-          : person
+      current.map((m) =>
+        m.id === id ? { ...m, [field]: value } : m
       )
     );
   }
 
-  function addMember() {
-    if (
-      saving ||
-      members.length >= MAX_MEMBERS
-    ) {
-      return;
-    }
-
-    setMembers((current) => [
-      ...current,
-      createMember(),
-    ]);
-  }
-
-  function removeMember(id) {
-    if (saving) return;
-
-    setMembers((current) =>
-      current.length <= 1
-        ? current
-        : current.filter(
-            (person) => person.id !== id
-          )
-    );
-  }
-
-  function changeDocument(memberId, field, file) {
+  function changeFile(id, key, file) {
     setError("");
 
     if (file) {
-      const extension = file.name
-        .split(".")
-        .pop()
-        ?.toLowerCase();
+      const ext = file.name.split(".").pop()?.toLowerCase();
 
       if (
-        !ALLOWED_EXTENSIONS.includes(extension) ||
+        !FILE_EXTENSIONS.includes(ext) ||
         file.size <= 0 ||
         file.size > MAX_FILE_SIZE
       ) {
         setError(
-          "Upload only JPG, PNG, WebP or PDF files up to 10 MB."
+          "Upload a non-empty JPG, PNG, WebP or PDF file, up to 10 MB."
         );
         return;
       }
     }
 
-    updateMember(memberId, field, file);
+    updateMember(id, key, file);
   }
 
   // ========================================
-  // SECTION 7 ACTIONS
+  // HOUSING ACTIONS
   // ========================================
 
   function updateHousing(field, value) {
-    setHousing((current) => {
-      const next = {
-        ...current,
-        [field]: value,
-      };
+    setHousing((h) => ({
+      ...h,
+      [field]: value,
 
-      if (
-        field === "residencyType" &&
-        value !== "temporary" &&
-        value !== "rental"
-      ) {
-        next.temporaryArrivalYear = "";
-      }
+      ...(field === "residencyType" &&
+      !["temporary", "rental"].includes(value)
+        ? { temporaryArrivalYear: "" }
+        : {}),
 
-      if (
-        field === "houseType" &&
-        value !== "temporary"
-      ) {
-        next.temporaryHouseMaterial = "";
-      }
+      ...(field === "houseType" && value !== "temporary"
+        ? { temporaryHouseMaterial: "" }
+        : {}),
 
-      if (field === "waterAvailable") {
-        if (value !== "yes") {
-          next.waterSource = "";
-        }
-        if (value !== "no") {
-          next.waterSourceWithoutFacility = "";
-        }
-      }
+      ...(field === "waterAvailable" && value !== "yes"
+        ? { waterSource: "" }
+        : {}),
 
-      return next;
-    });
+      ...(field === "waterAvailable" && value !== "no"
+        ? { waterSourceWithoutFacility: "" }
+        : {}),
+    }));
   }
 
   // ========================================
-  // SECTION 8 ACTIONS
+  // SECTIONS 10–18 ACTIONS
   // ========================================
 
-  function addLand() {
-    if (saving || lands.length >= MAX_LANDS) return;
+  function updateExtra(section, updater) {
+    const key = `section_${section}`;
 
-    setLands((current) => [
+    setExtras((current) => ({
       ...current,
-      createLand(),
-    ]);
-  }
-
-  function updateLand(id, field, value) {
-    setLands((current) =>
-      current.map((land) => {
-        if (land.id !== id) return land;
-
-        const updated = {
-          ...land,
-          [field]: value,
-        };
-
-        if (
-          field === "ownershipCategory" &&
-          value !== "government"
-        ) {
-          updated.deedPermitNumber = "";
-        }
-
-        return updated;
-      })
-    );
-  }
-
-  function removeLand(id) {
-    if (saving) return;
-
-    setLands((current) =>
-      current.filter((land) => land.id !== id)
-    );
-  }
-
-  // ========================================
-  // SECTION 9 ACTIONS
-  // ========================================
-
-  function addSubsidy() {
-    if (
-      saving ||
-      subsidies.length >= MAX_SUBSIDIES
-    ) {
-      return;
-    }
-
-    setSubsidies((current) => [
-      ...current,
-      createSubsidy(),
-    ]);
-  }
-
-  function updateSubsidy(id, field, value) {
-    setSubsidies((current) =>
-      current.map((subsidy) =>
-        subsidy.id === id
-          ? { ...subsidy, [field]: value }
-          : subsidy
-      )
-    );
-  }
-
-  function removeSubsidy(id) {
-    if (saving) return;
-
-    setSubsidies((current) =>
-      current.filter(
-        (subsidy) => subsidy.id !== id
-      )
-    );
+      [key]: updater(current[key] ?? []),
+    }));
   }
 
   // ========================================
@@ -806,92 +908,65 @@ export default function HouseholdForm({
   // ========================================
 
   function validate() {
-    // SECTION 1
-
-    if (
-      !usingExistingLocation &&
-      addressLine.trim().length < 3
-    ) {
-      return "Please enter a valid address.";
+    if (!existing && addressLine.trim().length < 3) {
+      return "Enter a valid address.";
     }
 
-    const familyCount = Number(
-      numberOfFamiliesInHouse
-    );
+    const count = Number(familyCount);
 
-    if (
-      !Number.isInteger(familyCount) ||
-      familyCount < 1 ||
-      familyCount > 999
-    ) {
+    if (!Number.isInteger(count) || count < 1 || count > 999) {
       return "Number of families must be between 1 and 999.";
     }
 
-    if (headOfHouseholdNumber.trim().length > 50) {
-      return "Head of Household Number is too long.";
+    if (
+      headNumber.trim().length > 50 ||
+      telephone.trim().length > 30 ||
+      whatsapp.trim().length > 30
+    ) {
+      return "Section 1 contains an overlong field.";
     }
 
-    if (
-      telephoneNumber.trim().length > 30 ||
-      whatsappNumber.trim().length > 30
-    ) {
-      return "Telephone or WhatsApp number is too long.";
-    }
-
-    // SECTION 6
-
-    if (
-      members.length < 1 ||
-      members.length > MAX_MEMBERS
-    ) {
+    if (!members.length || members.length > MAX_MEMBERS) {
       return "Register between 1 and 25 family members.";
     }
 
     for (let i = 0; i < members.length; i++) {
-      const person = members[i];
+      const m = members[i];
 
-      if (
-        person.fullName.trim().length < 2 ||
-        person.fullName.trim().length > 150
-      ) {
+      if (m.fullName.trim().length < 2) {
         return `Member ${i + 1}: enter a valid full name.`;
       }
 
-      const date = new Date(
-        `${person.dateOfBirth}T12:00:00`
-      );
-
       if (
-        !person.dateOfBirth ||
-        person.dateOfBirth > today ||
-        Number.isNaN(date.getTime())
+        !/^\d{4}-\d{2}-\d{2}$/.test(m.dateOfBirth) ||
+        m.dateOfBirth > today ||
+        Number.isNaN(
+          new Date(`${m.dateOfBirth}T12:00:00`).getTime()
+        )
       ) {
         return `Member ${i + 1}: enter a valid date of birth.`;
       }
 
-      for (const question of MEMBER_QUESTIONS) {
-        if (
-          question.maxLength &&
-          person[question.key].trim().length >
-            question.maxLength
-        ) {
-          return `Member ${i + 1}: ${question.en} is too long.`;
-        }
-      }
+      const message = validateEntries(
+        [m],
+        MEMBER_FIELDS.filter((f) => f.type !== "file"),
+        `Member ${i + 1}`
+      );
+
+      if (message) return message;
     }
 
-    // SECTION 7
+    // Section 7
 
     if (needsArrivalYear) {
-      const year =
-        housing.temporaryArrivalYear.trim();
+      const year = housing.temporaryArrivalYear.trim();
 
       if (
         !/^\d{4}$/.test(year) ||
         Number(year) < 1800 ||
-        Number(year) > currentYear
+        Number(year) > now.getFullYear()
       ) {
-        return "Enter a valid approximate arrival year.";
+        return "Enter a valid arrival year for Temporary or Rental residence.";
       }
     }
 
@@ -906,7 +981,7 @@ export default function HouseholdForm({
       housing.waterAvailable === "yes" &&
       !housing.waterSource
     ) {
-      return "Select how water is obtained.";
+      return "Select a water source.";
     }
 
     if (
@@ -916,114 +991,85 @@ export default function HouseholdForm({
       return "Describe how water is obtained.";
     }
 
-    if (
-      housing.waterSourceWithoutFacility.length > 300
-    ) {
-      return "Water source description is too long.";
+    if (housing.waterSourceWithoutFacility.length > 300) {
+      return "Water-source description is too long.";
     }
 
-    // SECTION 8
+    // Sections 8 and 9
 
-    if (lands.length > MAX_LANDS) {
-      return "A maximum of 25 lands is allowed.";
+    if (
+      lands.length > MAX_LANDS ||
+      subsidies.length > MAX_SUBSIDIES
+    ) {
+      return "Too many land or subsidy records.";
     }
 
     for (let i = 0; i < lands.length; i++) {
-      const land = lands[i];
-
       if (
-        !land.ownerName.trim() &&
-        !land.landName.trim()
+        !lands[i].ownerName.trim() &&
+        !lands[i].landName.trim()
       ) {
-        return (
-          `Land ${i + 1}: enter the landowner's ` +
-          "name or land name."
-        );
-      }
-
-      for (const [field, limit] of [
-        ["ownerName", 150],
-        ["landName", 200],
-        ["landSize", 100],
-        ["deedPermitNumber", 100],
-        ["mainCrops", 300],
-      ]) {
-        if (land[field].trim().length > limit) {
-          return `Land ${i + 1}: ${field} is too long.`;
-        }
+        return `Land ${i + 1}: enter the landowner or land name.`;
       }
     }
 
-    // SECTION 9
+    const landErr = validateEntries(lands, LAND_FIELDS, "Land");
+    if (landErr) return landErr;
 
-    if (subsidies.length > MAX_SUBSIDIES) {
-      return "A maximum of 50 subsidies is allowed.";
-    }
+    const subsidyErr = validateEntries(
+      subsidies,
+      SUBSIDY_FIELDS,
+      "Subsidy"
+    );
+    if (subsidyErr) return subsidyErr;
 
     for (let i = 0; i < subsidies.length; i++) {
-      const item = subsidies[i];
-      const recipient = item.beneficiaryName.trim();
-
-      if (!recipient) {
-        return `Subsidy ${i + 1}: enter the recipient's name.`;
-      }
-
-      // Recipient must be one of the family
-      // members entered in Section 6.
-      const recipientExists = members.some(
-        (person) =>
-          person.fullName.trim().toLowerCase() ===
-          recipient.toLowerCase()
-      );
-
-      if (!recipientExists) {
-        return (
-          `Subsidy ${i + 1}: recipient name must ` +
-          "match a family member in Section 6."
-        );
-      }
-
       if (
-        !SUBSIDY_TYPES.some(
-          (type) => type.value === item.subsidyType
+        !names.some(
+          (n) =>
+            n.toLowerCase() ===
+            subsidies[i].beneficiaryName.trim().toLowerCase()
         )
       ) {
-        return `Subsidy ${i + 1}: select the subsidy type.`;
+        return `Subsidy ${i + 1}: recipient must match a Section 6 member.`;
       }
 
-      for (const [field, limit] of [
-        ["beneficiaryName", 150],
-        ["amount", 50],
-        ["cardOrAccountNumber", 100],
-        ["startDate", 100],
-        ["institution", 200],
-        ["representativeName", 150],
-        ["other", 1000],
-      ]) {
-        if (item[field].trim().length > limit) {
-          return (
-            `Subsidy ${i + 1}: ${field} ` +
-            `cannot exceed ${limit} characters.`
-          );
-        }
+      if (!subsidies[i].subsidyType) {
+        return `Subsidy ${i + 1}: select the subsidy type.`;
       }
     }
 
-    // GPS LOCATION
+    // Sections 10–18
 
-    if (!usingExistingLocation) {
+    for (const section of EXTRA_SECTIONS) {
+      const items = extras[`section_${section.number}`] ?? [];
+
+      if (items.length > MAX_EXTRA_ENTRIES) {
+        return `Section ${section.number}: maximum 50 entries.`;
+      }
+
+      const extraErr = validateEntries(
+        items,
+        section.fields,
+        `Section ${section.number}`
+      );
+
+      if (extraErr) return extraErr;
+    }
+
+    // GPS
+
+    if (!existing) {
       const lat = Number(latitude);
       const lng = Number(longitude);
 
       if (
-        latitude.trim() === "" ||
-        longitude.trim() === "" ||
+        !latitude.trim() ||
+        !longitude.trim() ||
         !Number.isFinite(lat) ||
         !Number.isFinite(lng) ||
-        lat < -90 ||
-        lat > 90 ||
-        lng < -180 ||
-        lng > 180
+        Math.abs(lat) > 90 ||
+        Math.abs(lng) > 180
       ) {
         return "Valid GPS coordinates are required.";
       }
@@ -1033,17 +1079,17 @@ export default function HouseholdForm({
   }
 
   // ========================================
-  // PREPARE AND SAVE
+  // PREPARE REGISTRATION
   // ========================================
 
   async function handleSubmit(event) {
     event.preventDefault();
     if (saving) return;
 
-    const validationError = validate();
+    const reason = validate();
 
-    if (validationError) {
-      setError(validationError);
+    if (reason) {
+      setError(reason);
       return;
     }
 
@@ -1054,132 +1100,214 @@ export default function HouseholdForm({
 
       familyName: members[0].fullName.trim(),
 
-      numberOfFamiliesInHouse: Number(
-        numberOfFamiliesInHouse
-      ),
-
-      headOfHouseholdNumber:
-        headOfHouseholdNumber.trim(),
-
-      contactPhone:
-        telephoneNumber.trim(),
-
-      whatsappNumber:
-        whatsappNumber.trim(),
+      numberOfFamiliesInHouse: Number(familyCount),
+      headOfHouseholdNumber: headNumber.trim(),
+      contactPhone: telephone.trim(),
+      whatsappNumber: whatsapp.trim(),
 
       // SECTION 6
 
-      members: members.map((person, index) => ({
-        clientId: person.id,
-        fullName: person.fullName.trim(),
-        dateOfBirth: person.dateOfBirth,
-        birthCertificate: person.birthCertificate,
-        nicNumber: person.nicNumber.trim(),
-        nicCopy: person.nicCopy,
-        school: person.school.trim(),
-        grade: person.grade.trim(),
-        educationLevel:
-          person.educationLevel.trim(),
-        job: person.job.trim(),
-        workplaceAddress:
-          person.workplaceAddress.trim(),
-        maritalStatus: person.maritalStatus,
+      members: members.map((m, index) => ({
+        clientId: m.id,
+        fullName: m.fullName.trim(),
+        dateOfBirth: m.dateOfBirth,
+        birthCertificate: m.birthCertificate,
+        nicNumber: m.nicNumber.trim(),
+        nicCopy: m.nicCopy,
+        school: m.school.trim(),
+        grade: m.grade.trim(),
+        educationLevel: m.educationLevel.trim(),
+        job: m.job.trim(),
+        workplaceAddress: m.workplaceAddress.trim(),
+        maritalStatus: m.maritalStatus,
 
-        // Required by existing registration RPC.
         isHead: index === 0,
-        relationshipToHead:
-          index === 0 ? "Head" : "",
+        relationshipToHead: index === 0 ? "Head" : "",
       })),
 
       // SECTION 7
 
       housing: {
-        residencyType: housing.residencyType,
+        ...housing,
+
         temporaryArrivalYear: needsArrivalYear
           ? housing.temporaryArrivalYear.trim()
           : "",
-        houseType: housing.houseType,
+
         temporaryHouseMaterial:
           housing.houseType === "temporary"
             ? housing.temporaryHouseMaterial
             : "",
-        roofType: housing.roofType,
-        floorCount: housing.floorCount,
-        electricityAvailable:
-          housing.electricityAvailable,
-        waterAvailable: housing.waterAvailable,
+
         waterSource:
           housing.waterAvailable === "yes"
             ? housing.waterSource
             : "",
+
         waterSourceWithoutFacility:
           housing.waterAvailable === "no"
             ? housing.waterSourceWithoutFacility.trim()
             : "",
-        toiletFacility: housing.toiletFacility,
       },
 
       // SECTION 8
 
       lands: lands.map((land) => ({
+        ...land,
         ownerName: land.ownerName.trim(),
         landName: land.landName.trim(),
         landSize: land.landSize.trim(),
-        landType: land.landType,
-        ownershipCategory:
-          land.ownershipCategory,
+
         deedPermitNumber:
           land.ownershipCategory === "government"
             ? land.deedPermitNumber.trim()
             : "",
-        tenureType: land.tenureType,
+
         mainCrops: land.mainCrops.trim(),
       })),
 
       // SECTION 9
-      // One member may appear many times.
 
-      subsidies: subsidies.map((item) => ({
-        beneficiaryName:
-          item.beneficiaryName.trim(),
-        subsidyType: item.subsidyType,
-        amount: item.amount.trim(),
-        cardOrAccountNumber:
-          item.cardOrAccountNumber.trim(),
-        startDate: item.startDate.trim(),
-        institution: item.institution.trim(),
-        representativeName:
-          item.representativeName.trim(),
-        other: item.other.trim(),
+      subsidies: subsidies.map((s) => ({
+        ...s,
+        beneficiaryName: s.beneficiaryName.trim(),
+        amount: s.amount.trim(),
+        cardOrAccountNumber: s.cardOrAccountNumber.trim(),
+        startDate: s.startDate.trim(),
+        institution: s.institution.trim(),
+        representativeName: s.representativeName.trim(),
+        other: s.other.trim(),
       })),
 
-      // REGISTRATION LOCATION
+      // SECTIONS 10–18
 
-      existingLocationId:
-        existingLocation?.id ?? null,
-      addressLine: addressLine.trim(),
+      extendedSections: Object.fromEntries(
+        EXTRA_SECTIONS.map((section) => [
+          `section_${section.number}`,
+
+          (extras[`section_${section.number}`] ?? []).map(
+            ({ id, ...fields }) =>
+              Object.fromEntries(
+                Object.entries(fields).map(([key, value]) => [
+                  key,
+                  String(value ?? "").trim(),
+                ])
+              )
+          ),
+        ])
+      ),
+
+      // LOCATION
+
+      existingLocationId: existingLocation?.id ?? null,
+
+      addressLine: existing
+        ? existingLocation?.address_line ?? addressLine.trim()
+        : addressLine.trim(),
+
       village: village.trim(),
       district: district.trim(),
-      latitude: usingExistingLocation
-        ? null
-        : Number(latitude),
-      longitude: usingExistingLocation
-        ? null
-        : Number(longitude),
+
+      latitude: existing ? null : Number(latitude),
+      longitude: existing ? null : Number(longitude),
     };
 
     try {
       await onSave(payload);
     } catch (err) {
       setError(
-        err.message ||
-        "Could not register the household."
+        err.message || "Could not register the household."
       );
     }
   }
 
   // ========================================
-  // RENDER
+  // SECTION 1 FIELD CONFIGURATION
+  // ========================================
+
+  const section1Fields = [
+    txt("address", "1. ලිපිනය", "Address", {
+      type: "textarea",
+      required: !existing,
+      wide: true,
+      maxLength: 300,
+      sheet: true,
+    }),
+    txt("familyCount", "2. නිවසේ පදිංචි පවුල් සංඛ්‍යාව", "Number of Families Residing in the House", {
+      type: "number", required: true, min: 1, sheet: true,
+    }),
+    txt("headNumber", "3. ගෘහමූලික අංකය", "Head of Household Number", {
+      maxLength: 50, sheet: true,
+    }),
+    txt("telephone", "4. දුරකථන අංකය", "Telephone Number", {
+      type: "tel", maxLength: 30, sheet: true,
+    }),
+    txt("whatsapp", "5. WhatsApp අංකය", "WhatsApp No.", {
+      type: "tel", maxLength: 30, sheet: true,
+    }),
+  ];
+
+  const section1Values = {
+    address: addressLine,
+    familyCount,
+    headNumber,
+    telephone,
+    whatsapp,
+  };
+
+  const section1Setters = {
+    address: setAddressLine,
+    familyCount: setFamilyCount,
+    headNumber: setHeadNumber,
+    telephone: setTelephone,
+    whatsapp: setWhatsapp,
+  };
+
+  // ========================================
+  // SECTION 7 FIELD CONFIGURATION
+  // ========================================
+
+  const housingFields = [
+    sel("residencyType", "7.1 පදිංචියේ ස්වභාවය", "Nature of Residence", RESIDENCE),
+
+    txt("temporaryArrivalYear", "තාවකාලික / බදු පදනම මත පදිංචිව සිටී නම්, පැමිණි දිනය (ආසන්න වර්ෂය)", "Approximate Arrival Year", {
+      required: true,
+      maxLength: 4,
+      when: () => needsArrivalYear,
+      placeholder: "e.g. 2020",
+    }),
+
+    sel("houseType", "7.2 පදිංචි නිවසේ ස්වභාවය", "Type of House", HOUSE_TYPES),
+
+    {
+      ...sel("temporaryHouseMaterial", "තාවකාලික නිවසේ ද්‍රව්‍ය", "Temporary House Material", HOUSE_MATERIALS),
+      required: true,
+      when: () => housing.houseType === "temporary",
+    },
+
+    sel("roofType", "7.3 නිවසේ වහලය", "Roof Type", ROOFS),
+    sel("floorCount", "7.4 නිවසේ ප්‍රමාණය", "Number of Floors", FLOORS),
+    sel("electricityAvailable", "7.5 විදුලි පහසුකම්", "Electricity Facilities", YES_NO),
+    sel("waterAvailable", "7.6 ජල පහසුකම්", "Water Facilities", YES_NO),
+
+    {
+      ...sel("waterSource", "ජලය ලබා ගන්නා ආකාරය", "Water Source", WATER_SOURCES),
+      required: true,
+      when: () => housing.waterAvailable === "yes",
+    },
+
+    txt("waterSourceWithoutFacility", "ජලය ලබා ගන්නා ආකාරය", "How Water Is Obtained", {
+      required: true,
+      wide: true,
+      maxLength: 300,
+      when: () => housing.waterAvailable === "no",
+    }),
+
+    sel("toiletFacility", "7.7 වැසිකිළි පහසුකම්", "Toilet Facilities", TOILETS),
+  ];
+
+  // ========================================
+  // RENDER COMPLETE REGISTRATION FORM
   // ========================================
 
   return (
@@ -1187,164 +1315,83 @@ export default function HouseholdForm({
       className="ca-registration-form"
       onSubmit={handleSubmit}
     >
-      {/* =====================================
-          SECTION 1 — FAMILY INFORMATION
-      ===================================== */}
+      <datalist id={memberListId}>
+        {names.map((name) => (
+          <option key={name} value={name} />
+        ))}
+      </datalist>
+
+      {/* SECTION 1 */}
 
       <section className="ca-form-section ca-sheet-section">
-        <div className="ca-form-section-heading">
-          <div className="ca-form-icon">
-            <House size={21} />
-          </div>
-
-          <div>
-            <span className="ca-sheet-step">
-              SECTION 01
-            </span>
-            <h2>පවුල් තොරතුරු පත්‍රිකාව</h2>
-            <p>Family Information Sheet</p>
-          </div>
-        </div>
+        <SectionHeading
+          number={1}
+          si="පවුල් තොරතුරු පත්‍රිකාව"
+          en="Family Information Sheet"
+          icon={House}
+        />
 
         <div className="ca-sheet-fields">
-          <TextField
-            id="sheet-address"
-            number="1"
-            si="ලිපිනය"
-            en="Address"
-            multiline
-            wide
-            className="ca-sheet-field"
-            maxLength={300}
-            required={!usingExistingLocation}
-            disabled={saving}
-            value={addressLine}
-            onChange={setAddressLine}
-            placeholder="Enter full address"
-          />
-
-          <TextField
-            id="sheet-family-count"
-            number="2"
-            si="නිවසේ පදිංචි පවුල් සංඛ්‍යාව"
-            en="Number of Families Residing in the House"
-            type="number"
-            className="ca-sheet-field"
-            required
-            disabled={saving}
-            value={numberOfFamiliesInHouse}
-            onChange={setNumberOfFamiliesInHouse}
-            placeholder="Number of families"
-          />
-
-          <TextField
-            id="sheet-head-number"
-            number="3"
-            si="ගෘහමූලික අංකය"
-            en="Head of Household Number"
-            className="ca-sheet-field"
-            maxLength={50}
-            disabled={saving}
-            value={headOfHouseholdNumber}
-            onChange={setHeadOfHouseholdNumber}
-          />
-
-          <TextField
-            id="sheet-telephone"
-            number="4"
-            si="දුරකථන අංකය"
-            en="Telephone Number"
-            type="tel"
-            className="ca-sheet-field"
-            maxLength={30}
-            disabled={saving}
-            value={telephoneNumber}
-            onChange={setTelephoneNumber}
-          />
-
-          <TextField
-            id="sheet-whatsapp"
-            number="5"
-            si="WhatsApp අංකය"
-            en="WhatsApp No."
-            type="tel"
-            className="ca-sheet-field"
-            maxLength={30}
-            disabled={saving}
-            value={whatsappNumber}
-            onChange={setWhatsappNumber}
-          />
+          {section1Fields.map((def) => (
+            <Field
+              key={def.key}
+              id={`sheet-${def.key}`}
+              def={def}
+              value={section1Values[def.key]}
+              readOnly={existing && def.key === "address"}
+              disabled={saving}
+              onChange={section1Setters[def.key]}
+            />
+          ))}
         </div>
 
-        {usingExistingLocation && (
+        {existing && (
           <p className="ca-form-hint">
-            This address belongs to the selected
-            registered location and cannot be changed here.
+            This address belongs to the selected registered
+            location and cannot be changed here.
           </p>
         )}
       </section>
 
-      {/* =====================================
-          SECTION 6 — FAMILY MEMBERS
-      ===================================== */}
+      {/* SECTION 6 */}
 
       <section className="ca-form-section">
-        <div className="ca-members-heading">
-          <div className="ca-form-section-heading">
-            <div className="ca-form-icon">
-              <Users size={21} />
-            </div>
-
-            <div>
-              <span className="ca-sheet-step">
-                SECTION 06
-              </span>
-              <h2>
-                පවුලේ සාමාජිකයින් පිළිබඳ තොරතුරු
-              </h2>
-              <p>
-                Family Member Information —{" "}
-                {members.length} member(s)
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="ca-add-member"
-            disabled={
-              saving || members.length >= MAX_MEMBERS
-            }
-            onClick={addMember}
-          >
-            <Plus size={16} />
-            Add Member
-          </button>
-        </div>
+        <SectionHeading
+          number={6}
+          si="පවුලේ සාමාජිකයින් පිළිබඳ තොරතුරු"
+          en="Family Member Information"
+          icon={Users}
+          count={members.length}
+          button="Add Member"
+          disabled={saving || members.length >= MAX_MEMBERS}
+          onAdd={() =>
+            setMembers((list) => [...list, makeMember()])
+          }
+        />
 
         <p className="ca-form-hint">
-          Enter the head of the family as Member 1.
-          Full Name and Date of Birth are required.
+          Enter the family head as Member 1.
+          Full Name and Date of Birth are required
+          for each member.
         </p>
 
         <div className="ca-members-list">
-          {members.map((person, index) => (
-            <div
-              className="ca-member-form"
-              key={person.id}
-            >
+          {members.map((member, index) => (
+            <div className="ca-member-form" key={member.id}>
               <div className="ca-member-form-header">
                 <strong>Member {index + 1}</strong>
 
                 {members.length > 1 && (
                   <button
-                    type="button"
                     className="ca-remove-member"
+                    type="button"
                     disabled={saving}
-                    onClick={() =>
-                      removeMember(person.id)
-                    }
                     aria-label={`Remove member ${index + 1}`}
+                    onClick={() =>
+                      setMembers((list) =>
+                        list.filter((m) => m.id !== member.id)
+                      )
+                    }
                   >
                     <Trash2 size={17} />
                   </button>
@@ -1352,714 +1399,113 @@ export default function HouseholdForm({
               </div>
 
               <div className="ca-form-grid">
-                {MEMBER_QUESTIONS.map((question) => {
-                  const id =
-                    `member-${person.id}-${question.key}`;
-
-                  if (question.kind === "file") {
-                    return (
-                      <DocumentField
-                        key={question.key}
-                        id={id}
-                        question={question}
-                        file={person[question.key]}
-                        disabled={saving}
-                        onFileChange={(file) =>
-                          changeDocument(
-                            person.id,
-                            question.key,
-                            file
-                          )
-                        }
-                      />
-                    );
-                  }
-
-                  if (question.kind === "select") {
-                    return (
-                      <DropdownField
-                        key={question.key}
-                        id={id}
-                        number={question.number}
-                        si={question.si}
-                        en={question.en}
-                        value={person[question.key]}
-                        options={question.options}
-                        disabled={saving}
-                        onChange={(value) =>
-                          updateMember(
-                            person.id,
-                            question.key,
-                            value
-                          )
-                        }
-                      />
-                    );
-                  }
-
-                  return (
-                    <TextField
-                      key={question.key}
-                      id={id}
-                      number={question.number}
-                      si={question.si}
-                      en={question.en}
-                      type={
-                        question.kind === "date"
-                          ? "date"
-                          : "text"
-                      }
-                      multiline={
-                        question.kind === "textarea"
-                      }
-                      wide={question.wide}
-                      required={question.required}
-                      maxLength={question.maxLength}
-                      max={
-                        question.kind === "date"
-                          ? today
-                          : undefined
-                      }
-                      disabled={saving}
-                      value={person[question.key]}
-                      onChange={(value) =>
-                        updateMember(
-                          person.id,
-                          question.key,
-                          value
-                        )
-                      }
-                    />
-                  );
-                })}
+                {MEMBER_FIELDS.map((def) => (
+                  <Field
+                    key={def.key}
+                    id={`member-${member.id}-${def.key}`}
+                    def={def}
+                    value={member[def.key]}
+                    disabled={saving}
+                    max={def.type === "date" ? today : undefined}
+                    onChange={(value) =>
+                      updateMember(member.id, def.key, value)
+                    }
+                    onFileChange={(file) =>
+                      changeFile(member.id, def.key, file)
+                    }
+                  />
+                ))}
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* =====================================
-          SECTION 7 — HOUSING INFORMATION
-      ===================================== */}
+      {/* SECTION 7 */}
 
       <section className="ca-form-section">
-        <div className="ca-form-section-heading">
-          <div className="ca-form-icon">
-            <Building2 size={21} />
-          </div>
-
-          <div>
-            <span className="ca-sheet-step">
-              SECTION 07
-            </span>
-            <h2>නිවාස හා පදිංචි තොරතුරු</h2>
-            <p>Housing and Residence Information</p>
-          </div>
-        </div>
+        <SectionHeading
+          number={7}
+          si="නිවාස හා පදිංචි තොරතුරු"
+          en="Housing and Residence Information"
+          icon={Building2}
+        />
 
         <div className="ca-form-grid">
-          <DropdownField
-            id="housing-residency"
-            number="7.1"
-            si="පදිංචියේ ස්වභාවය"
-            en="Nature of Residence"
-            value={housing.residencyType}
-            options={RESIDENCY_OPTIONS}
-            disabled={saving}
-            onChange={(value) =>
-              updateHousing("residencyType", value)
-            }
-          />
-
-          {needsArrivalYear && (
-            <TextField
-              id="housing-arrival"
-              si="තාවකාලික / බදු පදනම මත පදිංචිව සිටී නම්, පැමිණි දිනය (ආසන්න වර්ෂය)"
-              en="Approximate Year of Arrival"
-              required
-              maxLength={4}
-              placeholder="e.g. 2020"
-              value={housing.temporaryArrivalYear}
-              disabled={saving}
-              onChange={(value) =>
-                updateHousing(
-                  "temporaryArrivalYear",
-                  value
-                )
-              }
-            />
-          )}
-
-          <DropdownField
-            id="housing-house-type"
-            number="7.2"
-            si="පදිංචි නිවසේ ස්වභාවය"
-            en="Type of House"
-            options={HOUSE_TYPE_OPTIONS}
-            value={housing.houseType}
-            disabled={saving}
-            onChange={(value) =>
-              updateHousing("houseType", value)
-            }
-          />
-
-          {housing.houseType === "temporary" && (
-            <DropdownField
-              id="housing-material"
-              si="තාවකාලික නිවසේ ද්‍රව්‍ය"
-              en="Temporary House Material"
-              required
-              options={HOUSE_MATERIAL_OPTIONS}
-              value={housing.temporaryHouseMaterial}
-              disabled={saving}
-              onChange={(value) =>
-                updateHousing(
-                  "temporaryHouseMaterial",
-                  value
-                )
-              }
-            />
-          )}
-
-          <DropdownField
-            id="housing-roof"
-            number="7.3"
-            si="නිවසේ වහලය"
-            en="Roof Type"
-            options={ROOF_OPTIONS}
-            value={housing.roofType}
-            disabled={saving}
-            onChange={(value) =>
-              updateHousing("roofType", value)
-            }
-          />
-
-          <DropdownField
-            id="housing-floors"
-            number="7.4"
-            si="නිවසේ ප්‍රමාණය"
-            en="Number of Floors"
-            options={FLOOR_OPTIONS}
-            value={housing.floorCount}
-            disabled={saving}
-            onChange={(value) =>
-              updateHousing("floorCount", value)
-            }
-          />
-
-          <DropdownField
-            id="housing-electricity"
-            number="7.5"
-            si="විදුලි පහසුකම්"
-            en="Electricity Facilities"
-            options={YES_NO_OPTIONS}
-            value={housing.electricityAvailable}
-            disabled={saving}
-            onChange={(value) =>
-              updateHousing(
-                "electricityAvailable",
-                value
-              )
-            }
-          />
-
-          <DropdownField
-            id="housing-water"
-            number="7.6"
-            si="ජල පහසුකම්"
-            en="Water Facilities"
-            options={YES_NO_OPTIONS}
-            value={housing.waterAvailable}
-            disabled={saving}
-            onChange={(value) =>
-              updateHousing("waterAvailable", value)
-            }
-          />
-
-          {housing.waterAvailable === "yes" && (
-            <DropdownField
-              id="housing-water-source"
-              si="ජලය ලබා ගන්නා ආකාරය"
-              en="Source of Water"
-              required
-              options={WATER_SOURCE_OPTIONS}
-              value={housing.waterSource}
-              disabled={saving}
-              onChange={(value) =>
-                updateHousing("waterSource", value)
-              }
-            />
-          )}
-
-          {housing.waterAvailable === "no" && (
-            <TextField
-              id="housing-water-description"
-              si="ජලය ලබා ගන්නා ආකාරය"
-              en="How Water Is Obtained"
-              required
-              wide
-              maxLength={300}
-              disabled={saving}
-              value={housing.waterSourceWithoutFacility}
-              onChange={(value) =>
-                updateHousing(
-                  "waterSourceWithoutFacility",
-                  value
-                )
-              }
-            />
-          )}
-
-          <DropdownField
-            id="housing-toilet"
-            number="7.7"
-            si="වැසිකිළි පහසුකම්"
-            en="Toilet Facilities"
-            options={TOILET_OPTIONS}
-            value={housing.toiletFacility}
-            disabled={saving}
-            onChange={(value) =>
-              updateHousing("toiletFacility", value)
-            }
-          />
+          {housingFields
+            .filter((field) => !field.when || field.when())
+            .map((def) => (
+              <Field
+                key={def.key}
+                id={`housing-${def.key}`}
+                def={def}
+                value={housing[def.key]}
+                disabled={saving}
+                onChange={(value) =>
+                  updateHousing(def.key, value)
+                }
+              />
+            ))}
         </div>
       </section>
 
-      {/* =====================================
-          SECTION 8 — LAND INFORMATION
-      ===================================== */}
+      {/* SECTION 8 */}
 
-      <section className="ca-form-section">
-        <div className="ca-members-heading">
-          <div className="ca-form-section-heading">
-            <div className="ca-form-icon">
-              <LandPlot size={21} />
-            </div>
+      <RepeatableSection
+        number={8}
+        si="පදිංචි ඉඩම පිළිබඳ විස්තර"
+        en="Land Information"
+        icon={LandPlot}
+        button="Add Land"
+        label="Land"
+        fields={LAND_FIELDS}
+        entries={lands}
+        onChange={setLands}
+        saving={saving}
+        maxEntries={MAX_LANDS}
+        memberListId={memberListId}
+      />
 
-            <div>
-              <span className="ca-sheet-step">
-                SECTION 08
-              </span>
-              <h2>පදිංචි ඉඩම පිළිබඳ විස්තර</h2>
-              <p>
-                Land Information — {lands.length} land(s)
-              </p>
-            </div>
-          </div>
+      {/* SECTION 9 */}
 
-          <button
-            type="button"
-            className="ca-add-member"
-            disabled={
-              saving || lands.length >= MAX_LANDS
-            }
-            onClick={addLand}
-          >
-            <Plus size={16} />
-            Add Land
-          </button>
-        </div>
+      <RepeatableSection
+        number={9}
+        si="පවුලේ සාමාජිකයන්ට ලැබෙන ආධාර පිළිබඳ තොරතුරු"
+        en="Family Member Subsidy Information"
+        icon={HandHeart}
+        button="Add Another Subsidy"
+        label="Subsidy"
+        fields={SUBSIDY_FIELDS}
+        entries={subsidies}
+        onChange={setSubsidies}
+        saving={saving}
+        maxEntries={MAX_SUBSIDIES}
+        memberListId={memberListId}
+      />
 
-        <p className="ca-form-hint">
-          Add each land separately. The same owner
-          can have multiple lands. Leave empty if
-          there are no lands to register.
-        </p>
+      {/* SECTIONS 10–18 */}
 
-        {lands.length === 0 && (
-          <div className="ca-existing-location">
-            <strong>No lands added</strong>
-            <p>Click Add Land to register a land.</p>
-          </div>
-        )}
+      {EXTRA_SECTIONS.map((section) => (
+        <RepeatableSection
+          key={section.number}
+          number={section.number}
+          si={section.si}
+          en={section.en}
+          icon={ClipboardList}
+          button={section.button}
+          label="Entry"
+          fields={section.fields}
+          entries={extras[`section_${section.number}`] ?? []}
+          onChange={(fn) =>
+            updateExtra(section.number, fn)
+          }
+          saving={saving}
+          maxEntries={MAX_EXTRA_ENTRIES}
+          memberListId={memberListId}
+        />
+      ))}
 
-        <div className="ca-members-list">
-          {lands.map((land, index) => {
-            const prefix = `land-${land.id}`;
-
-            const update = (field, value) =>
-              updateLand(land.id, field, value);
-
-            return (
-              <div
-                className="ca-member-form"
-                key={land.id}
-              >
-                <div className="ca-member-form-header">
-                  <strong>Land {index + 1}</strong>
-
-                  <button
-                    type="button"
-                    className="ca-remove-member"
-                    disabled={saving}
-                    onClick={() => removeLand(land.id)}
-                    aria-label={`Remove land ${index + 1}`}
-                  >
-                    <Trash2 size={17} />
-                  </button>
-                </div>
-
-                <div className="ca-form-grid">
-                  <TextField
-                    id={`${prefix}-owner`}
-                    si="ඉඩම් හිමියන්ගේ නම"
-                    en="Landowner's Name"
-                    wide
-                    maxLength={150}
-                    value={land.ownerName}
-                    disabled={saving}
-                    onChange={(value) =>
-                      update("ownerName", value)
-                    }
-                  />
-
-                  <TextField
-                    id={`${prefix}-name`}
-                    si="ඉඩමේ නම"
-                    en="Land Name"
-                    maxLength={200}
-                    value={land.landName}
-                    disabled={saving}
-                    onChange={(value) =>
-                      update("landName", value)
-                    }
-                  />
-
-                  <TextField
-                    id={`${prefix}-size`}
-                    si="ඉඩමේ ප්‍රමාණය"
-                    en="Land Size"
-                    maxLength={100}
-                    value={land.landSize}
-                    placeholder="e.g. 20 perches"
-                    disabled={saving}
-                    onChange={(value) =>
-                      update("landSize", value)
-                    }
-                  />
-
-                  <DropdownField
-                    id={`${prefix}-type`}
-                    si="ගොඩ / මඩ ඉඩමක්ද යන වග"
-                    en="Land Type"
-                    value={land.landType}
-                    options={LAND_TYPE_OPTIONS}
-                    disabled={saving}
-                    onChange={(value) =>
-                      update("landType", value)
-                    }
-                  />
-
-                  <DropdownField
-                    id={`${prefix}-ownership`}
-                    si="ඉඩම් අයිතිය"
-                    en="Government or Private Ownership"
-                    value={land.ownershipCategory}
-                    options={OWNERSHIP_OPTIONS}
-                    disabled={saving}
-                    onChange={(value) =>
-                      update("ownershipCategory", value)
-                    }
-                  />
-
-                  {land.ownershipCategory ===
-                    "government" && (
-                    <TextField
-                      id={`${prefix}-permit`}
-                      si="රජයේ ඉඩමක් නම්, ඔප්පු අංකය/බලපත්‍ර අංකය"
-                      en="Deed / Permit Number"
-                      wide
-                      maxLength={100}
-                      value={land.deedPermitNumber}
-                      disabled={saving}
-                      onChange={(value) =>
-                        update("deedPermitNumber", value)
-                      }
-                    />
-                  )}
-
-                  <DropdownField
-                    id={`${prefix}-tenure`}
-                    si="ඉඩම් අයිතිය"
-                    en="Tenure Type"
-                    value={land.tenureType}
-                    options={TENURE_OPTIONS}
-                    disabled={saving}
-                    onChange={(value) =>
-                      update("tenureType", value)
-                    }
-                  />
-
-                  <TextField
-                    id={`${prefix}-crops`}
-                    si="ප්‍රධාන භෝග වගාව"
-                    en="Main Crop Cultivation"
-                    maxLength={300}
-                    value={land.mainCrops}
-                    disabled={saving}
-                    onChange={(value) =>
-                      update("mainCrops", value)
-                    }
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* =====================================
-          SECTION 9 — FAMILY SUBSIDIES
-      ===================================== */}
-
-      <section className="ca-form-section">
-        <div className="ca-members-heading">
-          <div className="ca-form-section-heading">
-            <div className="ca-form-icon">
-              <HandHeart size={21} />
-            </div>
-
-            <div>
-              <span className="ca-sheet-step">
-                SECTION 09
-              </span>
-
-              <h2>
-                පවුලේ සාමාජිකයන්ට ලැබෙන ආධාර
-                පිළිබඳ තොරතුරු
-              </h2>
-
-              <p>
-                Family Member Subsidy Information
-                {" — "}
-                {subsidies.length} subsidy record(s)
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="ca-add-member"
-            disabled={
-              saving ||
-              subsidies.length >= MAX_SUBSIDIES
-            }
-            onClick={addSubsidy}
-          >
-            <Plus size={16} />
-            Add Subsidy
-          </button>
-        </div>
-
-        <p className="ca-form-hint">
-          Register each subsidy separately.
-          A single family member can receive
-          multiple types of assistance.
-          The recipient's name must match a
-          family member entered in Section 6.
-        </p>
-
-        {subsidies.length === 0 && (
-          <div className="ca-existing-location">
-            <strong>No subsidy records added</strong>
-            <p>
-              Click Add Another Subsidy to enter
-              assistance details. If no one receives
-              assistance, leave this section empty.
-            </p>
-          </div>
-        )}
-
-        <div className="ca-members-list">
-          {subsidies.map((item, index) => {
-            const prefix = `subsidy-${item.id}`;
-            const beneficiaryListId =
-              `${prefix}-beneficiary-options`;
-
-            const update = (field, value) =>
-              updateSubsidy(
-                item.id,
-                field,
-                value
-              );
-
-            return (
-              <div
-                className="ca-member-form"
-                key={item.id}
-              >
-                <div className="ca-member-form-header">
-                  <strong>
-                    Subsidy {index + 1}
-                  </strong>
-
-                  <button
-                    type="button"
-                    className="ca-remove-member"
-                    disabled={saving}
-                    onClick={() =>
-                      removeSubsidy(item.id)
-                    }
-                    aria-label={
-                      `Remove subsidy ${index + 1}`
-                    }
-                  >
-                    <Trash2 size={17} />
-                  </button>
-                </div>
-
-                <div className="ca-form-grid">
-                  {/* RECIPIENT NAME */}
-
-                  <TextField
-                    id={`${prefix}-recipient`}
-                    si="ආධාරය ලබන පුද්ගලයාගේ නම"
-                    en="Name of Subsidy Recipient"
-                    required
-                    wide
-                    list={beneficiaryListId}
-                    maxLength={150}
-                    value={item.beneficiaryName}
-                    disabled={saving}
-                    placeholder="Enter or select a family member"
-                    onChange={(value) =>
-                      update("beneficiaryName", value)
-                    }
-                  />
-
-                  <datalist id={beneficiaryListId}>
-                    {beneficiaryNames.map((name) => (
-                      <option
-                        key={name}
-                        value={name}
-                      />
-                    ))}
-                  </datalist>
-
-                  {/* SUBSIDY TYPE */}
-
-                  <DropdownField
-                    id={`${prefix}-type`}
-                    si="ආධාර වර්ගය"
-                    en="Subsidy Type"
-                    required
-                    value={item.subsidyType}
-                    options={SUBSIDY_TYPES}
-                    disabled={saving}
-                    onChange={(value) =>
-                      update("subsidyType", value)
-                    }
-                  />
-
-                  {/* AMOUNT */}
-
-                  <TextField
-                    id={`${prefix}-amount`}
-                    si="ආධාර මුදල"
-                    en="Subsidy Amount"
-                    maxLength={50}
-                    value={item.amount}
-                    disabled={saving}
-                    placeholder="e.g. Rs. 5,000"
-                    onChange={(value) =>
-                      update("amount", value)
-                    }
-                  />
-
-                  {/* ACCOUNT / CARD NUMBER */}
-
-                  <TextField
-                    id={`${prefix}-account`}
-                    si="කාඩ්පත් අංකය/ගිණුම් අංකය"
-                    en="Card Number / Account Number"
-                    wide
-                    maxLength={100}
-                    value={item.cardOrAccountNumber}
-                    disabled={saving}
-                    placeholder="Enter card or account number"
-                    onChange={(value) =>
-                      update(
-                        "cardOrAccountNumber",
-                        value
-                      )
-                    }
-                  />
-
-                  {/* START DATE */}
-
-                  <TextField
-                    id={`${prefix}-start`}
-                    si="දීමනාව පටන්ගත් දිනය"
-                    en="Date the Allowance Started"
-                    maxLength={100}
-                    value={item.startDate}
-                    disabled={saving}
-                    placeholder="e.g. 2024-01-15"
-                    onChange={(value) =>
-                      update("startDate", value)
-                    }
-                  />
-
-                  {/* BANK OR POST OFFICE */}
-
-                  <TextField
-                    id={`${prefix}-institution`}
-                    si="දීමනාව ලබා ගන්නා බැංකුව හෝ තැපැල් කාර්යාලය"
-                    en="Bank or Post Office"
-                    maxLength={200}
-                    value={item.institution}
-                    disabled={saving}
-                    placeholder="Bank or post office name"
-                    onChange={(value) =>
-                      update("institution", value)
-                    }
-                  />
-
-                  {/* AUTHORIZED REPRESENTATIVE */}
-
-                  <TextField
-                    id={`${prefix}-representative`}
-                    si="දීමනාව ලබා ගැනීම සඳහා නියෝජිතයෙකු නම් කර ඇත්නම්, එම පුද්ගලයාගේ නම"
-                    en="Appointed Representative's Name"
-                    wide
-                    maxLength={150}
-                    value={item.representativeName}
-                    disabled={saving}
-                    placeholder="Enter representative's name, if any"
-                    onChange={(value) =>
-                      update(
-                        "representativeName",
-                        value
-                      )
-                    }
-                  />
-
-                  {/* OTHER */}
-
-                  <TextField
-                    id={`${prefix}-other`}
-                    si="වෙනත්"
-                    en="Other Information"
-                    wide
-                    multiline
-                    maxLength={1000}
-                    value={item.other}
-                    disabled={saving}
-                    placeholder="Enter any other subsidy information"
-                    onChange={(value) =>
-                      update("other", value)
-                    }
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* =====================================
-          REGISTRATION LOCATION
-      ===================================== */}
+      {/* REGISTRATION DETAILS */}
 
       <section className="ca-form-section">
         <div className="ca-form-section-heading">
@@ -2069,101 +1515,83 @@ export default function HouseholdForm({
 
           <div>
             <h2>Registration Details</h2>
-            <p>
-              GPS location and geographical details
-            </p>
+            <p>GPS location and geographical details</p>
           </div>
         </div>
 
-        <div className="ca-form-grid">
-          {usingExistingLocation ? (
-            <div className="ca-field ca-field-full">
-              <div className="ca-existing-location">
-                <strong>
-                  {existingLocation.location_code}
-                </strong>
+        {existing ? (
+          <div className="ca-existing-location">
+            <strong>{existingLocation.location_code}</strong>
+            <p>{existingLocation.address_line}</p>
+            <span>
+              The new family will share this location.
+              No additional map marker will be created.
+            </span>
+          </div>
+        ) : (
+          <div className="ca-form-grid">
+            <Field
+              id="registration-village"
+              def={txt("village", "Village", "", {
+                maxLength: 120,
+              })}
+              value={village}
+              onChange={setVillage}
+              disabled={saving}
+            />
 
-                <p>
-                  {existingLocation.address_line}
-                </p>
+            <Field
+              id="registration-district"
+              def={txt("district", "District", "", {
+                maxLength: 120,
+              })}
+              value={district}
+              onChange={setDistrict}
+              disabled={saving}
+            />
 
-                <span>
-                  This family will share the existing
-                  registered location. No new map
-                  marker will be created.
-                </span>
-              </div>
-            </div>
-          ) : (
-            <>
-              <TextField
-                id="registration-village"
-                si="Village"
-                maxLength={120}
-                value={village}
-                disabled={saving}
-                onChange={setVillage}
-              />
+            <Field
+              id="registration-latitude"
+              def={txt("latitude", "Latitude", "", {
+                type: "number", required: true,
+              })}
+              value={latitude}
+              onChange={setLatitude}
+              disabled={saving}
+            />
 
-              <TextField
-                id="registration-district"
-                si="District"
-                maxLength={120}
-                value={district}
-                disabled={saving}
-                onChange={setDistrict}
-              />
-
-              <TextField
-                id="registration-latitude"
-                si="Latitude"
-                type="number"
-                required
-                value={latitude}
-                disabled={saving}
-                onChange={setLatitude}
-              />
-
-              <TextField
-                id="registration-longitude"
-                si="Longitude"
-                type="number"
-                required
-                value={longitude}
-                disabled={saving}
-                onChange={setLongitude}
-              />
-            </>
-          )}
-        </div>
+            <Field
+              id="registration-longitude"
+              def={txt("longitude", "Longitude", "", {
+                type: "number", required: true,
+              })}
+              value={longitude}
+              onChange={setLongitude}
+              disabled={saving}
+            />
+          </div>
+        )}
 
         <p className="ca-form-hint">
-          Community Atlas automatically generates
-          family and individual codes.
+          Family and individual codes are generated automatically.
         </p>
       </section>
 
-      {/* =====================================
-          ERROR AND SAVE
-      ===================================== */}
+      {/* ERROR AND SUBMIT */}
 
       {error && (
-        <div
-          className="ca-form-error"
-          role="alert"
-        >
+        <div className="ca-form-error" role="alert">
           {error}
         </div>
       )}
 
       <div className="ca-form-actions">
         <button
-          type="submit"
           className="ca-save-household"
+          type="submit"
           disabled={saving}
         >
           <Save size={18} />
-
           {saving
             ? "Uploading documents and saving..."
             : "Register Household"}
