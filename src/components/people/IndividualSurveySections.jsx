@@ -549,7 +549,7 @@ export default function IndividualSurveySections({
       ==================================== */}
 
       <SurveySection
-        number="01"
+        number="01 - 05"
         title="පවුල් තොරතුරු — Household Information"
         description="Questions 1–5 · Household-level data"
       >
@@ -569,20 +569,6 @@ export default function IndividualSurveySections({
             ["whatsapp", "5. WhatsApp අංකය — WhatsApp"],
           ]}
         />
-      </SurveySection>
-
-      {/* The previously built registration
-          form has no Sections 2–5. */}
-
-      <SurveySection
-        number="02–05"
-        title="Sections 2–5"
-      >
-        <p className="ca-sv-empty">
-          These sections have not yet been
-          defined in the current registration
-          form. No saved questions are available.
-        </p>
       </SurveySection>
 
       {/* ====================================
