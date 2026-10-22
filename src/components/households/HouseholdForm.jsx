@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  House, MapPin, Users, Building2, LandPlot, HandHeart,
+  House, Users, Building2, LandPlot, HandHeart,
   ClipboardList, Plus, Trash2, Save, FileUp, FileText, X,
 } from "lucide-react";
 
@@ -903,180 +903,31 @@ export default function HouseholdForm({
     }));
   }
 
-  // ========================================
-  // VALIDATION
-  // ========================================
 
-  function validate() {
-    if (!existing && addressLine.trim().length < 3) {
-      return "Enter a valid address.";
-    }
+// ==========================================
+// GPS VALIDATION — AUTOMATIC MAP COORDINATES
+// ==========================================
 
-    const count = Number(familyCount);
+if (!existing) {
+  const lat = Number(latitude);
+  const lng = Number(longitude);
 
-    if (!Number.isInteger(count) || count < 1 || count > 999) {
-      return "Number of families must be between 1 and 999.";
-    }
-
-    if (
-      headNumber.trim().length > 50 ||
-      telephone.trim().length > 30 ||
-      whatsapp.trim().length > 30
-    ) {
-      return "Section 1 contains an overlong field.";
-    }
-
-    if (!members.length || members.length > MAX_MEMBERS) {
-      return "Register between 1 and 25 family members.";
-    }
-
-    for (let i = 0; i < members.length; i++) {
-      const m = members[i];
-
-      if (m.fullName.trim().length < 2) {
-        return `Member ${i + 1}: enter a valid full name.`;
-      }
-
-      if (
-        !/^\d{4}-\d{2}-\d{2}$/.test(m.dateOfBirth) ||
-        m.dateOfBirth > today ||
-        Number.isNaN(
-          new Date(`${m.dateOfBirth}T12:00:00`).getTime()
-        )
-      ) {
-        return `Member ${i + 1}: enter a valid date of birth.`;
-      }
-
-      const message = validateEntries(
-        [m],
-        MEMBER_FIELDS.filter((f) => f.type !== "file"),
-        `Member ${i + 1}`
-      );
-
-      if (message) return message;
-    }
-
-    // Section 7
-
-    if (needsArrivalYear) {
-      const year = housing.temporaryArrivalYear.trim();
-
-      if (
-        !/^\d{4}$/.test(year) ||
-        Number(year) < 1800 ||
-        Number(year) > now.getFullYear()
-      ) {
-        return "Enter a valid arrival year for Temporary or Rental residence.";
-      }
-    }
-
-    if (
-      housing.houseType === "temporary" &&
-      !housing.temporaryHouseMaterial
-    ) {
-      return "Select the temporary house material.";
-    }
-
-    if (
-      housing.waterAvailable === "yes" &&
-      !housing.waterSource
-    ) {
-      return "Select a water source.";
-    }
-
-    if (
-      housing.waterAvailable === "no" &&
-      !housing.waterSourceWithoutFacility.trim()
-    ) {
-      return "Describe how water is obtained.";
-    }
-
-    if (housing.waterSourceWithoutFacility.length > 300) {
-      return "Water-source description is too long.";
-    }
-
-    // Sections 8 and 9
-
-    if (
-      lands.length > MAX_LANDS ||
-      subsidies.length > MAX_SUBSIDIES
-    ) {
-      return "Too many land or subsidy records.";
-    }
-
-    for (let i = 0; i < lands.length; i++) {
-      if (
-        !lands[i].ownerName.trim() &&
-        !lands[i].landName.trim()
-      ) {
-        return `Land ${i + 1}: enter the landowner or land name.`;
-      }
-    }
-
-    const landErr = validateEntries(lands, LAND_FIELDS, "Land");
-    if (landErr) return landErr;
-
-    const subsidyErr = validateEntries(
-      subsidies,
-      SUBSIDY_FIELDS,
-      "Subsidy"
+  if (
+    latitude.trim() === "" ||
+    longitude.trim() === "" ||
+    !Number.isFinite(lat) ||
+    !Number.isFinite(lng) ||
+    lat < -90 ||
+    lat > 90 ||
+    lng < -180 ||
+    lng > 180
+  ) {
+    return (
+      "Please select a location from Map Explorer " +
+      "before registering a household."
     );
-    if (subsidyErr) return subsidyErr;
-
-    for (let i = 0; i < subsidies.length; i++) {
-      if (
-        !names.some(
-          (n) =>
-            n.toLowerCase() ===
-            subsidies[i].beneficiaryName.trim().toLowerCase()
-        )
-      ) {
-        return `Subsidy ${i + 1}: recipient must match a Section 6 member.`;
-      }
-
-      if (!subsidies[i].subsidyType) {
-        return `Subsidy ${i + 1}: select the subsidy type.`;
-      }
-    }
-
-    // Sections 10–18
-
-    for (const section of EXTRA_SECTIONS) {
-      const items = extras[`section_${section.number}`] ?? [];
-
-      if (items.length > MAX_EXTRA_ENTRIES) {
-        return `Section ${section.number}: maximum 50 entries.`;
-      }
-
-      const extraErr = validateEntries(
-        items,
-        section.fields,
-        `Section ${section.number}`
-      );
-
-      if (extraErr) return extraErr;
-    }
-
-    // GPS
-
-    if (!existing) {
-      const lat = Number(latitude);
-      const lng = Number(longitude);
-
-      if (
-        !latitude.trim() ||
-        !longitude.trim() ||
-        !Number.isFinite(lat) ||
-        !Number.isFinite(lng) ||
-        Math.abs(lat) > 90 ||
-        Math.abs(lng) > 180
-      ) {
-        return "Valid GPS coordinates are required.";
-      }
-    }
-
-    return "";
   }
+}
 
   // ========================================
   // PREPARE REGISTRATION
@@ -1505,78 +1356,7 @@ export default function HouseholdForm({
         />
       ))}
 
-      {/* REGISTRATION DETAILS */}
-
-      <section className="ca-form-section">
-        <div className="ca-form-section-heading">
-          <div className="ca-form-icon">
-            <MapPin size={21} />
-          </div>
-
-          <div>
-            <h2>Registration Details</h2>
-            <p>GPS location and geographical details</p>
-          </div>
-        </div>
-
-        {existing ? (
-          <div className="ca-existing-location">
-            <strong>{existingLocation.location_code}</strong>
-            <p>{existingLocation.address_line}</p>
-            <span>
-              The new family will share this location.
-              No additional map marker will be created.
-            </span>
-          </div>
-        ) : (
-          <div className="ca-form-grid">
-            <Field
-              id="registration-village"
-              def={txt("village", "Village", "", {
-                maxLength: 120,
-              })}
-              value={village}
-              onChange={setVillage}
-              disabled={saving}
-            />
-
-            <Field
-              id="registration-district"
-              def={txt("district", "District", "", {
-                maxLength: 120,
-              })}
-              value={district}
-              onChange={setDistrict}
-              disabled={saving}
-            />
-
-            <Field
-              id="registration-latitude"
-              def={txt("latitude", "Latitude", "", {
-                type: "number", required: true,
-              })}
-              value={latitude}
-              onChange={setLatitude}
-              disabled={saving}
-            />
-
-            <Field
-              id="registration-longitude"
-              def={txt("longitude", "Longitude", "", {
-                type: "number", required: true,
-              })}
-              value={longitude}
-              onChange={setLongitude}
-              disabled={saving}
-            />
-          </div>
-        )}
-
-        <p className="ca-form-hint">
-          Family and individual codes are generated automatically.
-        </p>
-      </section>
-
+   
       {/* ERROR AND SUBMIT */}
 
       {error && (
