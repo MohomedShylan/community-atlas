@@ -796,3 +796,78 @@
     font-size: 9px;
   }
 }
+
+/* ============================================
+   COMMUNITY ATLAS
+   FIX: REGISTER HOUSEHOLD BUTTON VISIBILITY
+============================================ */
+
+.ca-map-page .ca-point-details .ca-register-action,
+.ca-map-page .ca-register-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  width: 100%;
+  min-height: 52px;
+  margin: 18px 0;
+  padding: 14px 20px;
+
+  background: #087f69;
+  color: #ffffff;
+
+  border: 1px solid #066b59;
+  border-radius: 12px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+
+  cursor: pointer;
+
+  box-shadow: 0 4px 14px rgba(8, 127, 105, 0.18);
+
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* Register button icon */
+
+.ca-map-page .ca-register-action svg {
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+
+  color: #ffffff;
+  stroke: currentColor;
+}
+
+/* Hover effect */
+
+.ca-map-page .ca-register-action:hover {
+  background: #066b59;
+  color: #ffffff;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 6px 18px rgba(8, 127, 105, 0.24);
+}
+
+/* Keyboard focus */
+
+.ca-map-page .ca-register-action:focus-visible {
+  outline: 3px solid #81cdb1;
+  outline-offset: 3px;
+}
+
+/* Disabled state */
+
+.ca-map-page .ca-register-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
