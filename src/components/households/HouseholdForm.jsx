@@ -156,6 +156,18 @@ const MEMBER_FIELDS = [
     type: "textarea", maxLength: 500, wide: true,
   }),
   sel("maritalStatus", "6.11 විවාහක/අවිවාහක", "Married/Single", MARITAL),
+  
+sel(
+  "gender",
+  "6.12 ස්‌ත්‍රී / පුරුෂ භාවය",
+  "Gender",
+  choices([
+    ["female", "ස්‌ත්‍රී — Female"],
+    ["male", "පුරුෂ — Male"],
+    ["other", "වෙනත් — Other"],
+  ])
+),
+
 ];
 
 // ==========================================
@@ -971,7 +983,7 @@ if (!existing) {
         job: m.job.trim(),
         workplaceAddress: m.workplaceAddress.trim(),
         maritalStatus: m.maritalStatus,
-
+        gender: m.gender || null,
         isHead: index === 0,
         relationshipToHead: index === 0 ? "Head" : "",
       })),

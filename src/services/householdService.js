@@ -403,6 +403,10 @@ export async function registerHousehold(form) {
 
         nic_copy_path:
           nicPath,
+
+        gender: 
+          member.gender || null,
+
       });
     }
 
@@ -414,7 +418,7 @@ export async function registerHousehold(form) {
     // ======================================
 
     const { data, error } = await db.rpc(
-      "register_household_with_extended_sections",
+         "register_household_with_gender",
       {
         p_family_name:
           form.familyName,
