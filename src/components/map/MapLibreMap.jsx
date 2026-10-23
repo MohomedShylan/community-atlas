@@ -1,5 +1,9 @@
 
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import {
   Map as LibreMap,
@@ -18,7 +22,9 @@ setWorkerUrl(workerUrl);
 
 const DEFAULT_CENTER = [80.7718, 7.8731];
 
-// MapLibre coordinate order is [longitude, latitude].
+// MapLibre coordinate order:
+// [longitude, latitude]
+
 export default function MapLibreMap({
   apiKey,
   locations,
@@ -28,20 +34,36 @@ export default function MapLibreMap({
   onSelectLocation,
   onSelectPoint,
   onMapError,
+
+  // NEW: Optional marker dragging.
+  // Defaults to false for Map Explorer.
+  allowDragSelectedPoint = false,
 }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const fittedRef = useRef(false);
-  const onSelectPointRef = useRef(onSelectPoint);
+
+  const onSelectPointRef =
+    useRef(onSelectPoint);
+
   const [map, setMap] = useState(null);
 
   useEffect(() => {
-    onSelectPointRef.current = onSelectPoint;
+    onSelectPointRef.current =
+      onSelectPoint;
   }, [onSelectPoint]);
 
-  // Initialize MapLibre only once per API key.
+  // ========================================
+  // INITIALIZE MAP
+  // ========================================
+
   useEffect(() => {
-    if (!containerRef.current || !apiKey) return;
+    if (
+      !containerRef.current ||
+      !apiKey
+    ) {
+      return;
+    }
 
     const instance = new LibreMap({
       container: containerRef.current,
@@ -69,36 +91,63 @@ export default function MapLibreMap({
     );
 
     const handleClick = (event) => {
-      onSelectPointRef.current({
+      onSelectPointRef.current?.({
         lng: event.lngLat.lng,
         lat: event.lngLat.lat,
       });
     };
 
     const handleError = (event) => {
-      console.error("MapLibre error:", event.error);
+      console.error(
+        "MapLibre error:",
+        event.error
+      );
+
       onMapError?.(
         event.error?.message ||
-          "The map provider could not load a resource."
+        "The map provider could not load a resource."
       );
     };
 
-    instance.on("click", handleClick);
-    instance.on("error", handleError);
+    instance.on(
+      "click",
+      handleClick
+    );
+
+    instance.on(
+      "error",
+      handleError
+    );
 
     setMap(instance);
 
     return () => {
-      instance.off("click", handleClick);
-      instance.off("error", handleError);
+      instance.off(
+        "click",
+        handleClick
+      );
+
+      instance.off(
+        "error",
+        handleError
+      );
+
       instance.remove();
+
       mapRef.current = null;
     };
   }, [apiKey, onMapError]);
 
-  // Automatically fit saved locations the first time.
+  // ========================================
+  // FIT REGISTERED LOCATIONS
+  // ========================================
+
   useEffect(() => {
-    if (!map || !locations.length || fittedRef.current) {
+    if (
+      !map ||
+      !locations.length ||
+      fittedRef.current
+    ) {
       return;
     }
 
@@ -118,7 +167,8 @@ export default function MapLibreMap({
         return;
       }
 
-      const bounds = new LngLatBounds();
+      const bounds =
+        new LngLatBounds();
 
       locations.forEach((location) => {
         bounds.extend([
@@ -137,39 +187,79 @@ export default function MapLibreMap({
     if (map.isStyleLoaded()) {
       fitLocations();
     } else {
-      map.once("load", fitLocations);
+      map.once(
+        "load",
+        fitLocations
+      );
     }
 
     return () => {
-      map.off("load", fitLocations);
+      map.off(
+        "load",
+        fitLocations
+      );
     };
   }, [map, locations]);
 
-  // Focus a registered household or public search result.
+  // ========================================
+  // FOCUS MAP ON TARGET
+  // ========================================
+
   useEffect(() => {
-    if (!map || !focusTarget) return;
+    if (
+      !map ||
+      !focusTarget
+    ) {
+      return;
+    }
 
     map.flyTo({
-      center: [focusTarget.lng, focusTarget.lat],
-      zoom: focusTarget.zoom ?? 16,
+      center: [
+        focusTarget.lng,
+        focusTarget.lat,
+      ],
+      zoom:
+        focusTarget.zoom ?? 16,
       essential: true,
     });
   }, [map, focusTarget]);
 
-  // Show a temporary marker for selected map points.
+  // ========================================
+  // SELECTED POINT MARKER
+  //
+  // Supports dragging when explicitly
+  // enabled by the Location Editor.
+  // ========================================
+
   useEffect(() => {
-    if (!map || !selectedPoint) return;
+    if (
+      !map ||
+      !selectedPoint
+    ) {
+      return;
+    }
 
-    const element = document.createElement("div");
-    element.className = "ca-selected-point";
+    const element =
+      document.createElement("div");
 
-    if (selectedPoint.kind === "place") {
-      element.classList.add("is-search-result");
+    element.className =
+      "ca-selected-point";
+
+    if (
+      selectedPoint.kind === "place"
+    ) {
+      element.classList.add(
+        "is-search-result"
+      );
     }
 
     const marker = new Marker({
       element,
       anchor: "bottom",
+
+      // NEW
+      draggable:
+        allowDragSelectedPoint,
     })
       .setLngLat([
         selectedPoint.lng,
@@ -177,11 +267,36 @@ export default function MapLibreMap({
       ])
       .addTo(map);
 
-    return () => marker.remove();
-  }, [map, selectedPoint]);
+    // NEW: Update coordinates after drag.
+
+    if (allowDragSelectedPoint) {
+      marker.on("dragend", () => {
+        const position =
+          marker.getLngLat();
+
+        onSelectPointRef.current?.({
+          lng: position.lng,
+          lat: position.lat,
+        });
+      });
+    }
+
+    return () => {
+      marker.remove();
+    };
+  }, [
+    map,
+    selectedPoint,
+    allowDragSelectedPoint,
+  ]);
+
+  // ========================================
+  // MAP DISPLAY
+  // ========================================
 
   return (
     <div className="ca-map-container">
+
       <div
         ref={containerRef}
         className="ca-map-canvas"
@@ -195,11 +310,13 @@ export default function MapLibreMap({
             map={map}
             location={location}
             selected={
-              selectedLocationId === location.id
+              selectedLocationId ===
+              location.id
             }
             onSelect={onSelectLocation}
           />
         ))}
+
     </div>
   );
 }
