@@ -1,0 +1,156 @@
+
+/* ============================================
+   COMMUNITY ATLAS
+   FULL HOUSEHOLD SURVEY EDITOR
+============================================ */
+
+.ca-sedit {
+  gap: 20px;
+}
+
+.ca-sedit-section {
+  padding: 19px;
+  border: 1px solid #e3ebe7;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.ca-sedit-section > h2,
+.ca-sedit-section-header h2 {
+  font-size: 17px;
+  margin: 0 0 15px;
+  color: #213d45;
+}
+
+.ca-sedit-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.ca-sedit-section-header h2 {
+  margin: 0;
+}
+
+.ca-sedit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.ca-sedit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 650;
+  color: #264354;
+  min-width: 0;
+}
+
+.ca-sedit-field small {
+  color: #81909d;
+  font-weight: 500;
+}
+
+.ca-sedit-field input,
+.ca-sedit-field select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #d9e4e8;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #243c4c;
+  font: inherit;
+  font-size: 14px;
+}
+
+.ca-sedit-field input:focus,
+.ca-sedit-field select:focus {
+  outline: 2px solid #9bdac2;
+  border-color: #087f69;
+}
+
+.ca-sedit-field input:disabled {
+  background: #f4f7f8;
+  color: #6d8090;
+}
+
+.ca-sedit-record {
+  border: 1px solid #e1e9e5;
+  background: #fafdfe;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 13px;
+}
+
+.ca-sedit-record-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ca-sedit-record-heading strong {
+  font-size: 13px;
+  color: #163e35;
+}
+
+.ca-sedit-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px;
+  font-size: 13px;
+  color: #375767;
+}
+
+.ca-sedit-head input {
+  accent-color: #087f69;
+}
+
+.ca-sedit-docs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.ca-sedit-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 13px;
+  border: 1px dashed #9ccfbc;
+  border-radius: 10px;
+  color: #087f69;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ca-sedit-upload small {
+  color: #7b8a99;
+  font-weight: 400;
+}
+
+.ca-sedit-upload input {
+  max-width: 100%;
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .ca-sedit-grid,
+  .ca-sedit-docs {
+    grid-template-columns: 1fr;
+  }
+
+  .ca-sedit-section {
+    padding: 13px;
+  }
+}
