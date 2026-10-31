@@ -5,12 +5,11 @@ function client() {
   if (!supabase) {
     throw new Error("Supabase is not configured.");
   }
-
   return supabase;
 }
 
 // ==========================================
-// 1. GET ACTIVE OR ARCHIVED HOUSEHOLDS
+// HOUSEHOLD DIRECTORY
 // ==========================================
 
 export async function listHouseholds({
@@ -45,111 +44,215 @@ export async function listHouseholds({
 }
 
 // ==========================================
-// 2. GET A HOUSEHOLD'S FULL PROFILE
+// HOUSEHOLD PROFILE
+// INCLUDING QUESTIONS 1–5
 // ==========================================
 
 export async function getHouseholdProfile(familyId) {
   const db = client();
 
-  // Retrieve the family and its location.
-  const { data: family, error: familyError } = await db
-    .from("families")
-    .select(`
-      id,
-      family_code,
-      family_name,
-      contact_phone,
-      is_archived,
-      location:locations (
+  const { data: family, error: familyError } =
+    await db
+      .from("families")
+      .select(`
         id,
-        location_code,
-        address_line,
-        village,
-        district,
-        latitude,
-        longitude,
+        family_code,
+        family_name,
+        contact_phone,
+        family_information_sheet,
+        is_archived,
+        location:locations (
+          id,
+          location_code,
+          address_line,
+          village,
+          district,
+          latitude,
+          longitude,
+          is_archived
+        )
+      `)
+      .eq("id", familyId)
+      .single();
+
+  if (familyError) {
+    throw familyError;
+  }
+
+  const { data: members, error: memberError } =
+    await db
+      .from("individuals")
+      .select(`
+        id,
+        person_code,
+        full_name,
+        relationship_to_head,
+        is_head,
         is_archived
-      )
-    `)
-    .eq("id", familyId)
-    .single();
+      `)
+      .eq("family_id", familyId)
+      .order("person_code");
 
-  if (familyError) throw familyError;
+  if (memberError) {
+    throw memberError;
+  }
 
-  // Retrieve all family members.
-  const { data: members, error: memberError } = await db
-    .from("individuals")
-    .select(`
-      id,
-      person_code,
-      full_name,
-      relationship_to_head,
-      is_head,
-      is_archived
-    `)
-    .eq("family_id", familyId)
-    .order("person_code");
+  let locationFamilyCount = 0;
 
-  if (memberError) throw memberError;
+  if (family.location?.id) {
+    const { count, error: countError } = await db
+      .from("families")
+      .select("id", {
+        count: "exact",
+        head: true,
+      })
+      .eq("location_id", family.location.id)
+      .eq("is_archived", false);
 
-  // Count active families sharing this location.
-  const { count, error: countError } = await db
-    .from("families")
-    .select("id", {
-      count: "exact",
-      head: true,
-    })
-    .eq("location_id", family.location.id)
-    .eq("is_archived", false);
+    if (countError) {
+      throw countError;
+    }
 
-  if (countError) throw countError;
+    locationFamilyCount = count ?? 0;
+  }
 
   return {
     family,
     members: members ?? [],
-    locationFamilyCount: count ?? 0,
+    locationFamilyCount,
   };
 }
 
 // ==========================================
-// 3. REUSABLE SUPABASE RPC FUNCTION
+// CLICKED FAMILY MEMBER DETAILS
+// ==========================================
+
+export async function getHouseholdMemberDetails(
+  personId,
+  { includeSensitive = false } = {}
+) {
+  const db = client();
+
+  // Basic information stored in individuals.
+
+  const { data: person, error: personError } =
+    await db
+      .from("individuals")
+      .select(`
+        id,
+        family_id,
+        person_code,
+        full_name,
+        date_of_birth,
+        gender,
+        phone,
+        notes,
+        relationship_to_head,
+        is_head,
+        is_archived
+      `)
+      .eq("id", personId)
+      .maybeSingle();
+
+  if (personError) {
+    throw personError;
+  }
+
+  if (!person) {
+    return null;
+  }
+
+  const result = {
+    person,
+    survey: null,
+    surveyUnavailable: false,
+  };
+
+  // Section 6 includes NIC and private
+  // birth certificate / NIC document paths.
+  //
+  // Only request these fields for Admin
+  // and Editor users. Supabase RLS must
+  // independently enforce permissions.
+
+  if (includeSensitive) {
+    const { data, error } = await db
+      .from("individual_family_sheets")
+      .select("details")
+      .eq("individual_id", personId)
+      .maybeSingle();
+
+    if (error) {
+      // Do not prevent basic personal
+      // information from loading if
+      // optional Section 6 data fails.
+
+      console.error(
+        "Could not read Section 6 details:",
+        error
+      );
+
+      result.surveyUnavailable = true;
+    } else {
+      result.survey = data?.details ?? null;
+    }
+  }
+
+  return result;
+}
+
+// ==========================================
+// EXISTING RPC HELPER
 // ==========================================
 
 async function rpc(name, params) {
-  const { data, error } = await client().rpc(name, params);
+  const { data, error } =
+    await client().rpc(name, params);
 
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
 
   return data;
 }
 
 // ==========================================
-// 4. EDIT HOUSEHOLD AND FAMILY MEMBERS
+// EDIT FAMILY AND MEMBERS
 // ==========================================
 
-export function saveHouseholdChanges(familyId, payload) {
+export function saveHouseholdChanges(
+  familyId,
+  payload
+) {
   return rpc("save_household_changes", {
     p_family_id: familyId,
-    p_family_name: payload.familyName,
-    p_contact_phone: payload.contactPhone || null,
+
+    p_family_name:
+      payload.familyName,
+
+    p_contact_phone:
+      payload.contactPhone || null,
 
     p_members: payload.members.map((member) => ({
       ...(member.id ? { id: member.id } : {}),
 
-      full_name: member.fullName,
+      full_name:
+        member.fullName,
 
       relationship_to_head:
         member.relationshipToHead || "",
 
-      is_head: member.isHead,
+      is_head:
+        member.isHead,
 
-      is_archived: member.isArchived,
+      is_archived:
+        member.isArchived,
     })),
   });
 }
 
 // ==========================================
-// 5. REMOVE HOUSEHOLD (SOFT DELETE)
+// ARCHIVE HOUSEHOLD
 // ==========================================
 
 export function archiveHousehold(
@@ -163,7 +266,7 @@ export function archiveHousehold(
 }
 
 // ==========================================
-// 6. RESTORE REMOVED HOUSEHOLD
+// RESTORE HOUSEHOLD
 // ==========================================
 
 export function restoreHousehold(familyId) {
@@ -173,7 +276,7 @@ export function restoreHousehold(familyId) {
 }
 
 // ==========================================
-// 7. UPDATE HOUSEHOLD LOCATION
+// UPDATE HOUSEHOLD LOCATION
 // ==========================================
 
 export function updateHouseholdLocation(
@@ -183,16 +286,22 @@ export function updateHouseholdLocation(
   return rpc("update_location_details", {
     p_location_id: locationId,
 
-    p_address_line: values.addressLine,
+    p_address_line:
+      values.addressLine,
 
-    p_village: values.village || null,
+    p_village:
+      values.village || null,
 
-    p_district: values.district || null,
+    p_district:
+      values.district || null,
 
-    p_latitude: Number(values.latitude),
+    p_latitude:
+      Number(values.latitude),
 
-    p_longitude: Number(values.longitude),
+    p_longitude:
+      Number(values.longitude),
 
-    p_confirm_shared: Boolean(values.confirmShared),
+    p_confirm_shared:
+      Boolean(values.confirmShared),
   });
 }
